@@ -8,14 +8,19 @@ use App\Models\CashHandover;
 use App\Models\CashHandoverReceipt;
 use App\Models\CashHandoverVerification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class CashHandoverController extends Controller
 {
     public function index()
     {
+        return view('cash-handover.index');
+    }
+    public function create()
+    {
         $users = User::all();
-        return view('cash-handover.index', compact('users'));
+        return view('cash-handover.create', compact('users'));
     }
     public function store(Request $request)
     {
@@ -34,6 +39,7 @@ class CashHandoverController extends Controller
                 'total_amount' => $request->total_amount,
                 'handover_by' => $request->handover_by,
                 'handover_to' => $request->handover_to,
+                'handover_date' => $request->handover_date,
             ]);
 
             // Attach receipts to the handover

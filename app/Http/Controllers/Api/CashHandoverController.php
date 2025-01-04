@@ -6,6 +6,7 @@ use App\Models\Receipt;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Transformers\CashHandoverTransformer;
+use Illuminate\Support\Facades\Auth;
 
 class CashHandoverController extends Controller
 {
@@ -13,8 +14,10 @@ class CashHandoverController extends Controller
     {
 
         $cashHandover = Receipt::with(['receiptDetails', 'user'])
-        ->where('deduction_way', 'cash')
-        ->whereNull('deleted_at');
+            ->where('deduction_way', 'cash')
+            ->where('added_by', Auth::user()->id)
+            ->where('handed_over', 0)
+            ->whereNull('deleted_at');
         if ($request->filled('search')) {
             $cashHandover = $cashHandover->TextSearch($request->input('search'));
         }

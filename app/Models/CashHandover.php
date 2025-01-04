@@ -9,7 +9,7 @@ class CashHandover extends Model
 {
     use HasFactory;
     protected $table = 'cash_handovers';
-    protected $fillable = ['total_amount', 'handover_by', 'handover_to'];
+    protected $fillable = ['total_amount', 'handover_by', 'handover_to','handover_date'];
     public function receipts()
     {
         return $this->belongsToMany(Receipt::class, 'cash_handover_receipts');
