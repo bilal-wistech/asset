@@ -1,0 +1,349 @@
+<?php
+
+namespace App\Http\Controllers;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use App\Models\Asset;
+use App\Models\Receipt;
+use App\Models\ReceiptDetail;
+use App\Models\Accident;
+use App\Models\Location;
+use App\Models\ResponsibilityFine;
+use App\Models\FineType;
+use App\Models\AccidentType;
+use App\Models\User;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\SendPushNotification;
+use Kutia\Larafirebase\Facades\Larafirebase;
+use ExpoSDK\Expo;
+use App\Models\ExpoToken;
+use ExpoSDK\ExpoMessage;
+use Image;
+use DB;
+
+
+class AccidentController extends Controller
+{
+     /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function SaveReceipt(Request $request)
+{
+    // $existingReceipt = Receipt::where('receipt_id', $request->receipt_id)->first();
+    
+    // if ($existingReceipt) {
+    //     // If the receipt_id already exists, redirect back with an error message
+    //     return redirect()->back()->with('error', 'Receipt ID already exists. Please provide a unique ID.');
+    // }
+    //dd($request->all());
+    
+    // foreach ($request->type_id as $index => $typeId) {
+    //     $type = $request->type[$index];
+    //     $payment = (float) $request->payment[$index];
+    //     switch ($type) {
+    //         case 'Fine':
+    //             $table = 'fines';
+    //             $column = 'amount';
+    //             break;
+
+    //         case 'Accident':
+    //             $table = 'accidents';
+    //             $column = 'responsibility_amount';
+    //             break;
+
+    //         case 'Deduction':
+    //             $table = 'deductions';
+    //             $column = 'amount';
+    //             break;
+
+    //         default:
+    //             "null"; 
+    //     }
+    //     $currentValue = DB::table($table)
+    //         ->where('id', $typeId)
+    //         ->value($column);
+    //     if ($currentValue !== null) {
+    //         $newValue = max(0, $currentValue - $payment);
+    //         DB::table($table)
+    //             ->where('id', $typeId)
+    //             ->update([$column => $newValue]);
+    //     }
+    // }
+    // Now, store the data in the receipt table
+    // $receipt = Receipt::create([
+    //     'receipt_id' => $request->receipt_id,
+    //     'user_id' => $request->user_id,
+    //     'date' => Carbon::createFromFormat('d-m-Y', $request->receipt_date)->format('Y-m-d'), // Convert to Y-m-d format
+    //     'deduction_way' => $request->deduction_way,
+    // ]);
+
+    // Store the details in the receipt_details table
+    // foreach ($request->type_id as $index => $typeId) {
+    //     ReceiptDetail::create([
+    //         'receipt_id' => $receipt->id, // Link receipt details to the saved receipt
+    //         'type_id' => $typeId,
+    //         'amount' => (float) $request->payment[$index],
+    //         'payment' => $request->payment[$index],
+    //         'description' => $request->description[$index] ?? '', // Default to empty string if no description
+    //     ]);
+    // }
+    return redirect()->back()->with('success', 'Receipt  saved successfully!');
+
+}
+    public function getUserFineBoth(Request $request)
+{
+    $userId = $request->input('user_id');
+
+    // Fetch fines
+    $fines = DB::table('fines')
+        ->where('user_id', $userId)
+        ->where('amount', '!=', 0)
+        ->select('id','amount', 'note', DB::raw("'Fine' as type"))
+        ->get();
+
+    // Fetch deductions
+    $deductions = DB::table('deductions')
+        ->where('user_id', $userId)
+        ->where('amount', '!=', 0)
+        ->select('id','amount', 'note', DB::raw("'Deduction' as type"))
+        ->get();
+
+    // Fetch accidents
+    $accidents = DB::table('accidents')
+        ->where('user_id', $userId)
+        ->where('responsibility_amount', '!=', 0)
+        ->select('id','responsibility_amount as amount', 'note', DB::raw("'Accident' as type"))
+        ->get();
+
+    // Merge all three datasets
+    $details = $fines->merge($deductions)->merge($accidents);
+
+    // Calculate the total fine (sum of all amounts)
+    $totalFine = $details->sum('amount');
+
+    return response()->json([
+        'total_fine' => $totalFine,
+        'details' => $details,
+    ]);
+}
+
+
+    public function payableByDrivers(){
+    $group_id = [2, 3];
+    $users = User::join('users_groups', 'users.id', '=', 'users_groups.user_id')
+    ->whereIn('users_groups.group_id', $group_id)
+    ->select('users.id', 'users.username') 
+    ->get();
+    return view('layouts/regrid/payable_drivers')->with('users', $users);
+    }
+    public function index()
+    {
+        
+        $this->authorize('view', Accident::class);
+        return view('accidents.index');
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        
+        $this->authorize('create', Accident::class);
+        $assets = Asset::all()->pluck('asset_tag', 'id')->toArray();
+        $users = User::all()->pluck('username', 'id')->toArray();
+        $fine_type = AccidentType::all()->pluck('name', 'id')->toArray();
+        $location = Location::all()->pluck('name', 'id')->toArray();
+        // dd($assets);
+        return view('accidents.edit', compact('assets', 'fine_type', 'location', 'users'));
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        $data = $request->all();
+        $data['responsibility_amount'] = $request->input('amount') + $request->input('responsibility_amount');
+        if ($request->file('accident_image')) {
+            $image = $request->file('accident_image');
+            $imageName = time() . '.' . $image->getClientOriginalExtension();
+            $image_resize = Image::make($image->getRealPath());
+            $image_resize->resize(1000, 1000);
+            $path = 'uploads/accidents/' . $imageName;
+            $image_resize->save($path);
+            $imageUri = 'uploads/accidents/' . $imageName;
+            $data['accident_image'] = $path;
+        }
+
+         $fine = Accident::create($data);
+        $detail = Accident::latest()->first();
+        $type_name = $detail->type && $detail->type->name != null ? $detail->type->name : 'not available';
+        $location_name = $detail->findLocation && $detail->findLocation->name != null ? $detail->findLocation->name : 'not available';
+        $asset_name = $detail->asset && $detail->asset->asset_tag != null ? $detail->asset->asset_tag : 'not available';
+        $user_name = $detail->user && $detail->user->username != null ? $detail->user->username : 'not available';
+        $appUrl = config('app.url'); 
+        $imageUrl = url(e($detail->fine_image));
+        return redirect()->route('accidents')->with('success', 'Accident created successfully!');
+        //=================== latest for notification ====================
+
+        // try {
+
+        //     $tokens = ExpoToken::where('user_id', $detail->user_id)->pluck('expo_token')->toArray();
+        //     // dd($tokens);
+        //     foreach ($tokens as $token) {
+        //         //   dd($token);
+        //         $messages =
+        //             new ExpoMessage([
+        //                 'title' => 'Accident notification',
+        //                 'body' => 'An accident has been reported.',
+        //                 'data' => [
+        //                     'user_id' => $user_name,
+        //                     'amount' => $request->amount,
+        //                     'accident_date' => $request->accident_date,
+        //                     'accident_type' => $type_name,
+        //                     'asset_id' => $asset_name,
+        //                     'location' => $location_name,
+        //                     'note' => $request->note,
+        //                     'image' => $imageUrl,
+
+        //                 ],
+
+        //             ]);
+
+        //         (new Expo)->send($messages)->to($token)->push();
+        //     }
+
+        //     return redirect()->route('accidents')->with('success', 'Accident created successfully!');
+        // } catch (\Exception $e) {
+        //     report($e);
+        //     return redirect()->back()->with('error', 'Something goes wrong while sending notification.');
+        // }
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $data = Accident::find($id);
+        dd($data->type->name);
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+{
+    $this->authorize('update', Accident::class);
+    $fine = Accident::find($id);
+
+    $assets = Asset::all()->pluck('asset_tag', 'id')->toArray();
+
+    $users = User::all()->pluck('username', 'id')->toArray();
+    $fine_type = AccidentType::all()->pluck('name', 'id')->toArray();
+    $location = Location::all()->pluck('name', 'id')->toArray();
+
+    return view('accidents.edit', compact('fine', 'assets', 'users', 'fine_type', 'location'));
+}
+
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+
+        
+        // $model = Fine::find($id);
+        $user = Accident::find($id);
+
+        // Check if the user exists
+        if ($user) {
+            $responsibilityAmountSum = $request->amount + $request->responsibility_amount;
+            $user->accident_type = $request->accident_type;
+            $user->accident_number = $request->accident_number;
+            $user->amount = $request->amount;
+            $user->user_id = $request->user_id;
+            $user->asset_id = $request->asset_id;
+            $user->location = $request->location;
+            $user->accident_date = $request->accident_date;
+            $user->responsibility_amount = $responsibilityAmountSum;
+            $user->recieved_by_user = $request->recieved_by_user;
+            $user->note = $request->note;
+            $user->save();
+            return redirect()->route('accidents')->with('success', 'data updated successfully');
+        }
+        ;
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+       
+        $this->authorize('delete', Accident::class);
+        $data = Accident::find($id);
+        $data->delete();
+        return redirect()->route('accidents')->with('success', 'data deleted successfully');
+    }
+    public function getFineTypeAmount(Request $request)
+    {
+        $fineTypeId = $request->fine_type_id;
+        $fineType = AccidentType::find($fineTypeId);
+        if ($fineType) {
+            return response()->json(['amount' => $fineType->amount]);
+        } else {
+            return response()->json(['amount' => null]);
+        }
+    }
+
+    public function fetchAccidents(Request $request)
+    {
+        $Date = $request->input('accident_date');
+        $assetId = $request->input('asset_id');
+        $fineDate = Carbon::parse($Date)->format('Y-m-d H:i:s');
+        $asset = Asset::where('last_checkout', $fineDate)
+            ->where('id', $assetId)
+            ->first();
+        if ($asset) {
+            $userId = $asset->user_id;
+            $user = User::where('id', $userId)
+                ->select('id', 'username')
+                ->first();
+            return response()->json([
+                'success' => true,
+                'message' => $user
+            ]);
+        } else {
+            $users = User::all()->pluck('username', 'id')->toArray();
+            return response()->json([
+
+                'success' => false,
+                'message' => 'There is no user for Selected datetime.',
+                'users' => $users
+            ]);
+        }
+    }
+}
