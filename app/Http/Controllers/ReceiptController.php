@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -165,11 +166,11 @@ class ReceiptController extends Controller
                         ->first();
                     break;
 
-                // case 'Accident':
-                //     $previousAmount = DB::table('accidents')
-                //         ->where('id', $item->type_id)
-                //         ->value('responsibility_amount');
-                //     break;
+                    // case 'Accident':
+                    //     $previousAmount = DB::table('accidents')
+                    //         ->where('id', $item->type_id)
+                    //         ->value('responsibility_amount');
+                    //     break;
                 case 'Accident':
                     $previousAmount = DB::table('accidents')
                         ->join('assets', 'accidents.asset_id', '=', 'assets.id')
@@ -414,87 +415,87 @@ class ReceiptController extends Controller
 
 
     // public function getReceiptsdetail(Request $request)
-// {
-//     $userId = $request->input('user_id');
-//     $startDate = $request->input('start_date');
-//     $endDate = $request->input('end_date');
-//     if ($startDate) {
-//         try {
-//             $startDate = Carbon::createFromFormat('d-m-Y', $startDate)->format('Y-m-d');
-//         } catch (\Exception $e) {
-//             return response()->json(['error' => 'Invalid start date format. Please use dd-mm-yyyy.'], 400);
-//         }
-//     }
-//     if ($endDate) {
-//         try {
-//             $endDate = Carbon::createFromFormat('d-m-Y', $endDate)->format('Y-m-d');
-//         } catch (\Exception $e) {
-//             return response()->json(['error' => 'Invalid end date format. Please use dd-mm-yyyy.'], 400);
-//         }
-//     }
-//     $receiptsQuery = DB::table('receipt')
-//         ->select('receipt.receipt_id', 'receipt.date', DB::raw('SUM(receipt_details.payment) as total_payment'))
-//         ->join('receipt_details', 'receipt.receipt_id', '=', 'receipt_details.receipt_id')
-//         ->groupBy('receipt.receipt_id', 'receipt.date');
+    // {
+    //     $userId = $request->input('user_id');
+    //     $startDate = $request->input('start_date');
+    //     $endDate = $request->input('end_date');
+    //     if ($startDate) {
+    //         try {
+    //             $startDate = Carbon::createFromFormat('d-m-Y', $startDate)->format('Y-m-d');
+    //         } catch (\Exception $e) {
+    //             return response()->json(['error' => 'Invalid start date format. Please use dd-mm-yyyy.'], 400);
+    //         }
+    //     }
+    //     if ($endDate) {
+    //         try {
+    //             $endDate = Carbon::createFromFormat('d-m-Y', $endDate)->format('Y-m-d');
+    //         } catch (\Exception $e) {
+    //             return response()->json(['error' => 'Invalid end date format. Please use dd-mm-yyyy.'], 400);
+    //         }
+    //     }
+    //     $receiptsQuery = DB::table('receipt')
+    //         ->select('receipt.receipt_id', 'receipt.date', DB::raw('SUM(receipt_details.payment) as total_payment'))
+    //         ->join('receipt_details', 'receipt.receipt_id', '=', 'receipt_details.receipt_id')
+    //         ->groupBy('receipt.receipt_id', 'receipt.date');
 
     //     if ($userId) {
-//         $receiptsQuery->where('receipt.user_id', $userId);
-//     }
-//     if ($startDate && $endDate) {
-//         $receiptsQuery->whereBetween('receipt.date', [$startDate, $endDate]);
-//     } elseif ($startDate) {
-//         $receiptsQuery->where('receipt.date', '>=', $startDate);
-//     } elseif ($endDate) {
-//         $receiptsQuery->where('receipt.date', '<=', $endDate);
-//     }
+    //         $receiptsQuery->where('receipt.user_id', $userId);
+    //     }
+    //     if ($startDate && $endDate) {
+    //         $receiptsQuery->whereBetween('receipt.date', [$startDate, $endDate]);
+    //     } elseif ($startDate) {
+    //         $receiptsQuery->where('receipt.date', '>=', $startDate);
+    //     } elseif ($endDate) {
+    //         $receiptsQuery->where('receipt.date', '<=', $endDate);
+    //     }
 
     //     $receipts = $receiptsQuery->get()->map(function ($receipt) {
-//         return (object) [
-//             'type' => 'receipt',
-//             'id' => $receipt->receipt_id,
-//             'date' => $receipt->date,
-//             'total_payment' => $receipt->total_payment,
-//         ];
-//     });
+    //         return (object) [
+    //             'type' => 'receipt',
+    //             'id' => $receipt->receipt_id,
+    //             'date' => $receipt->date,
+    //             'total_payment' => $receipt->total_payment,
+    //         ];
+    //     });
 
     //     $fetchInvoices = function ($table, $defaultAmountColumn, $dateColumn, $fallbackColumn = null) use ($userId, $startDate, $endDate) {
-//         $query = DB::table($table)
-//             ->select('id', 
-//                 DB::raw("IFNULL($defaultAmountColumn, $fallbackColumn) as total_payment"), 
-//                 DB::raw("$dateColumn as date"))
-//             ->where('id', '>', 0);
+    //         $query = DB::table($table)
+    //             ->select('id', 
+    //                 DB::raw("IFNULL($defaultAmountColumn, $fallbackColumn) as total_payment"), 
+    //                 DB::raw("$dateColumn as date"))
+    //             ->where('id', '>', 0);
 
     //         if ($userId) {
-//             $query->where('user_id', $userId);
-//         }
-//         if ($startDate && $endDate) {
-//             $query->whereBetween(DB::raw("DATE($dateColumn)"), [$startDate, $endDate]);
-//         } elseif ($startDate) {
-//             $query->where(DB::raw("DATE($dateColumn)"), '>=', $startDate);
-//         } elseif ($endDate) {
-//             $query->where(DB::raw("DATE($dateColumn)"), '<=', $endDate);
-//         }
+    //             $query->where('user_id', $userId);
+    //         }
+    //         if ($startDate && $endDate) {
+    //             $query->whereBetween(DB::raw("DATE($dateColumn)"), [$startDate, $endDate]);
+    //         } elseif ($startDate) {
+    //             $query->where(DB::raw("DATE($dateColumn)"), '>=', $startDate);
+    //         } elseif ($endDate) {
+    //             $query->where(DB::raw("DATE($dateColumn)"), '<=', $endDate);
+    //         }
 
     //         return $query->get()->map(function ($item) {
-//             return (object) [
-//                 'type' => 'invoice',
-//                 'id' => $item->id,
-//                 'date' => $item->date,
-//                 'total_payment' => $item->total_payment,
-//             ];
-//         });
-//     };
+    //             return (object) [
+    //                 'type' => 'invoice',
+    //                 'id' => $item->id,
+    //                 'date' => $item->date,
+    //                 'total_payment' => $item->total_payment,
+    //             ];
+    //         });
+    //     };
 
     //     // Define table-specific columns for fallback
-//     $accidents = $fetchInvoices('accidents', 'previous_total', 'accident_date', 'responsibility_amount');
-//     $fines = $fetchInvoices('fines', 'previous_total', 'fine_date', 'amount');
-//     $deductions = $fetchInvoices('deductions', 'previous_total', 'deduction_date', 'amount');
+    //     $accidents = $fetchInvoices('accidents', 'previous_total', 'accident_date', 'responsibility_amount');
+    //     $fines = $fetchInvoices('fines', 'previous_total', 'fine_date', 'amount');
+    //     $deductions = $fetchInvoices('deductions', 'previous_total', 'deduction_date', 'amount');
 
     //     $invoices = $accidents->merge($fines)->merge($deductions);
-//     $results = $receipts->merge($invoices);
+    //     $results = $receipts->merge($invoices);
 
     //     return response()->json($results);
-// }
+    // }
 
 
     public function CreateReceipt()
@@ -565,11 +566,11 @@ class ReceiptController extends Controller
                         ->first();
                     break;
 
-                // case 'Accident':
-                //     $previousAmount = DB::table('accidents')
-                //         ->where('id', $item->type_id)
-                //         ->value('responsibility_amount');
-                //     break;
+                    // case 'Accident':
+                    //     $previousAmount = DB::table('accidents')
+                    //         ->where('id', $item->type_id)
+                    //         ->value('responsibility_amount');
+                    //     break;
                 case 'Accident':
                     $previousAmount = DB::table('accidents')
                         ->join('assets', 'accidents.asset_id', '=', 'assets.id')
@@ -648,7 +649,7 @@ class ReceiptController extends Controller
 
         return response($pdfContent, 200)
             ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', "attachment; filename=Receipt-{$id}.pdf");
+            ->header('Content-Disposition', "attachment; filename=Adjustment-{$id}.pdf");
     }
 
     public function showInvoice(Request $request, $id)
@@ -701,7 +702,4 @@ class ReceiptController extends Controller
 
         return response()->json($responseData);
     }
-
-
-
 }
