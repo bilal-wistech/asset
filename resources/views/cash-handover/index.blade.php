@@ -6,8 +6,10 @@
     @parent
 @stop
 @section('header_right')
-    <a href="{{ route('cash-handover.create') }}" class="btn btn-primary pull-right">
-        {{ trans('Create Cash Handover') }}</a>
+    @can('cash-handover.create')
+        <a href="{{ route('cash-handover.create') }}" class="btn btn-primary pull-right">
+            {{ trans('Create Cash Handover') }}</a>
+    @endcan
 @stop
 {{-- Page content --}}
 @section('content')
