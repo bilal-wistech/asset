@@ -882,7 +882,7 @@ return [
     'Cash Handover Verify' => [
         [
             'permission' => 'cash-handover.verifiy',
-            'label' => 'View',
+            'label' => 'Verify',
             'note' => 'This will allow users to Verify Cash Handover',
             'display' => true,
         ],
