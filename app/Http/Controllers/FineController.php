@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\Asset;
@@ -215,8 +216,8 @@ class FineController extends Controller
      */
     public function show($id)
     {
-        $data = Fine::find($id);
-        dd($data->type->name);
+        $fine = Fine::find($id);
+        return view('fines.show', compact('fine'));
     }
 
     /**
@@ -387,5 +388,4 @@ class FineController extends Controller
             ]);
         }
     }
-
 }
