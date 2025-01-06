@@ -291,6 +291,12 @@
                         totalAmount = 0;
                         selectedRows.clear();
                         $table.bootstrapTable('refresh');
+                        // 1000 ms = 1 second
+                        // Redirect after 2 seconds
+                        setTimeout(function() {
+                            window.location.href =
+                                '{{ route('cash-handover') }}';
+                        }, 2000);
                     },
                     error: function(xhr) {
                         new PNotify({
