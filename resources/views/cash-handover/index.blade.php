@@ -7,7 +7,7 @@
 @stop
 @section('header_right')
     <a href="{{ route('cash-handover.create') }}" class="btn btn-primary pull-right">
-        {{ trans('Create Handover') }}</a>
+        {{ trans('Create Cash Handover') }}</a>
 @stop
 {{-- Page content --}}
 @section('content')
@@ -17,27 +17,31 @@
                 <div class="box-body">
                     <!-- Table Section -->
                     <div class="table-responsive">
-                        {{-- <table data-cookie-id-table="cashHandoverTable" data-pagination="true"
+                        <table data-cookie-id-table="cashHandoverTable" data-pagination="true"
                             data-id-table="cashHandoverTable" data-search="true" data-side-pagination="server"
                             data-show-columns="true" data-show-fullscreen="true" data-show-export="true"
                             data-show-refresh="true" data-sort-order="asc" id="cashHandoverTable"
-                            class="table table-striped snipe-table" data-url="{{ route('api.cash-handover.index') }}">
+                            class="table table-striped snipe-table"
+                            data-url="{{ route('api.cash-handover.cashHandover') }}">
                             <thead>
                                 <tr>
-                                    <th data-field="state" data-checkbox="true" data-formatter="stateFormatter"></th>
                                     <th data-sortable="true" data-field="id" data-visible="true">
-                                        {{ trans('Adjustment ID') }}</th>
-                                    <th data-sortable="true" data-field="username" data-visible="true">
-                                        {{ trans('Username') }}</th>
-                                    <th data-sortable="true" data-field="date" data-visible="true">
-                                        {{ trans('Adjustment Date') }}</th>
+                                        {{ trans('Cash Handover ID') }}</th>
+                                    <th data-sortable="true" data-field="handover_by" data-visible="true">
+                                        {{ trans('Cash Handover By') }}</th>
+                                    <th data-sortable="true" data-field="handover_to" data-visible="true">
+                                        {{ trans('Cash Handover To') }}</th>
+                                    <th data-sortable="true" data-field="handover_date" data-visible="true">
+                                        {{ trans('Cash Handover Date') }}</th>
                                     <th data-sortable="true" data-field="total_amount" data-visible="true">
-                                        {{ trans('Amount Paid') }}</th>
-                                    <th data-field="actions" data-formatter="actionsFormatter" data-sortable="false">
+                                        {{ trans('Amount Handovered') }}</th>
+                                    <th data-sortable="true" data-field="is_verified" data-visible="true">
+                                        {{ trans('Verified') }}</th>
+                                    <th data-field="actions" data-sortable="false">
                                         {{ trans('Actions') }}</th>
                                 </tr>
                             </thead>
-                        </table> --}}
+                        </table>
                     </div>
                 </div>
             </div>

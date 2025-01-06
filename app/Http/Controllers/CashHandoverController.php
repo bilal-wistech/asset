@@ -71,10 +71,9 @@ class CashHandoverController extends Controller
     }
     public function view($id)
     {
-        $receipt_id = (int)$id;
-        $receipt = Receipt::findOrFail($receipt_id);
-        $cashHandover = CashHandoverReceipt::where('receipt_id', $receipt_id)->first();
-        $handover = CashHandover::with(['receipts', 'handoverByUser', 'handoverToUser'])->findOrFail($cashHandover->cash_handover_id);
+        $handover = CashHandover::with(['receipts', 'handoverByUser', 'handoverToUser'])->findOrFail((int)$id);
+        $cashHandover = CashHandoverReceipt::where('cash_handover_id', $handover->id)->first();
+        $receipt = Receipt::findOrFail($cashHandover->receipt_id);
         return view('cash-handover.view', compact('handover', 'receipt'));
     }
     public function verification(Request $request)
