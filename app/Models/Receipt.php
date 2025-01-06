@@ -24,6 +24,7 @@ class Receipt extends Model
         'user_id',
         'date',
         'deduction_way',
+        'added_by'
     ];
     public function getActivitylogOptions(): LogOptions
     {

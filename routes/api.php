@@ -607,6 +607,14 @@ Route::group(['prefix' => 'v1', 'middleware' => ['api', 'throttle:api']], functi
             'index'
         ]
     )->name('api.cash-handover.index');
+    Route::get(
+        '/cash-handover-details',
+        [
+            Api\CashHandoverController::class,
+            'cashHandover'
+        ]
+    )->name('api.cash-handover.cashHandover');
+
 
     /**
      * Fields API routes

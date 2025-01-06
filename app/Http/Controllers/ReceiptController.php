@@ -22,8 +22,7 @@ use ExpoSDK\ExpoMessage;
 use Image;
 use DB;
 use Barryvdh\DomPDF\Facade\Pdf;
-
-
+use Illuminate\Support\Facades\Auth;
 
 class ReceiptController extends Controller
 {
@@ -98,6 +97,7 @@ class ReceiptController extends Controller
             'user_id' => $request->user_id,
             'date' => Carbon::createFromFormat('d-m-Y', $request->receipt_date)->format('Y-m-d'), // Convert to Y-m-d format
             'deduction_way' => $request->deduction_way,
+            'added_by' => Auth::user()->id,
         ]);
 
 

@@ -109,6 +109,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::match(['get', 'post'], '/receipts/{id}/delete', [ReceiptController::class, 'destroy'])->name('receipts.delete');
     //cash handover
     Route::get('/cash-handover', [CashHandoverController::class, 'index'])->name('cash-handover');
+    Route::get('/cash-handover/create', [CashHandoverController::class, 'create'])->name('cash-handover.create');
     Route::post('cash-handover/store', [CashHandoverController::class, 'store'])
         ->name('cash-handover.store');
     Route::get('cash-handover/{id}/view', [CashHandoverController::class, 'view'])->name('cash-handover.view');

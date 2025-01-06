@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class CashHandoverVerification extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
     protected $table = 'cash_handover_verification';
     protected $fillable = [
         'verified_by',
@@ -15,4 +17,10 @@ class CashHandoverVerification extends Model
         'receipt_id',
         'status'
     ];
+    public function getActivitylogOptions(): LogOptions
+    {
+        $log = new LogOptions();
+        return $log->logAll()
+            ->useLogName('Cash Handover Verification');
+    }
 }

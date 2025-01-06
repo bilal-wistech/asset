@@ -871,6 +871,14 @@ return [
             'display' => true,
         ],
     ],
+    'Cash Handover Create' => [
+        [
+            'permission' => 'cash-handover.create',
+            'label' => 'Create',
+            'note' => 'This will allow users to Create Cash Handover',
+            'display' => true,
+        ],
+    ],
     'Cash Handover Verify' => [
         [
             'permission' => 'cash-handover.verifiy',
