@@ -2,7 +2,7 @@
 
 {{-- Page title --}}
 @section('title')
-    {{ sprintf('%s %s', trans('Cash Handover Verification for Adjustment: ADJ - '), $receipt->id) }}
+    {{ sprintf('%s %s', trans('Verification for Cash Handover: CH - '), $handover->id) }}
     @parent
 @stop
 
@@ -26,6 +26,28 @@
                                 <th>Handovered To</th>
                                 <td>{{ $handover->handoverToUser->username ?? 'N/A' }}</td>
                             </tr>
+                            <tr>
+                                <td style="font-weight: bold;">Adjustment Details</td>
+                            </tr>
+                            <table class="table table-sm table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Adjustment ID</th>
+                                        <th>Adjustment Date</th>
+                                        <th>Adjustment Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($handover->receipts as $receipt)
+                                        <tr>
+                                            <td>ADJ-{{ $receipt->id }}</td>
+                                            <td>{{ $receipt->date }}</td>
+                                            <td>{{ $receipt->total_amount ?? 0 }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                            <br>
                             @if (Auth::user()->id == $handover->handover_to ||
                                     Auth::user()->isSuperUser() ||
                                     Auth::user()->can('cash-handover.verifiy'))
