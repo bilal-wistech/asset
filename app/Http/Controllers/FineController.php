@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\Asset;
@@ -8,9 +9,6 @@ use App\Models\Fine;
 use App\Models\Location;
 use App\Models\FineType;
 use App\Models\User;
-use Illuminate\Support\Facades\Notification;
-use App\Notifications\SendPushNotification;
-use Kutia\Larafirebase\Facades\Larafirebase;
 use ExpoSDK\Expo;
 use App\Models\ExpoToken;
 use ExpoSDK\ExpoMessage;
@@ -387,5 +385,4 @@ class FineController extends Controller
             ]);
         }
     }
-
 }
