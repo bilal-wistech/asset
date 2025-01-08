@@ -66,7 +66,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/fines', [FineController::class, 'index'])->name('fines');
     Route::get('/create', [FineController::class, 'create'])->name('fines.create');
     Route::post('/store', [FineController::class, 'store'])->name('fines.store');
-    Route::get('/show/{id}', [FineController::class, 'show'])->name('fines.show');
+    Route::get('fine/show/{id}', [FineController::class, 'show'])->name('fines.show');
     Route::get('fine/{id}/edit', [FineController::class, 'edit'])->name('fines.edit');
     Route::post('fine/{id}/update', [FineController::class, 'update'])->name('fines.update');
     Route::match(['get', 'post'], 'fine/{id}/delete', [FineController::class, 'destroy'])->name('fines.del');
@@ -87,6 +87,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/accidents', [AccidentController::class, 'index'])->name('accidents');
     Route::get('/create-accident', [AccidentController::class, 'create'])->name('accidents.create');
     Route::post('/store-accident', [AccidentController::class, 'store'])->name('accidents.store');
+    Route::get('/accident/show/{id}', [AccidentController::class, 'show'])->name('accidents.show');
+    
     // Route::get('/show/{id}', [AccidentController::class, 'show'])->name('fines.show');
     Route::get('accident/{id}/edit', [AccidentController::class, 'edit'])->name('accidents.edit');
     Route::post('accident/{id}/update', [AccidentController::class, 'update'])->name('accidents.update');

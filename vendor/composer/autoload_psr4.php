@@ -154,6 +154,7 @@ return array(
     'Facade\\Ignition\\' => array($vendorDir . '/facade/ignition/src'),
     'Facade\\IgnitionContracts\\' => array($vendorDir . '/facade/ignition-contracts/src'),
     'Facade\\FlareClient\\' => array($vendorDir . '/facade/flare-client-php/src'),
+    'ExpoSDK\\' => array($vendorDir . '/ctwillie/expo-server-sdk-php/src'),
     'Egulias\\EmailValidator\\' => array($vendorDir . '/egulias/email-validator/src'),
     'Eduardokum\\LaravelMailAutoEmbed\\' => array($vendorDir . '/eduardokum/laravel-mail-auto-embed/src'),
     'EasySlugger\\' => array($vendorDir . '/javiereguiluz/easyslugger/src'),

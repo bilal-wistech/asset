@@ -124,7 +124,7 @@ class DeductionController extends Controller
     public function show($id)
     {
         $data = Deduction::find($id);
-        dd($data->type->name);
+        return view('deductions.show', compact('data'));
     }
 
     /**
