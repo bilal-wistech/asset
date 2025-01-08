@@ -28,6 +28,7 @@
     "bacon/bacon-qr-code": "^2.0",
     "barryvdh/laravel-debugbar": "^3.6",
     "barryvdh/laravel-dompdf": "^2.0",
+    "ctwillie/expo-server-sdk-php": "^2.1",
     "doctrine/cache": "^1.10",
     "doctrine/common": "^2.12",
     "doctrine/dbal": "^3.1",

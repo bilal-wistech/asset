@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'snipe/snipe-it',
-        'pretty_version' => '1.0.0+no-version-set',
-        'version' => '1.0.0.0',
-        'reference' => null,
+        'pretty_version' => 'dev-main',
+        'version' => 'dev-main',
+        'reference' => '8306024fbb241fcd12eaa812379426d2e35a8254',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -197,6 +197,15 @@
             'replaced' => array(
                 0 => '*',
             ),
+        ),
+        'ctwillie/expo-server-sdk-php' => array(
+            'pretty_version' => 'v2.1',
+            'version' => '2.1.0.0',
+            'reference' => '79fa28da3886e6dba8a51e4c5a6a44df66469f92',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../ctwillie/expo-server-sdk-php',
+            'aliases' => array(),
+            'dev_requirement' => false,
         ),
         'dasprid/enum' => array(
             'pretty_version' => '1.0.4',
@@ -1936,9 +1945,9 @@
             'dev_requirement' => true,
         ),
         'snipe/snipe-it' => array(
-            'pretty_version' => '1.0.0+no-version-set',
-            'version' => '1.0.0.0',
-            'reference' => null,
+            'pretty_version' => 'dev-main',
+            'version' => 'dev-main',
+            'reference' => '8306024fbb241fcd12eaa812379426d2e35a8254',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
