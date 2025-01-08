@@ -217,7 +217,8 @@ class FineController extends Controller
     public function show($id)
     {
         $fine = Fine::find($id);
-        return view('fines.show', compact('fine'));
+        $fineImages = explode(',', $fine->fine_image);
+        return view('fines.show', compact('fine','fineImages'));
     }
 
     /**

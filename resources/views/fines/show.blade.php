@@ -46,6 +46,23 @@
                                 <th style="width: 200px;">Notes</th>
                                 <td>{{ $fine->note ?? '' }}</td>
                             </tr>
+                            <tr>
+                                <th style="width: 200px;">Images</th>
+                                <td>
+                                    @php
+                                        $filteredImages = array_filter($fineImages, fn($image) => !empty($image));
+                                    @endphp
+                            
+                                    @if (!empty($filteredImages) && count($filteredImages) > 0)
+                                        @foreach ($filteredImages as $image)
+                                            <img src="{{ asset($image) }}" alt="Fine Image" style="width: 100px; height: auto; margin: 5px;">
+                                        @endforeach
+                                    @else
+                                        No images available.
+                                    @endif
+                                </td>
+                            </tr>
+                            
                         </tbody>
                     </table>
 
