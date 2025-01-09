@@ -108,7 +108,7 @@
 </head>
 
 <body>
-    <h1>Receipt</h1>
+    <h1>Adjustment</h1>
 
     <div class="invoice-header">
         <table style="width: 100%; ">
