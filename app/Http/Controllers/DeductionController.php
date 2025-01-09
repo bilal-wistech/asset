@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\Asset;
@@ -112,7 +113,6 @@ class DeductionController extends Controller
         ]);
 
         return redirect()->route('deductions')->with('success', 'Deduction created successfully!');
-
     }
 
     /**
@@ -124,7 +124,7 @@ class DeductionController extends Controller
     public function show($id)
     {
         $data = Deduction::find($id);
-        dd($data->type->name);
+        return view('deductions.show', compact('data'));
     }
 
     /**
@@ -184,7 +184,6 @@ class DeductionController extends Controller
 
         // Redirect back with success message
         return redirect()->route('deductions')->with('success', 'Data updated successfully');
-
     }
 
     /**
@@ -201,7 +200,4 @@ class DeductionController extends Controller
         $data->delete();
         return redirect()->route('deductions')->with('success', 'data deleted successfully');
     }
-
-
-
 }

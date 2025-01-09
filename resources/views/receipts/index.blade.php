@@ -197,7 +197,7 @@
                     // Extract the filename from the Content-Disposition header
                     var disposition = xhr.getResponseHeader('Content-Disposition');
                     var filename = disposition && disposition.match(/filename="([^"]+)"/) ? disposition
-                        .match(/filename="([^"]+)"/)[1] : `Receipt-${receiptId}.pdf`;
+                        .match(/filename="([^"]+)"/)[1] : `Adjustment-${receiptId}.pdf`;
 
                     // Create a link element to trigger the download
                     var link = document.createElement('a');
