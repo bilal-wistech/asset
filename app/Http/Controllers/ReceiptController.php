@@ -592,8 +592,8 @@ class ReceiptController extends Controller
                         ->where('id', $item->type_id)
                         ->select(
                             'deductions.amount as amount',
-                            'accidents.id as id',
-                            'assets.asset_tag as tag'
+                            'deductions.id as id',
+                            // 'assets.asset_tag as tag'
                         )
                         ->first();
                     break;
