@@ -92,7 +92,7 @@
                         {!! $errors->first(
                             'receipt',
                             '<span class="alert-msg" aria-hidden="true"><i
-                                                                                                                            class="fas fa-times" aria-hidden="true"></i> :message</span>',
+                                                                                                                                                                                                                                                                            class="fas fa-times" aria-hidden="true"></i> :message</span>',
                         ) !!}
                     </div>
                 </div>
@@ -152,7 +152,7 @@
                                     {!! $errors->first(
                                         'slip',
                                         '<span class="alert-msg" aria-hidden="true"><i
-                                                                                                                                                                                        class="fas fa-times" aria-hidden="true"></i> :message</span>',
+                                                                                                                                                                                                                                                                                                                                                                                                                class="fas fa-times" aria-hidden="true"></i> :message</span>',
                                     ) !!}
                                 </div>
                             </div>
@@ -261,10 +261,10 @@
   <a 
     href="${
       detail.type === 'Fine' 
-        ? `/fine/${detail.id}/edit` 
+        ? `/fine/show/${detail.id}` 
         : detail.type === 'Deduction' 
-        ? `/deduction/${detail.id}/edit` 
-        : `/accident/${detail.id}/edit`
+        ? `/deductions/show/${detail.id}` 
+        : `/accident/show/${detail.id}`
     }" 
     target="_blank" 
     rel="noopener noreferrer"

@@ -269,7 +269,15 @@ class AccidentController extends Controller
     public function show($id)
     {
         $data = Accident::find($id);
-        dd($data->type->name);
+        $AccidentImages = explode(',', $data->accident_image);
+        $RelevantFiles = explode(',', $data->relevant_files);
+        $RelevantFileNumbers = array_map(function ($file) {
+            $filename = basename($file);
+            return pathinfo($filename, PATHINFO_FILENAME);
+        }, $RelevantFiles);
+        return view('accidents.show', compact('data', 'AccidentImages', 'RelevantFiles', 'RelevantFileNumbers'));
+        // dd($data);
+
     }
 
     /**

@@ -93,7 +93,7 @@
                         {!! $errors->first(
                             'receipt',
                             '<span class="alert-msg" aria-hidden="true"><i
-                                                    class="fas fa-times" aria-hidden="true"></i> :message</span>',
+                                                                                                                                                                                                    class="fas fa-times" aria-hidden="true"></i> :message</span>',
                         ) !!}
                     </div>
                 </div>
@@ -160,7 +160,7 @@
                                     {!! $errors->first(
                                         'slip',
                                         '<span class="alert-msg" aria-hidden="true"><i
-                                                                            class="fas fa-times" aria-hidden="true"></i> :message</span>',
+                                                                                                                                                                                                                                                                                                    class="fas fa-times" aria-hidden="true"></i> :message</span>',
                                     ) !!}
                                 </div>
                             </div>
@@ -190,14 +190,14 @@
                 </thead>
                 <tbody>
                     @foreach ($receipt as $data)
-                    {{-- @dd($data) --}}
+                        {{-- @dd($data) --}}
                         <tr>
                             <td>
-                                <a href="{{ $data->type === 'Fine'
-                                    ? url('/fine/' . $data->type_id . '/edit')
-                                    : ($data->type === 'Deduction'
-                                        ? url('/deduction/' . $data->type_id . '/edit')
-                                        : url('/accident/' . $data->type_id . '/edit')) }}"
+                                <a href="{{ match ($data->type) {
+                                    'Fine' => url('/fine/show/' . $data->type_id),
+                                    'Deduction' => url('/deductions/show/' . $data->type_id),
+                                    default => url('/accident/show/' . $data->type_id),
+                                } }}"
                                     target="_blank" rel="noopener noreferrer">
                                     {{ $data->asset_tag . ' - ' . $data->type }}
                                 </a>
@@ -284,7 +284,8 @@
                     // Check if payment exceeds remaining amount
                     if (payment > remainingAmount) {
                         alert(
-                            `You have only ${remainingAmount.toFixed(2)} to pay. You cannot exceed this limit.`);
+                            `You have only ${remainingAmount.toFixed(2)} to pay. You cannot exceed this limit.`
+                        );
                         $(this).find('.payment-input').val(remainingAmount);
                         totalAdditionalPayments = totalAdditionalPayments - payment + remainingAmount;
                     }
