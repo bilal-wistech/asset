@@ -191,8 +191,6 @@
                 <div class="tab-content">
                     <div class="tab-pane active" id="details">
                         <div class="row">
-
-
                             @if ($user->deleted_at != '')
                                 <div class="col-md-12">
                                     <div class="callout callout-warning">
@@ -941,6 +939,9 @@
                                                     Back</th>
                                                 <th class="col-md-3" data-searchable="true" data-visible="true">Expiry
                                                     Date</th>
+                                                <th class="col-md-3" data-searchable="true" data-visible="true">
+                                                    Actions</th>
+
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -955,7 +956,7 @@
                                                                         $user->id_card_front,
                                                                         PATHINFO_EXTENSION,
                                                                     );
-                                                                    $fileExtension = strtolower($fileExtension); 
+                                                                    $fileExtension = strtolower($fileExtension);
                                                                 @endphp
 
                                                                 @if (in_array($fileExtension, ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg']))
@@ -1013,6 +1014,34 @@
                                                             @endif
                                                         </td>
                                                         <td>{{ $user->expiry_date_id_card }}</td>
+                                                        <td>
+                                                            <nobr>
+                                                                <a href="#" class="btn btn-sm btn-warning"
+                                                                    data-toggle="modal" data-document-type="id_card"
+                                                                    data-front-file="{{ $user->id_card_front }}"
+                                                                    data-back-file="{{ $user->id_card_back }}"
+                                                                    data-expiry-date="{{ $user->expiry_date_id_card }}"
+                                                                    data-target="#uploadUserFileModal">
+                                                                    <i class="fas fa-pencil-alt"
+                                                                        aria-hidden="true"></i><span
+                                                                        class="sr-only">Update</span>
+                                                                </a>
+
+                                                                <a href="#" class="btn btn-danger btn-sm"
+                                                                    onclick="deleteFile(event, 'idCard'')">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </a>
+
+                                                                <form
+                                                                    id="delete-form-idCard' action="{{ route('file.destroy', ['userId' => $user->id]) }}"
+                                                                    method="POST" style="display: none;">
+                                                                    @csrf
+                                                                    @method('DELETE')
+                                                                    <input type="hidden" name="fileType"
+                                                                        value="idCard'">
+                                                                </form>
+                                                            </nobr>
+                                                        </td>
                                                     </tr>
                                                 @endif
                                                 @if (!empty($user->driving_license_local || $user->driving_license_local_back))
@@ -1081,6 +1110,33 @@
                                                             @endif
                                                         </td>
                                                         <td>{{ $user->expiry_date_driving_license_local }}</td>
+                                                        <td>
+                                                            <nobr> <a href="#" class="btn btn-sm btn-warning"
+                                                                    data-toggle="modal"
+                                                                    data-document-type="driving_license_local"
+                                                                    data-front-file="{{ $user->driving_license_local }}"
+                                                                    data-back-file="{{ $user->driving_license_local_back }}"
+                                                                    data-expiry-date="{{ $user->expiry_date_driving_license_local }}"
+                                                                    data-target="#uploadUserFileModal">
+                                                                    <i class="fas fa-pencil-alt"
+                                                                        aria-hidden="true"></i><span
+                                                                        class="sr-only">Update</span>
+                                                                </a>
+                                                                <a href="#" class="btn btn-danger btn-sm"
+                                                                    onclick="deleteFile(event, 'drivingLicenseLocal')">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </a>
+
+                                                                <form id="delete-form-drivingLicenseLocal"
+                                                                    action="{{ route('file.destroy', ['userId' => $user->id]) }}"
+                                                                    method="POST" style="display: none;">
+                                                                    @csrf
+                                                                    @method('DELETE')
+                                                                    <input type="hidden" name="fileType"
+                                                                        value="drivingLicenseLocal">
+                                                                </form>
+                                                            </nobr>
+                                                        </td>
                                                     </tr>
                                                 @endif
                                                 @if (!empty($user->driving_license_international || $user->driving_license_international_back))
@@ -1149,6 +1205,34 @@
                                                             @endif
                                                         </td>
                                                         <td>{{ $user->expiry_date_driving_license_international }}</td>
+                                                        <td>
+                                                            <nobr> <a href="#" class="btn btn-sm btn-warning"
+                                                                    data-toggle="modal"
+                                                                    data-document-type="driving_license_international"
+                                                                    data-front-file="{{ $user->driving_license_international }}"
+                                                                    data-back-file="{{ $user->driving_license_international_back }}"
+                                                                    data-expiry-date="{{ $user->expiry_date_driving_license_international }}"
+                                                                    data-target="#uploadUserFileModal">
+                                                                    <i class="fas fa-pencil-alt"
+                                                                        aria-hidden="true"></i><span
+                                                                        class="sr-only">Update</span>
+                                                                </a>
+                                                              
+                                                                <a href="#" class="btn btn-danger btn-sm"
+                                                                    onclick="deleteFile(event, 'drivingLicenseInternational')">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </a>
+
+                                                                <form id="delete-form-drivingLicenseInternational"
+                                                                    action="{{ route('file.destroy', ['userId' => $user->id]) }}"
+                                                                    method="POST" style="display: none;">
+                                                                    @csrf
+                                                                    @method('DELETE')
+                                                                    <input type="hidden" name="fileType"
+                                                                        value="drivingLicenseInternational">
+                                                                </form>
+                                                            </nobr>
+                                                        </td>
                                                     </tr>
                                                 @endif
                                                 @if (!empty($user->maltese_driving_license || $user->maltese_driving_license_back))
@@ -1217,6 +1301,34 @@
                                                             @endif
                                                         </td>
                                                         <td>{{ $user->expiry_date_maltese_license }}</td>
+                                                        <td>
+                                                            <nobr> <a href="#" class="btn btn-sm btn-warning"
+                                                                    data-toggle="modal"
+                                                                    data-document-type="maltese_license"
+                                                                    data-front-file="{{ $user->maltese_driving_license }}"
+                                                                    data-back-file="{{ $user->maltese_driving_license_back }}"
+                                                                    data-expiry-date="{{ $user->expiry_date_maltese_license }}"
+                                                                    data-target="#uploadUserFileModal">
+                                                                    <i class="fas fa-pencil-alt"
+                                                                        aria-hidden="true"></i><span
+                                                                        class="sr-only">Update</span>
+                                                                </a>
+                                                              
+                                                                <a href="#" class="btn btn-danger btn-sm"
+                                                                    onclick="deleteFile(event, 'Maltese')">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </a>
+
+                                                                <form id="delete-form-Maltese"
+                                                                    action="{{ route('file.destroy', ['userId' => $user->id]) }}"
+                                                                    method="POST" style="display: none;">
+                                                                    @csrf
+                                                                    @method('DELETE')
+                                                                    <input type="hidden" name="fileType"
+                                                                        value="Maltese">
+                                                                </form>
+                                                            </nobr>
+                                                        </td>
                                                     </tr>
                                                 @endif
                                                 @if (!empty($user->taxi_tag || $user->taxi_tag_back))
@@ -1285,6 +1397,31 @@
                                                             @endif
                                                         </td>
                                                         <td>{{ $user->expiry_date_taxi_tag }}</td>
+                                                        <td>
+                                                            <nobr> <a href="#" class="btn btn-sm btn-warning"
+                                                                    data-toggle="modal" data-document-type="taxi_tag"
+                                                                    data-front-file="{{ $user->taxi_tag }}"
+                                                                    data-back-file="{{ $user->taxi_tag_back }}"
+                                                                    data-expiry-date="{{ $user->expiry_date_taxi_tag }}"
+                                                                    data-target="#uploadUserFileModal">
+                                                                    <i class="fas fa-pencil-alt"
+                                                                        aria-hidden="true"></i><span
+                                                                        class="sr-only">Update</span>
+                                                                </a> 
+                                                                <a href="#" class="btn btn-danger btn-sm"
+                                                                    onclick="deleteFile(event, 'taxi')">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </a>
+
+                                                                <form id="delete-form-taxi"
+                                                                    action="{{ route('file.destroy', ['userId' => $user->id]) }}"
+                                                                    method="POST" style="display: none;">
+                                                                    @csrf
+                                                                    @method('DELETE')
+                                                                    <input type="hidden" name="fileType" value="taxi">
+                                                                </form>
+                                                            </nobr>
+                                                        </td>
                                                     </tr>
                                                 @endif
                                             @else
@@ -1475,10 +1612,16 @@
             });
         });
         $(document).ready(function() {
+            // Show/Hide fields based on document type selection
             $('#document_type').on('change', function() {
                 var documentType = $(this).val();
+                $('input[name="fileType"]').val(documentType);
+
+                // Hide all fields first
                 $('.id_card_fields, .driving_license_local_fields, .driving_license_maltese_fields, .driving_license_international_fields, .taxi_tag_fields')
-                    .hide();
+                .hide();
+
+                // Show the fields corresponding to the selected document type
                 if (documentType === 'id_card') {
                     $('.id_card_fields').show();
                 } else if (documentType === 'driving_license_local') {
@@ -1491,56 +1634,111 @@
                     $('.taxi_tag_fields').show();
                 }
             });
+
+            // When the modal is shown for editing, update the fields
+            $('a[data-toggle="modal"]').click(function() {
+                var documentType = $(this).data('document-type');
+                console.log(documentType);
+                var frontFilePath = $(this).data('front-file');
+                var backFilePath = $(this).data('back-file');
+                var expiryDate = $(this).data('expiry-date');
+                $('#document_type').val(documentType).trigger('change');
+                  console.log(frontFilePath,backFilePath,expiryDate);
+                // Display current file paths (if available)
+
+
+                if (frontFilePath) {
+                    const fullPath = `${window.location.origin}/${frontFilePath}`; // Construct full URL
+                    $('#' + documentType + '_front_preview').html(
+                        `<img src="${fullPath}" alt="ID Card Front" class="img-thumbnail" style="max-width: 50px;">`
+                    );
+                } else {
+                    $('#' + documentType + '_front_preview').text('No file selected');
+                }
+
+                if (backFilePath) {
+                    const fullPath = `${window.location.origin}/${backFilePath}`; // Construct full URL
+                    $('#' + documentType + '_back_preview').html(
+                        `<img src="${fullPath}" alt="ID Card Front" class="img-thumbnail" style="max-width: 50px;">`
+                    );
+                } else {
+                    $('#' + documentType + '_back_preview').text('No file selected');
+                }
+
+                // Populate expiry date if available
+                if (expiryDate) {
+                    console.log(expiryDate);
+                    $('input[name="expiry_date_' + documentType + '"]').val(expiryDate);
+                }
+            });
+
+            // Form submission validation before uploading files
             $('.form-horizontal1').on('submit', function(e) {
-    var documentType = $('#document_type').val();
-    var frontFile = false;
-    var backFile = false;
-    var acceptedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg', 'pdf'];
-    
-    function validateFileType(fileInput) {
-        var filePath = $(fileInput).val();
-        if (filePath) {
-            var fileExtension = filePath.split('.').pop().toLowerCase();
-            return acceptedExtensions.includes(fileExtension);
-        }
-        return true; // No file means no error for type
-    }
+                var documentType = $('#document_type').val();
+                var frontFile = false;
+                var backFile = false;
+                var acceptedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg', 'pdf'];
 
-    if (documentType === 'id_card') {
-        frontFile = $('input[name="id_card_front"]').val() !== '';
-        backFile = $('input[name="id_card_back"]').val() !== '';
-    } else if (documentType === 'driving_license_local') {
-        frontFile = $('input[name="driving_license_local"]').val() !== '';
-        backFile = $('input[name="driving_license_local_back"]').val() !== '';
-    } else if (documentType === 'maltese_license') {
-        frontFile = $('input[name="maltese_driving_license"]').val() !== '';
-        backFile = $('input[name="maltese_driving_license_back"]').val() !== '';
-    } else if (documentType === 'driving_license_international') {
-        frontFile = $('input[name="driving_license_international"]').val() !== '';
-        backFile = $('input[name="driving_license_international_back"]').val() !== '';
-    } else if (documentType === 'taxi_tag') {
-        frontFile = $('input[name="taxi_tag"]').val() !== '';
-        backFile = $('input[name="taxi_tag_back"]').val() !== '';
-    }
+                // Validate file type function
+                function validateFileType(fileInput) {
+                    var filePath = $(fileInput).val();
+                    if (filePath) {
+                        var fileExtension = filePath.split('.').pop().toLowerCase();
+                        return acceptedExtensions.includes(fileExtension);
+                    }
+                    return true; // No file means no error for type
+                }
 
-    // Check if at least one file (front or back) is uploaded
-    if (!frontFile && !backFile) {
-        alert('At least one document (front or back) must be uploaded.');
-        e.preventDefault(); // Prevent form submission
-    } else {
-        // Check the file type validity for both front and back files
-        var isFrontFileValid = frontFile ? validateFileType($('input[name="' + documentType + '_front"]')) : true;
-        var isBackFileValid = backFile ? validateFileType($('input[name="' + documentType + '_back"]')) : true;
+                // Check if front and back files are provided based on document type
+                if (documentType === 'id_card') {
+                    frontFile = $('input[name="id_card_front"]').val() !== '';
+                    backFile = $('input[name="id_card_back"]').val() !== '';
+                } else if (documentType === 'driving_license_local') {
+                    frontFile = $('input[name="driving_license_local_front"]').val() !== '';
+                    backFile = $('input[name="driving_license_local_back"]').val() !== '';
+                } else if (documentType === 'maltese_license') {
+                    frontFile = $('input[name="maltese_license_front"]').val() !== '';
+                    backFile = $('input[name="maltese_license_back"]').val() !== '';
+                } else if (documentType === 'driving_license_international') {
+                    frontFile = $('input[name="driving_license_international_front"]').val() !== '';
+                    backFile = $('input[name="driving_license_international_back"]').val() !== '';
+                } else if (documentType === 'taxi_tag') {
+                    frontFile = $('input[name="taxi_tag_front"]').val() !== '';
+                    backFile = $('input[name="taxi_tag_back"]').val() !== '';
+                }
 
-        if (!isFrontFileValid || !isBackFileValid) {
-            alert('Please upload only files with these extensions: jpg, jpeg, png, gif, bmp, webp, svg, pdf.');
-            e.preventDefault(); // Prevent form submission if file type is invalid
-        }
-    }
-});
+                // Ensure at least one file (front or back) is uploaded
+                if (!frontFile && !backFile) {
+                    alert('At least one document (front or back) must be uploaded.');
+                    e.preventDefault(); // Prevent form submission
+                    return;
+                }
 
+                // Validate file types for both front and back files
+                var isFrontFileValid = frontFile ? validateFileType($('input[name="' + documentType +
+                    '_front"]')) : true;
+                var isBackFileValid = backFile ? validateFileType($('input[name="' + documentType +
+                    '_back"]')) : true;
+
+                if (!isFrontFileValid || !isBackFileValid) {
+                    alert('Please upload only files with these extensions: ' + acceptedExtensions.join(
+                        ', ') + '.');
+                    e.preventDefault(); // Prevent form submission if file type is invalid
+                }
+            });
         });
+
+
+
+
+        function deleteFile(event, fileId) {
+            event.preventDefault();
+            if (confirm('Are you sure you want to delete this file?')) {
+                document.getElementById(`delete-form-${fileId}`).submit();
+            }
+        }
     </script>
 
 
 @stop
+{{-- @include('modals.edit-upload-file') --}}
