@@ -125,6 +125,17 @@ Route::group(['middleware' => 'auth'], function () {
         ]
     )->name('upload/ins')->middleware('auth');
 
+    Route::delete('{userId}/delete', [
+        App\Http\Controllers\Users\UserFilesController::class,
+        'destroy'
+    ])->name('file.destroy')->middleware('auth');
+    Route::put('{userId}/update', [
+        App\Http\Controllers\Users\UserFilesController::class,
+        'update'
+    ])->name('file.update')->middleware('auth');
+    
+  
+
     Route::controller(App\Http\Controllers\Assets\BulkAssetsController::class)->group(function () {
         Route::match(['post', 'get'], '/bulkcheckout/store', 'customStore')->name('bulkcheckout.store');
         Route::match(['post', 'get'], '/bulkcheckout/{id}/edit', 'customEdit')->name('bulkcheckout.edit');

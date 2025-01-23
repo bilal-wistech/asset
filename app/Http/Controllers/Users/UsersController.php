@@ -436,7 +436,7 @@ class UsersController extends Controller
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function show($userId = null)
-    {
+    {   
         if (! $user = User::with('assets', 'assets.model', 'consumables', 'accessories', 'licenses', 'userloc')->withTrashed()->find($userId)) {
             // Redirect to the user management page
             return redirect()->route('users.index')
