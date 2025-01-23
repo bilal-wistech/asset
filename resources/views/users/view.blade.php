@@ -1028,18 +1028,17 @@
                                                                 </a>
 
                                                                 <a href="#" class="btn btn-danger btn-sm"
-                                                                    onclick="deleteFile(event, 'idCard'')">
+                                                                    onclick="deleteFile(event, 'idCard')">
                                                                     <i class="fas fa-trash"></i>
                                                                 </a>
-
-                                                                <form
-                                                                    id="delete-form-idCard' action="{{ route('file.destroy', ['userId' => $user->id]) }}"
-                                                                    method="POST" style="display: none;">
-                                                                    @csrf
-                                                                    @method('DELETE')
-                                                                    <input type="hidden" name="fileType"
-                                                                        value="idCard'">
-                                                                </form>
+                                                                <form id="delete-form-idCard"
+                                                                action="{{ route('file.destroy', ['userId' => $user->id]) }}"
+                                                                method="POST" style="display: none;">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <input type="hidden" name="fileType"
+                                                                    value="idCard">
+                                                            </form>
                                                             </nobr>
                                                         </td>
                                                     </tr>
@@ -1732,6 +1731,7 @@
 
 
         function deleteFile(event, fileId) {
+
             event.preventDefault();
             if (confirm('Are you sure you want to delete this file?')) {
                 document.getElementById(`delete-form-${fileId}`).submit();
@@ -1741,4 +1741,3 @@
 
 
 @stop
-{{-- @include('modals.edit-upload-file') --}}
