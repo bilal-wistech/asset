@@ -26,7 +26,8 @@ class UserFilesController extends Controller
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function store(AssetFileRequest $request, $userId = null)
-    {
+    { 
+        //   dd($request->fileType);
         $user = User::find($userId);
         $destinationPath = config('app.private_uploads') . '/users';
 
@@ -98,15 +99,27 @@ class UserFilesController extends Controller
             ];
             foreach ($fileFields as $field) {
                 if ($request->hasFile($field)) {
+                    // Check if there is an existing file path for this field
+                    if (!empty($user->{$field})) {
+                        $existingFilePath = public_path($user->{$field});
+                        // Remove the old file if it exists
+                        if (file_exists($existingFilePath)) {
+                            unlink($existingFilePath);
+                        }
+                    }
+            
+                    // Handle the new file upload
                     $file = $request->file($field);
                     $file_name = time() . '-' . $file->getClientOriginalName();
                     $file_path = "user_documents/" . $file_name;
                     $file->move(public_path("user_documents"), $file_name);
+            
+                    // Update the user field with the new file path
                     $user->{$field} = $file_path;
-
-                    
                 }
             }
+            
+            // Process expiry dates
             $expiryDateFields = [
                 'expiry_date_id_card',
                 'expiry_date_driving_license_local',
@@ -117,9 +130,11 @@ class UserFilesController extends Controller
             
             foreach ($expiryDateFields as $expiryField) {
                 if ($request->has($expiryField) && $request->input($expiryField) !== null) {
-                    $user->{$expiryField} = $request->input($expiryField); // Update only if input is not null
+                    // Update only if input is not null
+                    $user->{$expiryField} = $request->input($expiryField);
                 }
             }
+            
             
             
             $user->save();
@@ -141,33 +156,49 @@ class UserFilesController extends Controller
      * @return \Illuminate\Http\RedirectResponse
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function destroy($userId = null, $fileId = null)
+    public function destroy($userId = null, AssetFileRequest $request)
     {
-        
+        //dd($request->fileType);
         $user = User::find($userId);
-     
-
-
-        $destinationPath = config('app.private_uploads') . '/users';
-
-        if (isset($user->id)) {
-            $this->authorize('update', $user);
-            $log = Actionlog::find($fileId);
-            $full_filename = $destinationPath . '/' . $log->filename;
-            if (file_exists($full_filename)) {
-                unlink($destinationPath . '/' . $log->filename);
-            }
-            $log->delete();
-
-            return redirect()->back()->with('success', trans('admin/users/message.deletefile.success'));
+      if (!$user) {
+            $error = trans('admin/users/message.user_not_found', ['id' => $userId]);
+            return redirect()->route('users.index')->with('error', $error);
         }
-        // Prepare the error message
-        $error = trans('admin/users/message.user_not_found', ['id' => $userId]);
-        // Redirect to the licence management page
-        return redirect()->route('users.index')->with('error', $error);
-
+        $fileTypes = [
+            'idCard' => [
+                'fields' => ['id_card_front', 'id_card_back', 'expiry_date_id_card'],
+            ],
+            'drivingLicenseLocal' => [
+                'fields' => ['driving_license_local', 'driving_license_local_back', 'expiry_date_driving_license_local'],
+            ],
+            'drivingLicenseInternational' => [
+                'fields' => ['driving_license_international', 'driving_license_international_back', 'expiry_date_driving_license_international'],
+            ],
+            'taxi' => [
+                'fields' => ['taxi_tag', 'taxi_tag_back', 'expiry_date_taxi_tag'],
+            ],
+            'Maltese' => [
+                'fields' => ['maltese_driving_license', 'maltese_driving_license_back', 'expiry_date_maltese_license'],
+            ],
+        ];
+    
+        if (array_key_exists($request->fileType, $fileTypes)) {
+            $fields = $fileTypes[$request->fileType]['fields'];
+    
+            foreach ($fields as $field) {
+                if (!empty($user->{$field})) {
+                    Storage::delete($user->{$field}); 
+                    $user->{$field} = null; 
+                }
+            }
+            $user->save();
+        
+            return redirect()->back()->with('success', 'File deleted successfully.');
+        }
+     
+        return redirect()->route('users.index')->with('error', 'Invalid file type specified.');
     }
-
+    
     /**
      * Display/download the uploaded file
      *
@@ -225,7 +256,7 @@ class UserFilesController extends Controller
         // Redirect with an error if the user doesn't exist
         return redirect()->route('users.index')->with('error', trans('general.user_not_found'));
     }
-    
+  
 
 
 }
