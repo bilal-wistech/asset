@@ -158,7 +158,7 @@ class UserFilesController extends Controller
      */
     public function destroy($userId = null, AssetFileRequest $request)
     {
-        //dd($request->fileType);
+        // dd($request->fileType);
         $user = User::find($userId);
       if (!$user) {
             $error = trans('admin/users/message.user_not_found', ['id' => $userId]);

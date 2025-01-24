@@ -1028,17 +1028,15 @@
                                                                 </a>
 
                                                                 <a href="#" class="btn btn-danger btn-sm"
-                                                                    onclick="deleteFile(event, 'idCard'')">
+                                                                    onclick="deleteFile(event, 'idCard')">
                                                                     <i class="fas fa-trash"></i>
                                                                 </a>
-
-                                                                <form
-                                                                    id="delete-form-idCard' action="{{ route('file.destroy', ['userId' => $user->id]) }}"
+                                                                <form id="delete-form-idCard"
+                                                                    action="{{ route('file.destroy', ['userId' => $user->id]) }}"
                                                                     method="POST" style="display: none;">
                                                                     @csrf
                                                                     @method('DELETE')
-                                                                    <input type="hidden" name="fileType"
-                                                                        value="idCard'">
+                                                                    <input type="hidden" name="fileType" value="idCard">
                                                                 </form>
                                                             </nobr>
                                                         </td>
@@ -1217,7 +1215,7 @@
                                                                         aria-hidden="true"></i><span
                                                                         class="sr-only">Update</span>
                                                                 </a>
-                                                              
+
                                                                 <a href="#" class="btn btn-danger btn-sm"
                                                                     onclick="deleteFile(event, 'drivingLicenseInternational')">
                                                                     <i class="fas fa-trash"></i>
@@ -1313,7 +1311,7 @@
                                                                         aria-hidden="true"></i><span
                                                                         class="sr-only">Update</span>
                                                                 </a>
-                                                              
+
                                                                 <a href="#" class="btn btn-danger btn-sm"
                                                                     onclick="deleteFile(event, 'Maltese')">
                                                                     <i class="fas fa-trash"></i>
@@ -1407,7 +1405,7 @@
                                                                     <i class="fas fa-pencil-alt"
                                                                         aria-hidden="true"></i><span
                                                                         class="sr-only">Update</span>
-                                                                </a> 
+                                                                </a>
                                                                 <a href="#" class="btn btn-danger btn-sm"
                                                                     onclick="deleteFile(event, 'taxi')">
                                                                     <i class="fas fa-trash"></i>
@@ -1619,7 +1617,7 @@
 
                 // Hide all fields first
                 $('.id_card_fields, .driving_license_local_fields, .driving_license_maltese_fields, .driving_license_international_fields, .taxi_tag_fields')
-                .hide();
+                    .hide();
 
                 // Show the fields corresponding to the selected document type
                 if (documentType === 'id_card') {
@@ -1643,12 +1641,12 @@
                 var backFilePath = $(this).data('back-file');
                 var expiryDate = $(this).data('expiry-date');
                 $('#document_type').val(documentType).trigger('change');
-                  console.log(frontFilePath,backFilePath,expiryDate);
+                console.log(frontFilePath, backFilePath, expiryDate);
                 // Display current file paths (if available)
 
 
                 if (frontFilePath) {
-                    const fullPath = `${window.location.origin}/${frontFilePath}`; // Construct full URL
+                    const fullPath = `${window.location.origin}/${frontFilePath}`; 
                     $('#' + documentType + '_front_preview').html(
                         `<img src="${fullPath}" alt="ID Card Front" class="img-thumbnail" style="max-width: 50px;">`
                     );
@@ -1657,15 +1655,13 @@
                 }
 
                 if (backFilePath) {
-                    const fullPath = `${window.location.origin}/${backFilePath}`; // Construct full URL
+                    const fullPath = `${window.location.origin}/${backFilePath}`;
                     $('#' + documentType + '_back_preview').html(
                         `<img src="${fullPath}" alt="ID Card Front" class="img-thumbnail" style="max-width: 50px;">`
                     );
                 } else {
                     $('#' + documentType + '_back_preview').text('No file selected');
                 }
-
-                // Populate expiry date if available
                 if (expiryDate) {
                     console.log(expiryDate);
                     $('input[name="expiry_date_' + documentType + '"]').val(expiryDate);
@@ -1686,51 +1682,60 @@
                         var fileExtension = filePath.split('.').pop().toLowerCase();
                         return acceptedExtensions.includes(fileExtension);
                     }
-                    return true; // No file means no error for type
+                    return true;
                 }
 
-                // Check if front and back files are provided based on document type
+                // Check for existing file paths in case of edit
+                var existingFrontFilePath = $('a[data-document-type="' + documentType + '"]').data(
+                    'front-file');
+                var existingBackFilePath = $('a[data-document-type="' + documentType + '"]').data(
+                    'back-file');
+
+              
                 if (documentType === 'id_card') {
-                    frontFile = $('input[name="id_card_front"]').val() !== '';
-                    backFile = $('input[name="id_card_back"]').val() !== '';
+                    frontFile = $('input[name="id_card_front"]').val() !== '' || existingFrontFilePath;
+                    backFile = $('input[name="id_card_back"]').val() !== '' || existingBackFilePath;
                 } else if (documentType === 'driving_license_local') {
-                    frontFile = $('input[name="driving_license_local_front"]').val() !== '';
-                    backFile = $('input[name="driving_license_local_back"]').val() !== '';
+                    frontFile = $('input[name="driving_license_local_front"]').val() !== '' ||
+                        existingFrontFilePath;
+                    backFile = $('input[name="driving_license_local_back"]').val() !== '' ||
+                        existingBackFilePath;
                 } else if (documentType === 'maltese_license') {
-                    frontFile = $('input[name="maltese_license_front"]').val() !== '';
-                    backFile = $('input[name="maltese_license_back"]').val() !== '';
+                    frontFile = $('input[name="maltese_license_front"]').val() !== '' ||
+                        existingFrontFilePath;
+                    backFile = $('input[name="maltese_license_back"]').val() !== '' || existingBackFilePath;
                 } else if (documentType === 'driving_license_international') {
-                    frontFile = $('input[name="driving_license_international_front"]').val() !== '';
-                    backFile = $('input[name="driving_license_international_back"]').val() !== '';
+                    frontFile = $('input[name="driving_license_international_front"]').val() !== '' ||
+                        existingFrontFilePath;
+                    backFile = $('input[name="driving_license_international_back"]').val() !== '' ||
+                        existingBackFilePath;
                 } else if (documentType === 'taxi_tag') {
-                    frontFile = $('input[name="taxi_tag_front"]').val() !== '';
-                    backFile = $('input[name="taxi_tag_back"]').val() !== '';
+                    frontFile = $('input[name="taxi_tag_front"]').val() !== '' || existingFrontFilePath;
+                    backFile = $('input[name="taxi_tag_back"]').val() !== '' || existingBackFilePath;
                 }
 
-                // Ensure at least one file (front or back) is uploaded
+                // Ensure at least one file (front or back) is available
                 if (!frontFile && !backFile) {
-                    alert('At least one document (front or back) must be uploaded.');
+                    alert('At least one document (front or back) must be uploaded or already exist.');
                     e.preventDefault(); // Prevent form submission
                     return;
                 }
 
                 // Validate file types for both front and back files
-                var isFrontFileValid = frontFile ? validateFileType($('input[name="' + documentType +
-                    '_front"]')) : true;
-                var isBackFileValid = backFile ? validateFileType($('input[name="' + documentType +
-                    '_back"]')) : true;
+                var isFrontFileValid = frontFile ?
+                    validateFileType($('input[name="' + documentType + '_front"]')) :
+                    true;
+                var isBackFileValid = backFile ?
+                    validateFileType($('input[name="' + documentType + '_back"]')) :
+                    true;
 
                 if (!isFrontFileValid || !isBackFileValid) {
                     alert('Please upload only files with these extensions: ' + acceptedExtensions.join(
                         ', ') + '.');
-                    e.preventDefault(); // Prevent form submission if file type is invalid
+                    e.preventDefault(); 
                 }
             });
         });
-
-
-
-
         function deleteFile(event, fileId) {
             event.preventDefault();
             if (confirm('Are you sure you want to delete this file?')) {
@@ -1741,4 +1746,3 @@
 
 
 @stop
-{{-- @include('modals.edit-upload-file') --}}
