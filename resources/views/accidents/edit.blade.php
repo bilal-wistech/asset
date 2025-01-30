@@ -143,7 +143,7 @@
     </style>
     <!-- Modal -->
     <div class="modal fade" id="accidentModal" tabindex="-1" role="dialog" aria-labelledby="accidentModalLabel"
-        aria-hidden="true">
+         aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -168,7 +168,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary"
-                        data-dismiss="modal">{{ trans('button.cancel') }}</button>
+                            data-dismiss="modal">{{ trans('button.cancel') }}</button>
                     <button type="button" class="btn btn-primary" id="modal-save">{{ trans('general.save') }}</button>
                 </div>
             </div>
@@ -178,7 +178,7 @@
 
     <!-- Selected user Modal -->
     <div class="modal fade" id="SelecteduserModal" tabindex="-1" role="dialog" aria-labelledby="SelecteduserModalLabel"
-        aria-hidden="true">
+         aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -193,7 +193,8 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" id="goManuallyButton" class="btn btn-secondary" data-dismiss="modal">Go
-                        Manually</button>
+                        Manually
+                    </button>
                     <button type="button" id="goWithSelectedUser" class="btn btn-primary">Go With Selected User</button>
                 </div>
             </div>
@@ -201,11 +202,12 @@
     </div>
     <!-- when no user found Modal -->
     <div style="display: none" class="modal fade" id="Usermodal" tabindex="-1" role="dialog"
-        aria-labelledby="UsermodalLabel" aria-hidden="true">
+         aria-labelledby="UsermodalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h3 class="modal-title text-center font-weight-bold" id="UsermodalLabel">Driver For Selected Asset</h3>
+                    <h3 class="modal-title text-center font-weight-bold" id="UsermodalLabel">Driver For Selected
+                        Asset</h3>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -215,7 +217,8 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" id="goManuallyButton" class="btn btn-primary" data-dismiss="modal">Go
-                        Manually</button>
+                        Manually
+                    </button>
 
                 </div>
             </div>
@@ -229,38 +232,41 @@
                 <div class="box-header with-border">
                     <!-- <h2 class="box-title">
                                                                                                                         @if (Request::is('create-accident*'))
-    {{ trans('general.add_accident') }}
-@else
-    Edit Accident
-    @endif
-                                                                                                                        </h2> -->
+                        {{ trans('general.add_accident') }}
+                    @else
+                        Edit Accident
+
+
+                    @endif
+                    </h2> -->
                 </div><!-- /.box-header -->
                 <div class="box-body">
                     <div class="col-md-12">
                         <form class="form-horizontal" method="post" enctype="multipart/form-data"
-                            action="{{ isset($fine) ? route('accidents.update', $fine->id) : route('accidents.store') }}"
-                            autocomplete="off">
+                              action="{{ isset($fine) ? route('accidents.update', $fine->id) : route('accidents.store') }}"
+                              autocomplete="off">
                             @csrf
                             <div class="form-group">
                                 {{ Form::label('accident_date', 'Accident Date', ['class' => 'col-md-3 control-label']) }}
                                 <div class="col-md-7 date"
-                                    style="display: flex; align-items: center; flex-direction: column;">
+                                     style="display: flex; align-items: center; flex-direction: column;">
                                     <div style="width: 100%; display: flex; align-items: center;">
                                         <!-- Date and Time Input (without seconds) -->
                                         <input type="datetime-local" id="accident_date" class="form-control"
-                                            style="width: 100%;" placeholder="Select Date and Time (YYYY-MM-DD HH:MM)"
-                                            name="accident_date"
-                                            value="{{ isset($fine) ? Carbon::parse($fine->created_at)->format('Y-m-d\TH:i') : Carbon::now()->format('Y-m-d\TH:i') }}">
+                                               style="width: 100%;"
+                                               placeholder="Select Date and Time (YYYY-MM-DD HH:MM)"
+                                               name="accident_date"
+                                               value="{{ isset($fine) ? Carbon::parse($fine->created_at)->format('Y-m-d\TH:i') : Carbon::now()->format('Y-m-d\TH:i') }}">
                                     </div>
                                     <!-- Error Message -->
                                     <span id="asset-error" class="text-danger mt-3"
-                                        style="display:none; align-self: flex-start;"></span>
+                                          style="display:none; align-self: flex-start;"></span>
                                 </div>
                             </div>
                             <!-- asset  -->
                             <div class="form-group">
                                 <label for="asset_id"
-                                    class="col-md-3 control-label">{{ trans('general.asset_id') }}</label>
+                                       class="col-md-3 control-label">{{ trans('general.asset_id') }}</label>
                                 <div class="col-md-7">
                                     {{ Form::select('asset_id', isset($fine) ? [$fine->asset->id => $fine->asset->asset_tag . '  ' . $fine->asset->name] + $assets : ['' => 'Select'] + $assets, isset($fine) ? $fine->asset->id : null, ['class' => 'form-control select2', 'id' => 'asset_id', 'required']) }}
                                 </div>
@@ -270,7 +276,7 @@
                             @if (Request::is('create-accident*'))
                                 <div class="form-group" style="display: none;">
                                     <label for="user_id"
-                                        class="col-md-3 control-label">{{ trans('general.users') }}</label>
+                                           class="col-md-3 control-label">{{ trans('general.users') }}</label>
                                     <div class="col-md-7">
                                         {{ Form::select('user_id', isset($fine) ? [$fine->user->username] + $users : ['' => 'Select'] + $users, isset($fine) ? $fine->user->id : null, ['class' => 'form-control  select2', 'id' => 'user_id', 'required', 'style' => 'width: 100%;']) }}
                                     </div>
@@ -278,7 +284,7 @@
                             @else
                                 <div class="form-group">
                                     <label for="user_id"
-                                        class="col-md-3 control-label">{{ trans('general.users') }}</label>
+                                           class="col-md-3 control-label">{{ trans('general.users') }}</label>
                                     <div class="col-md-7">
                                         {{ Form::select('user_id', isset($fine) ? [$fine->user->username] + $users : ['' => 'Select'] + $users, isset($fine) ? $fine->user->id : null, ['class' => 'form-control  select2', 'id' => 'user_id', 'required', 'style' => 'width: 100%;']) }}
                                     </div>
@@ -287,12 +293,12 @@
                             @if (Request::is('create-accident*'))
                                 <!-- Fine Number -->
                                 <div style="display: none;"
-                                    class="form-group {{ $errors->has('accident_number') ? 'error' : '' }}">
-                                    {{ Form::label('accident_number', 'Accident Number', ['class' => 'col-md-3 control-label']) }}
+                                     class="form-group {{ $errors->has('accident_number') ? 'error' : '' }}">
+                                    {{ Form::label('accident_number', 'Claim Number', ['class' => 'col-md-3 control-label']) }}
                                     <div class="col-md-7">
                                         <input class="form-control" type="text" name="accident_number"
-                                            id="accident_number"
-                                            value="{{ isset($fine) ? $fine->accident_number : '' }}" />
+                                               id="accident_number"
+                                               value="{{ isset($fine) ? $fine->accident_number : '' }}"/>
                                         {!! $errors->first(
                                             'accident_number',
                                             '<span class="alert-msg" aria-hidden="true"><i class="fas fa-times" aria-hidden="true"></i> :message</span>',
@@ -301,11 +307,11 @@
                                 </div>
                             @else
                                 <div class="form-group {{ $errors->has('accident_number') ? 'error' : '' }}">
-                                    {{ Form::label('accident_number', 'Accident Number', ['class' => 'col-md-3 control-label']) }}
+                                    {{ Form::label('accident_number', 'Claim Number', ['class' => 'col-md-3 control-label']) }}
                                     <div class="col-md-7">
                                         <input class="form-control" type="text" name="accident_number"
-                                            id="accident_number"
-                                            value="{{ isset($fine) ? $fine->accident_number : '' }}" />
+                                               id="accident_number"
+                                               value="{{ isset($fine) ? $fine->accident_number : '' }}"/>
                                         {!! $errors->first(
                                             'accident_number',
                                             '<span class="alert-msg" aria-hidden="true"><i class="fas fa-times" aria-hidden="true"></i> :message</span>',
@@ -317,7 +323,7 @@
                             @if (Request::is('create-accident*'))
                                 <div style="display: none;" class="form-group">
                                     <label for="location"
-                                        class="col-md-3 control-label">{{ trans('general.location') }}</label>
+                                           class="col-md-3 control-label">{{ trans('general.location') }}</label>
                                     <div class="col-md-7">
                                         {{ Form::select('location', isset($fine) ? [$fine->findLocation->name] + $location : ['' => 'Select'] + $location, isset($fine) ? $fine->findLocation->id : null, ['class' => 'form-control', 'id' => 'location', 'required']) }}
                                     </div>
@@ -325,7 +331,7 @@
                             @else
                                 <div class="form-group">
                                     <label for="location"
-                                        class="col-md-3 control-label">{{ trans('general.location') }}</label>
+                                           class="col-md-3 control-label">{{ trans('general.location') }}</label>
                                     <div class="col-md-7">
                                         {{ Form::select('location', isset($fine) ? [$fine->findLocation->name] + $location : ['' => 'Select'] + $location, isset($fine) ? $fine->findLocation->id : null, ['class' => 'form-control', 'id' => 'location', 'required']) }}
                                     </div>
@@ -370,12 +376,12 @@
                             <!-- Responsibility Amount-->
                             @if (Request::is('create-accident*'))
                                 <div style="display: none;"
-                                    class="form-group {{ $errors->has('claim_opening') ? 'error' : '' }}">
+                                     class="form-group {{ $errors->has('claim_opening') ? 'error' : '' }}">
                                     <label for="claim_opening" class="col-md-3 control-label">Claim
                                         Opening</label>
                                     <div class="col-md-7">
                                         <input class="form-control" type="number" name="claim_opening"
-                                            id="claim_opening" value="{{ $fine->claim_opening ?? 0 }}" />
+                                               id="claim_opening" value="{{ $fine->claim_opening ?? 0 }}"/>
                                         {!! $errors->first(
                                             'claim_opening',
                                             '<span class="alert-msg" aria-hidden="true"><i class="fas fa-times" aria-hidden="true"></i> :message</span>',
@@ -390,7 +396,7 @@
                                         Opening</label>
                                     <div class="col-md-7">
                                         <input class="form-control" type="number" name="claim_opening"
-                                            id="claim_opening" value="{{ $fine->claim_opening ?? 0 }}" />
+                                               id="claim_opening" value="{{ $fine->claim_opening ?? 0 }}"/>
                                         {!! $errors->first(
                                             'claim_opening',
                                             '<span class="alert-msg" aria-hidden="true"><i class="fas fa-times" aria-hidden="true"></i> :message</span>',
@@ -403,11 +409,11 @@
                             <!-- Damages Amount-->
                             @if (Request::is('create-accident*'))
                                 <div style="display: none;"
-                                    class="form-group {{ $errors->has('damages_amount') ? 'error' : '' }}">
+                                     class="form-group {{ $errors->has('damages_amount') ? 'error' : '' }}">
                                     <label for="damages_amount" class="col-md-3 control-label">Damages Amount</label>
                                     <div class="col-md-7">
                                         <input class="form-control" type="number" name="damages_amount"
-                                            id="damages_amount" value="{{ $fine->damages_amount ?? 0 }}" />
+                                               id="damages_amount" value="{{ $fine->damages_amount ?? 0 }}"/>
                                         {!! $errors->first(
                                             'damages_amount',
                                             '<span class="alert-msg" aria-hidden="true"><i class="fas fa-times" aria-hidden="true"></i> :message</span>',
@@ -421,7 +427,7 @@
                                     <label for="damages_amount" class="col-md-3 control-label">Damages Amount</label>
                                     <div class="col-md-7">
                                         <input class="form-control" type="number" name="damages_amount"
-                                            id="damages_amount" value="{{ $fine->damages_amount ?? 0 }}" />
+                                               id="damages_amount" value="{{ $fine->damages_amount ?? 0 }}"/>
                                         {!! $errors->first(
                                             'damages_amount',
                                             '<span class="alert-msg" aria-hidden="true"><i class="fas fa-times" aria-hidden="true"></i> :message</span>',
@@ -433,14 +439,14 @@
                             @endif
                             @if (Request::is('create-accident*'))
                                 <div style="display: none;"
-                                    class="form-group {{ $errors->has('claimable') ? 'error' : '' }}">
+                                     class="form-group {{ $errors->has('claimable') ? 'error' : '' }}">
                                     <label for="claimable" class="col-md-3 control-label">Claimable</label>
                                     <div class="col-md-7">
                                         <!-- Hidden input for unchecked value -->
                                         <input type="hidden" name="claimable" value="0">
                                         <!-- Checkbox for checked value -->
                                         <input class="slider-toggle" type="checkbox" name="claimable" id="claimable"
-                                            value="1" {{ isset($fine) && $fine->claimable == 1 ? 'checked' : '' }} />
+                                               value="1" {{ isset($fine) && $fine->claimable == 1 ? 'checked' : '' }} />
 
                                         {!! $errors->first(
                                             'claimable',
@@ -458,7 +464,7 @@
                                         <input type="hidden" name="claimable" value="0">
                                         <!-- Checkbox for checked value -->
                                         <input class="slider-toggle" type="checkbox" name="claimable" id="claimable"
-                                            value="1" {{ isset($fine) && $fine->claimable == 1 ? 'checked' : '' }} />
+                                               value="1" {{ isset($fine) && $fine->claimable == 1 ? 'checked' : '' }} />
 
                                         {!! $errors->first(
                                             'claimable',
@@ -472,10 +478,12 @@
 
                             <!-- note -->
                             @if (Request::is('create-accident*'))
-                                <div style="display: none;" class="form-group {{ $errors->has('note') ? 'error' : '' }}">
+                                <div style="display: none;"
+                                     class="form-group {{ $errors->has('note') ? 'error' : '' }}">
                                     {{ Form::label('note', trans('admin/hardware/form.notes'), ['class' => 'col-md-3 control-label']) }}
                                     <div class="col-md-7">
-                                        <textarea class="col-md-6 form-control" id="note" name="note">{{ isset($fine) ? $fine->note : '' }} </textarea>
+                                        <textarea class="col-md-6 form-control" id="note"
+                                                  name="note">{{ isset($fine) ? $fine->note : '' }} </textarea>
                                         {!! $errors->first(
                                             'note',
                                             '<span class="alert-msg" aria-hidden="true"><i class="fas fa-times" aria-hidden="true"></i> :message</span>',
@@ -486,7 +494,8 @@
                                 <div class="form-group {{ $errors->has('note') ? 'error' : '' }}">
                                     {{ Form::label('note', trans('admin/hardware/form.notes'), ['class' => 'col-md-3 control-label']) }}
                                     <div class="col-md-7">
-                                        <textarea class="col-md-6 form-control" id="note" name="note">{{ isset($fine) ? $fine->note : '' }} </textarea>
+                                        <textarea class="col-md-6 form-control" id="note"
+                                                  name="note">{{ isset($fine) ? $fine->note : '' }} </textarea>
                                         {!! $errors->first(
                                             'note',
                                             '<span class="alert-msg" aria-hidden="true"><i class="fa fa-times"                                                       aria-hidden="true"></i> :message</span>',
@@ -496,112 +505,121 @@
                             @endif
                             @if (Request::is('create-accident*'))
                                 <div style="display: none;"
-                                    class="form-group {{ $errors->has('accident_image') ? 'error' : '' }}">
-                                @else
-                                    <div class="form-group {{ $errors->has('accident_image') ? 'error' : '' }}">
-                            @endif
-                            {{ Form::label('Accident Image', 'Accident Images', ['class' => 'col-md-3 control-label']) }}
-                            <div class="col-md-7">
-                                <div class="image-upload-container">
-                                    <!-- Hidden original input -->
-                                    <input type="file" name="accident_image[]" id="accident_image" multiple
-                                        accept="image/*" style="display: none;">
+                                     class="form-group {{ $errors->has('accident_image') ? 'error' : '' }}">
+                                    @else
+                                        <div class="form-group {{ $errors->has('accident_image') ? 'error' : '' }}">
+                                            @endif
+                                            {{ Form::label('Accident Image', 'Accident Images', ['class' => 'col-md-3 control-label']) }}
+                                            <div class="col-md-7">
+                                                <div class="image-upload-container">
+                                                    <!-- Hidden original input -->
+                                                    <input type="file" name="accident_image[]" id="accident_image"
+                                                           multiple
+                                                           accept="image/*" style="display: none;">
 
-                                    <!-- Custom upload button -->
-                                    <button type="button" class="btn btn-primary" id="uploadButton">
-                                        <i class="fas fa-upload"></i> Choose Images
-                                    </button>
-                                    {{-- @dd($fine->accident_image) --}}
-                                    <!-- Preview container -->
-                                    <div class="image-preview-container mt-3" id="imagePreviewContainer">
-                                        @if (isset($fine) && $fine->accident_image)
-                                            <div id="existing-images">
-                                                @php
-                                                    // Split the comma-separated string into an array
-                                                    $fineImages = explode(',', $fine->accident_image);
-                                                @endphp
-                                                @foreach ($fineImages as $image)
-                                                    <div class="image-preview-wrapper">
-                                                        <img src="{{ asset($image) }}" class="image-preview"
-                                                            alt="Fine Image">
+                                                    <!-- Custom upload button -->
+                                                    <button type="button" class="btn btn-primary" id="uploadButton">
+                                                        <i class="fas fa-upload"></i> Choose Images
+                                                    </button>
+                                                    {{-- @dd($fine->accident_image) --}}
+                                                    <!-- Preview container -->
+                                                    <div class="image-preview-container mt-3"
+                                                         id="imagePreviewContainer">
+                                                        @if (isset($fine) && $fine->accident_image)
+                                                            <div id="existing-images">
+                                                                @php
+                                                                    // Split the comma-separated string into an array
+                                                                    $fineImages = explode(',', $fine->accident_image);
+                                                                @endphp
+                                                                @foreach ($fineImages as $image)
+                                                                    <div class="image-preview-wrapper">
+                                                                        <img src="{{ asset($image) }}"
+                                                                             class="image-preview"
+                                                                             alt="Fine Image">
+                                                                    </div>
+                                                                @endforeach
+                                                            </div>
+                                                        @endif
                                                     </div>
-                                                @endforeach
+
+                                                    <!-- Hidden input to track deleted images -->
+                                                    <input type="hidden" name="deleted_accident_images[]"
+                                                           id="deletedImages">
+
+                                                    <!-- Error messages -->
+                                                    @if ($errors->has('accident_image'))
+                                                        <span class="text-danger">{{ $errors->first('accident_image') }}</span>
+                                                    @endif
+                                                </div>
                                             </div>
-                                        @endif
-                                    </div>
+                                            @if (Request::is('create-accident*'))
+                                                <div style="display: none;"
+                                                     class="form-group {{ $errors->has('relevant_files') ? 'error' : '' }}">
+                                                    @else
+                                                        <div class="form-group {{ $errors->has('relevant_files') ? 'error' : '' }}">
+                                                            @endif
+                                                            {{ Form::label('Relevant Files', 'Relevant Files', ['class' => 'col-md-3 control-label']) }}
+                                                            <div class="col-md-7">
+                                                                <div class="file-upload-container">
+                                                                    <!-- Hidden original input -->
+                                                                    <input type="file" name="relevant_files[]"
+                                                                           id="relevant_files" multiple
+                                                                           style="display: none;">
 
-                                    <!-- Hidden input to track deleted images -->
-                                    <input type="hidden" name="deleted_accident_images[]" id="deletedImages">
+                                                                    <!-- Custom upload button -->
+                                                                    <button type="button" class="btn btn-primary"
+                                                                            id="relevantFilesUploadButton">
+                                                                        <i class="fas fa-upload"></i> Choose Files
+                                                                    </button>
 
-                                    <!-- Error messages -->
-                                    @if ($errors->has('accident_image'))
-                                        <span class="text-danger">{{ $errors->first('accident_image') }}</span>
-                                    @endif
-                                </div>
-                            </div>
-                            @if (Request::is('create-accident*'))
-                                <div style="display: none;"
-                                    class="form-group {{ $errors->has('relevant_files') ? 'error' : '' }}">
-                                @else
-                                    <div class="form-group {{ $errors->has('relevant_files') ? 'error' : '' }}">
-                            @endif
-                            {{ Form::label('Relevant Files', 'Relevant Files', ['class' => 'col-md-3 control-label']) }}
-                            <div class="col-md-7">
-                                <div class="file-upload-container">
-                                    <!-- Hidden original input -->
-                                    <input type="file" name="relevant_files[]" id="relevant_files" multiple
-                                        style="display: none;">
+                                                                    <!-- Preview container -->
+                                                                    <div class="file-preview-container mt-3"
+                                                                         id="filePreviewContainer">
+                                                                        @if (isset($fine) && $fine->relevant_files)
+                                                                            <div id="existing-files">
+                                                                                @php
+                                                                                    $relevantFiles = explode(',', $fine->relevant_files);
+                                                                                @endphp
+                                                                                @foreach ($relevantFiles as $file)
+                                                                                    <div class="file-preview-wrapper">
+                                                                                        <div class="file-preview">
+                                                                                            <i class="fas fa-file"></i>
+                                                                                            <span>{{ basename($file) }}</span>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                @endforeach
+                                                                            </div>
+                                                                        @endif
+                                                                    </div>
 
-                                    <!-- Custom upload button -->
-                                    <button type="button" class="btn btn-primary" id="relevantFilesUploadButton">
-                                        <i class="fas fa-upload"></i> Choose Files
-                                    </button>
+                                                                    <!-- Hidden input to track deleted files -->
+                                                                    <input type="hidden" name="deleted_relevant_files[]"
+                                                                           id="deletedFiles">
 
-                                    <!-- Preview container -->
-                                    <div class="file-preview-container mt-3" id="filePreviewContainer">
-                                        @if (isset($fine) && $fine->relevant_files)
-                                            <div id="existing-files">
-                                                @php
-                                                    $relevantFiles = explode(',', $fine->relevant_files);
-                                                @endphp
-                                                @foreach ($relevantFiles as $file)
-                                                    <div class="file-preview-wrapper">
-                                                        <div class="file-preview">
-                                                            <i class="fas fa-file"></i>
-                                                            <span>{{ basename($file) }}</span>
+                                                                    <!-- Error messages -->
+                                                                    @if ($errors->has('relevant_files'))
+                                                                        <span class="text-danger">{{ $errors->first('relevant_files') }}</span>
+                                                                    @endif
+                                                                </div>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                        @endif
-                                    </div>
+                                                </div>
 
-                                    <!-- Hidden input to track deleted files -->
-                                    <input type="hidden" name="deleted_relevant_files[]" id="deletedFiles">
+                                                <div class="box-footer">
+                                                    <a class="btn btn-link"
+                                                       href="{{ URL::previous() }}"> {{ trans('button.cancel') }}</a>
+                                                    <button type="submit" class="btn btn-primary pull-right"><i
+                                                                class="fas fa-check icon-white"
+                                                                aria-hidden="true"></i>
+                                                        {{ trans('general.save') }}</button>
+                                                </div>
+                        </form>
+                    </div> <!--/.col-md-12-->
+                </div> <!--/.box-body-->
 
-                                    <!-- Error messages -->
-                                    @if ($errors->has('relevant_files'))
-                                        <span class="text-danger">{{ $errors->first('relevant_files') }}</span>
-                                    @endif
-                                </div>
-                            </div>
-                    </div>
-                </div>
-
-                <div class="box-footer">
-                    <a class="btn btn-link" href="{{ URL::previous() }}"> {{ trans('button.cancel') }}</a>
-                    <button type="submit" class="btn btn-primary pull-right"><i class="fas fa-check icon-white"
-                            aria-hidden="true"></i>
-                        {{ trans('general.save') }}</button>
-                </div>
-                </form>
-            </div> <!--/.col-md-12-->
-        </div> <!--/.box-body-->
-
-    </div> <!--/.box.box-default-->
+            </div> <!--/.box.box-default-->
+        </div>
     </div>
-    </div>
-
 
 @stop
 
@@ -609,8 +627,8 @@
 @section('moar_scripts')
 
     <script>
-        $(document).ready(function() {
-            $('#responsibility').change(function() {
+        $(document).ready(function () {
+            $('#responsibility').change(function () {
                 var responsibilityValue = $(this).val();
 
                 if (responsibilityValue === 'driver mistake') {
@@ -623,7 +641,7 @@
                             data: {
                                 asset_id: assetId
                             },
-                            success: function(response) {
+                            success: function (response) {
                                 if (response.success) {
                                     $('#claim_opening').val(response
                                         .accident_minimum_payment);
@@ -635,7 +653,7 @@
                                         .message); // This will show error message if not found
                                 }
                             },
-                            error: function() {
+                            error: function () {
                                 console.log('Error retrieving Claim Opening.');
                             }
                         });
@@ -652,20 +670,20 @@
         });
 
 
-
-        $(document).ready(function() {
+        $(document).ready(function () {
             var username = '';
             var userId = '';
+            var fullName = '';
             var dateSelected = true;
             var assetSelected = false;
-            $('#accident_date').on('change', function() {
+            $('#accident_date').on('change', function () {
                 dateSelected = true;
                 $('#asset-error').hide();
                 if (assetSelected) {
                     sendAjaxRequest();
                 }
             });
-            $('#asset_id').on('change', function() {
+            $('#asset_id').on('change', function () {
                 assetSelected = true;
                 if (dateSelected) {
                     sendAjaxRequest();
@@ -673,6 +691,7 @@
                     $('#asset-error').text('Please select a date and time first.').show();
                 }
             });
+
             function sendAjaxRequest() {
                 var selectedDate = $('#accident_date').val(); // Get date and time without seconds
                 var selectedAssetId = $('#asset_id').val();
@@ -684,53 +703,60 @@
                         accident_date: selectedDate, // Send formatted date and time (without seconds)
                         asset_id: selectedAssetId
                     },
-                    success: function(response) {
-                        console.log(response.message);
+                    success: function (response) {
+                        // console.log(response);
+                        // console.log(response.message);
+                        // console.log(response.users);
                         if (response.message === 'There is no user for Selected datetime.') {
                             // Show user modal if no user is found for the selected datetime
                             $('#Usermodal').modal('show');
+
                             var $select = $('#user_id');
                             $select.empty();
                             $select.append($('<option>', {
                                 value: '',
                                 text: 'Select a user'
                             }));
-                            $.each(response.users, function(id, username) {
+
+                            // Loop through response.users properly
+                            $.each(response.users, function (id, user) {
                                 $select.append($('<option>', {
-                                    value: id,
-                                    text: username
+                                    value: user.id, // Ensure 'id' is correctly referenced
+                                    text: user.first_name + ' ' + user.last_name + ' - ' + user.username
                                 }));
                             });
                         } else {
                             // Show success message in modal
+                            fullName = response.users.first_name + ' ' + response.users.last_name;
                             username = response.message.username || 'Unknown User';
                             userId = response.message.id || 'Unknown ID';
-                            var text = username +
+                            var text = fullName + ' - ' + username +
                                 ' is the assigned driver for the selected asset on the chosen date and time.';
                             $('#myselecteduser').text(text);
                             $('#SelecteduserModal').modal('show');
                         }
                     },
-                    error: function(xhr) {
+                    error: function (xhr) {
                         console.log(xhr.responseText);
                     }
                 });
             }
-            $('#Usermodal').on('click', '#goManuallyButton', function() {
+
+            $('#Usermodal').on('click', '#goManuallyButton', function () {
                 $('#Usermodal').modal('hide');
                 $('#claim_opening,#accident_number, #fine_type, #amount, #location, #accident_image, #note, #user_id,#responsibility,#damages_amount,#claimable,#relevant_files')
                     .closest(
                         '.form-group').css('display', 'block');
                 $('.col-md-1.col-sm-1.text-left').css('display', 'block');
             });
-            $('#SelecteduserModal').on('click', '#goManuallyButton', function() {
+            $('#SelecteduserModal').on('click', '#goManuallyButton', function () {
                 $('#SelecteduserModal').modal('hide');
                 $('#claim_opening,#accident_number,#responsibility, #fine_type, #amount, #location, #accident_image, #note, #user_id,#damages_amount,#claimable,#relevant_files')
                     .closest(
                         '.form-group').css('display', 'block');
                 $('.col-md-1.col-sm-1.text-left').css('display', 'block');
             });
-            $('#SelecteduserModal').on('click', '#goWithSelectedUser', function() {
+            $('#SelecteduserModal').on('click', '#goWithSelectedUser', function () {
                 $('#SelecteduserModal').modal('hide');
                 $('#user_id').empty();
                 $('#user_id').append(new Option(username, userId));
@@ -741,7 +767,7 @@
             });
         });
         // Accident type code
-        $('#fine_type').change(function() {
+        $('#fine_type').change(function () {
             var fineTypeId = $(this).val();
             $.ajax({
                 url: '/get-accident-type-amount',
@@ -749,7 +775,7 @@
                 data: {
                     fine_type_id: fineTypeId
                 },
-                success: function(response) {
+                success: function (response) {
                     if (response.amount !== undefined) {
                         $('#amount').val(response.amount);
                         $('#amount-error').hide();
@@ -758,7 +784,7 @@
                         $('#amount-error').show();
                     }
                 },
-                error: function() {
+                error: function () {
                     $('#amount').val(0);
                     $('#amount-error').text('Error occurred while fetching the amount').show();
                 }
@@ -766,11 +792,11 @@
 
         });
         //Accident Modal code
-        $('#accidentmodel').on('click', function() {
+        $('#accidentmodel').on('click', function () {
             $('#accidentModal').css('display', 'block');
         });
         // Handle save button click
-        $('#modal-save').on('click', function() {
+        $('#modal-save').on('click', function () {
             // Serialize form data
             var formData = {
                 name: $('#modal-name').val(),
@@ -783,7 +809,7 @@
                 url: "{{ route('api.accident_type') }}",
                 type: "POST",
                 data: formData,
-                success: function(response) {
+                success: function (response) {
                     if (response.status === 'success') {
                         //alert('Data saved successfully!');
                         var newOption = new Option(response.data.name, response.data.id, true, true);
@@ -797,20 +823,20 @@
                         $('#modal_error_msg').text(response.message).show();
                     }
                 },
-                error: function(xhr) {
+                error: function (xhr) {
                     var errors = xhr.responseJSON.errors;
                     var errorMessages = '';
-                    $.each(errors, function(key, value) {
+                    $.each(errors, function (key, value) {
                         errorMessages += value[0] + '<br>';
                     });
                     $('#modal_error_msg').html(errorMessages).show();
                 }
             });
         });
-        $('.close, .btn-secondary').on('click', function() {
+        $('.close, .btn-secondary').on('click', function () {
             $('#accidentModal').modal('hide');
         });
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const fileInput = document.getElementById('accident_image');
             const uploadButton = document.getElementById('uploadButton');
             const previewContainer = document.getElementById('imagePreviewContainer');
@@ -833,7 +859,7 @@
                 fileInput.click();
             });
 
-            fileInput.addEventListener('change', function(e) {
+            fileInput.addEventListener('change', function (e) {
                 const files = Array.from(e.target.files);
 
                 files.forEach(file => {
@@ -849,7 +875,7 @@
 
             // Modified handler for existing images
             document.querySelectorAll('.existing-image .remove-image').forEach(button => {
-                button.addEventListener('click', function() {
+                button.addEventListener('click', function () {
                     const wrapper = this.closest('.image-preview-wrapper');
                     const imagePath = this.getAttribute('data-image');
 
@@ -877,7 +903,7 @@
             function createPreview(file, isExisting = false) {
                 const reader = new FileReader();
 
-                reader.onload = function(e) {
+                reader.onload = function (e) {
                     const wrapper = document.createElement('div');
                     wrapper.className = 'image-preview-wrapper' + (isExisting ? ' existing-image' : '');
 
@@ -888,7 +914,7 @@
                     const removeButton = document.createElement('button');
                     removeButton.className = 'remove-image';
                     removeButton.innerHTML = '×';
-                    removeButton.onclick = function() {
+                    removeButton.onclick = function () {
                         wrapper.remove();
 
                         // Remove file from currentFiles
@@ -953,7 +979,7 @@
                 fileInput.files = currentFiles.files;
             }
         });
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const fileInput = document.getElementById('relevant_files');
             const uploadButton = document.getElementById('relevantFilesUploadButton');
             const previewContainer = document.getElementById('filePreviewContainer');
@@ -975,7 +1001,7 @@
                 fileInput.click();
             });
 
-            fileInput.addEventListener('change', function(e) {
+            fileInput.addEventListener('change', function (e) {
                 const files = Array.from(e.target.files);
 
                 files.forEach(file => {
@@ -991,7 +1017,7 @@
 
             // Handler for existing files
             document.querySelectorAll('.existing-file .remove-file').forEach(button => {
-                button.addEventListener('click', function() {
+                button.addEventListener('click', function () {
                     const wrapper = this.closest('.file-preview-wrapper');
                     const filePath = this.getAttribute('data-file');
 
@@ -1027,7 +1053,7 @@
                 const removeButton = document.createElement('button');
                 removeButton.className = 'remove-file';
                 removeButton.innerHTML = '×';
-                removeButton.onclick = function() {
+                removeButton.onclick = function () {
                     wrapper.remove();
 
                     // Remove file from currentFiles
