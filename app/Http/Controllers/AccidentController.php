@@ -458,7 +458,7 @@ class AccidentController extends Controller
         if ($asset) {
             $userId = $asset->user_id;
             $user = User::where('id', $userId)
-                ->select('id', 'username')
+                ->select('id', 'username','first_name', 'last_name')
                 ->first();
 
             return response()->json([
@@ -466,8 +466,7 @@ class AccidentController extends Controller
                 'message' => $user,
             ]);
         } else {
-            $users = User::all()->pluck('username', 'id')->toArray();
-
+            $users = User::select('id', 'first_name', 'last_name', 'username')->get()->toArray();
             return response()->json([
                 'success' => false,
                 'message' => 'There is no user for Selected datetime.',
