@@ -236,6 +236,7 @@
                     @else
                         Edit Accident
 
+
                     @endif
                     </h2> -->
                 </div><!-- /.box-header -->
@@ -672,6 +673,7 @@
         $(document).ready(function () {
             var username = '';
             var userId = '';
+            var fullName = '';
             var dateSelected = true;
             var assetSelected = false;
             $('#accident_date').on('change', function () {
@@ -725,9 +727,10 @@
                             });
                         } else {
                             // Show success message in modal
+                            fullName = response.users.first_name + ' ' + response.users.last_name;
                             username = response.message.username || 'Unknown User';
                             userId = response.message.id || 'Unknown ID';
-                            var text = username +
+                            var text = fullName + ' - ' + username +
                                 ' is the assigned driver for the selected asset on the chosen date and time.';
                             $('#myselecteduser').text(text);
                             $('#SelecteduserModal').modal('show');
