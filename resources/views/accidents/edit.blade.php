@@ -288,7 +288,7 @@
                                 <!-- Fine Number -->
                                 <div style="display: none;"
                                     class="form-group {{ $errors->has('accident_number') ? 'error' : '' }}">
-                                    {{ Form::label('accident_number', 'Accident Number', ['class' => 'col-md-3 control-label']) }}
+                                    {{ Form::label('accident_number', 'Claim Number', ['class' => 'col-md-3 control-label']) }}
                                     <div class="col-md-7">
                                         <input class="form-control" type="text" name="accident_number"
                                             id="accident_number"
@@ -301,7 +301,7 @@
                                 </div>
                             @else
                                 <div class="form-group {{ $errors->has('accident_number') ? 'error' : '' }}">
-                                    {{ Form::label('accident_number', 'Accident Number', ['class' => 'col-md-3 control-label']) }}
+                                    {{ Form::label('accident_number', 'Claim Number', ['class' => 'col-md-3 control-label']) }}
                                     <div class="col-md-7">
                                         <input class="form-control" type="text" name="accident_number"
                                             id="accident_number"
