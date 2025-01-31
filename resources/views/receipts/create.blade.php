@@ -74,6 +74,21 @@
             top: -250%;
             right: 0;
         }
+        .date {
+            position: relative;
+        }
+
+        .input-group-addon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+        }
+
+        .form-control {
+            padding-right: 35px;
+        }
     </style>
 
     @php
@@ -86,9 +101,10 @@
                 <div class="form-group  myform {{ $errors->has('receipt') ? 'error' : '' }}">
                     {{ Form::label('receipt', trans('Adjustment-ID'), ['class' => ' control-label']) }}
                     <div class="">
-                        <input class="form-control" type="number" name="receipt_id" id="receipt" placeholder="1234567890"
-                            required value="{{ old('receipt_id', $nextReceiptId ?? '') }}"
-                            title="This is an auto-generated ID. You can edit it if necessary." />
+                        <input class="form-control" type="number" name="receipt_id" id="receipt"
+                               placeholder="1234567890"
+                               required value="{{ old('receipt_id', $nextReceiptId ?? '') }}"
+                               title="This is an auto-generated ID. You can edit it if necessary."/>
                         {!! $errors->first(
                             'receipt',
                             '<span class="alert-msg" aria-hidden="true"><i
@@ -109,8 +125,8 @@
                                     <option value="">Select</option>
                                     @foreach ($users as $names)
                                         <option value="{{ $names->id }}"
-                                            {{ old('user_id', $old_request['user_id'] ?? '') == $names->id ? 'selected' : '' }}>
-                                            {{ $names->username }}
+                                                {{ old('user_id', $old_request['user_id'] ?? '') == $names->id ? 'selected' : '' }}>
+                                            {{ $names->first_name.' '.$names->last_name.' - '.$names->username }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -118,14 +134,17 @@
                         </div>
 
                         <div class="row_input">
-                            <div class="form-group myform ">
-                                {{ Form::label('receipt_date', trans('Adjustment Date'), ['class' => ' control-label']) }}
-                                <div class="date" style="display: table" data-provide="datepicker"
-                                    data-date-format="dd-mm-yyyy" data-autoclose="true">
-                                    <input type="text" class="form-control" placeholder="Select Date (DD-MM-YYYY)"
-                                        name="receipt_date" required>
-                                    <span class="input-group-addon"><i class="fas fa-calendar"
-                                            aria-hidden="true"></i></span>
+                            <div class="form-group myform">
+                                {{ Form::label('receipt_date', trans('Adjustment Date'), ['class' => 'control-label']) }}
+                                <div class="date" style="display: table">
+                                    <input type="text"
+                                           class="form-control datepicker"
+                                           placeholder="Select Date (DD-MM-YYYY)"
+                                           name="receipt_date"
+                                           required>
+                                    <span class="input-group-addon">
+                <i class="fas fa-calendar" aria-hidden="true"></i>
+            </span>
                                 </div>
                             </div>
                         </div>
@@ -134,7 +153,7 @@
                                 {{ Form::label('deduction_way', trans('Adjustment Way'), ['class' => ' control-label']) }}
                                 <div class="">
                                     <select name="deduction_way" class="form-control" required>
-                                        <option value="" disabled selected>Select Deduction Way</option>
+                                        <option value="" disabled selected>Select Adjustment Way</option>
                                         <option value="cash">Cash</option>
                                         <option value="salary">Salary</option>
                                     </select>
@@ -146,9 +165,9 @@
                                 {{ Form::label('slip', trans('Slip-ID'), ['class' => ' control-label']) }}
                                 <div class="">
                                     <input class="form-control" type="text" name="slip_id" id="slip"
-                                        pattern="\d{3}-?\d{5}-?\d{1}"
-                                        title="Enter a valid fine number in the format 031-26837-8 or 031268378"
-                                        value="{{ old('slip_id' ?? '') }}" />
+                                           pattern="\d{3}-?\d{5}-?\d{1}"
+                                           title="Enter a valid fine number in the format 031-26837-8 or 031268378"
+                                           value="{{ old('slip_id' ?? '') }}"/>
                                     {!! $errors->first(
                                         'slip',
                                         '<span class="alert-msg" aria-hidden="true"><i
@@ -169,16 +188,17 @@
             </div>
         </div>
         <div class="table-responsive " style="display: none; margin-top:50px;">
-            <table data-cookie-id-table="FinesTable" data-pagination="true" data-id-table="FinesTable" data-search="false"
-                class="table table-striped snipe-table">
+            <table data-cookie-id-table="FinesTable" data-pagination="true" data-id-table="FinesTable"
+                   data-search="false"
+                   class="table table-striped snipe-table">
                 <thead>
-                    <tr>
-                        <th scope="col">Type</th>
-                        <th scope="col">Description</th>
-                        <th scope="col">Amount</th>
-                        <th scope="col">Payment</th>
+                <tr>
+                    <th scope="col">Type</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Amount</th>
+                    <th scope="col">Payment</th>
 
-                    </tr>
+                </tr>
                 </thead>
                 <tbody>
 
@@ -195,8 +215,8 @@
 @stop
 @section('moar_scripts')
     <script>
-        $(document).ready(function() {
-            $('#user_id').on('change', function() {
+        $(document).ready(function () {
+            $('#user_id').on('change', function () {
                 const userId = $(this).val();
                 if (userId) {
                     $.ajax({
@@ -206,7 +226,7 @@
                             user_id: userId
                         },
                         dataType: "json",
-                        success: function(response) {
+                        success: function (response) {
                             console.log(response);
 
                             if (!response || !response.details || response.details.length ===
@@ -258,15 +278,15 @@
                                     tableBody.append(`
                                     <tr>
                                         <td>
-  <a 
+  <a
     href="${
-      detail.type === 'Fine' 
-        ? `/fine/show/${detail.id}` 
-        : detail.type === 'Deduction' 
-        ? `/deductions/show/${detail.id}` 
-        : `/accident/show/${detail.id}`
-    }" 
-    target="_blank" 
+                                        detail.type === 'Fine'
+                                            ? `/fine/show/${detail.id}`
+                                            : detail.type === 'Deduction'
+                                                ? `/deductions/show/${detail.id}`
+                                                : `/accident/show/${detail.id}`
+                                    }"
+    target="_blank"
     rel="noopener noreferrer"
   >
     ${detail.tag ? `${detail.tag} - ${detail.type}` : `${detail.type}-${detail.id}`}
@@ -275,17 +295,17 @@
                                         <td>${detail.note || 'No note available'}</td>
                                         <td>${detailAmount.toFixed(2)}</td>
                                         <td>
-                                            <input type="number" 
-                                                   class="form-control payment-input" 
-                                                   name="payment[${index}]" 
-                                                   data-type-id="${detail.id}" 
-                                                   data-amount="${detailAmount.toFixed(2)}" 
-                                                   min="0" 
-                                                   max="${detailAmount.toFixed(2)}" 
-                                                   step="0.01" 
+                                            <input type="number"
+                                                   class="form-control payment-input"
+                                                   name="payment[${index}]"
+                                                   data-type-id="${detail.id}"
+                                                   data-amount="${detailAmount.toFixed(2)}"
+                                                   min="0"
+                                                   max="${detailAmount.toFixed(2)}"
+                                                   step="0.01"
                                                    placeholder="Enter payment" />
                                         </td>
-                                        
+
                                     </tr>
                                 `);
                                 });
@@ -306,13 +326,13 @@
                                     // <td></td>
                                     // <td></td>
                                 </tr>
-                    
+
                             `);
 
                                 tableContainer.show();
 
                                 // Handle payment input changes
-                                $('.payment-input').on('input', function() {
+                                $('.payment-input').on('input', function () {
                                     const currentInput = $(this);
                                     const typeId = currentInput.data('type-id');
                                     const fineAmount = parseFloat(currentInput.data(
@@ -347,7 +367,7 @@
 
                                     // Recalculate total payments
                                     const totalPayments = Object.values(dataToSend
-                                            .types)
+                                        .types)
                                         .reduce((sum, type) => sum + parseFloat(type
                                             .payment || 0), 0);
 
@@ -369,7 +389,7 @@
                                 tableContainer.show();
                             }
                         },
-                        error: function() {
+                        error: function () {
                             $('#total_fine').val(0);
                             $('.snipe-table tbody').empty();
                             $('.table-responsive').hide();
@@ -382,7 +402,7 @@
                 }
             });
             // Handle payment input click to auto-fill amount
-            $('.snipe-table').on('click', '.payment-input', function() {
+            $('.snipe-table').on('click', '.payment-input', function () {
                 const currentInput = $(this);
                 const fineAmount = parseFloat(currentInput.data(
                     'amount')); // Get the fine amount from the data attribute
@@ -395,9 +415,9 @@
                 currentInput.trigger('input');
             });
             // Form submission handling
-            $('form').on('submit', function(e) {
+            $('form').on('submit', function (e) {
                 const formDataArray = [];
-                $('input.dynamic-input').each(function() {
+                $('input.dynamic-input').each(function () {
                     const name = $(this).attr('name');
                     const value = $(this).val();
                     const match = name.match(/\[(\d+)]/);
@@ -432,6 +452,12 @@
             });
         });
         $('.select2').select2();
+
+            $('.datepicker').datepicker({
+                format: 'dd-mm-yyyy',
+                autoclose: true,
+                todayHighlight: true
+            }).datepicker('setDate', new Date());  // Set current date as default
     </script>
 
 
