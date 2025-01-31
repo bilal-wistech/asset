@@ -41,6 +41,6 @@ class Receipt extends Model
     // Define the relationship with the ReceiptDetail model (One-to-Many)
     public function receiptDetails()
     {
-        return $this->hasMany(ReceiptDetail::class, 'id', 'receipt_id');
+        return $this->hasMany(ReceiptDetail::class);
     }
 }

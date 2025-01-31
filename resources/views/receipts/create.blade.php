@@ -445,8 +445,8 @@
 
                 const form = $('form');
                 form.append(`
-                <input type="hidden" name="total_fine" value="${totalFine}">
-                <input type="hidden" name="total_recived" value="${totalReceived}">
+                <input type="hidden" name="remaining_amount" value="${totalFine}">
+                <input type="hidden" name="amount_recieved" value="${totalReceived}">
                 <input type="hidden" name="total_payable" value="${totalPayable}">
             `);
             });

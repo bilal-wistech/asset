@@ -53,7 +53,6 @@ class ReceiptController extends Controller
      */
     public function store(Request $request)
     {
-        dd($request);
         foreach ($request->type_id as $index => $typeId) {
             $type = $request->type[$index];
             $payment = (float) $request->payment[$index];
