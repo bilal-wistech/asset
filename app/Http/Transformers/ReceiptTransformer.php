@@ -41,7 +41,7 @@ class ReceiptTransformer
                 'deduction_way' => $receipt->deduction_way,
                 'date' => $receipt->date ? Helper::getFormattedDateObject($receipt->date, 'datetime') : null,
                 'created_at' => $receipt->created_at ? Helper::getFormattedDateObject($receipt->created_at, 'datetime') : null,
-                'total_amount' => $receipt->total_amount,
+                'total_amount' => $receipt->receiptDetails->sum('payment')
             ];
 
             $permissions_array['available_actions'] = [
