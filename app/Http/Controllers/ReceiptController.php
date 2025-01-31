@@ -53,8 +53,6 @@ class ReceiptController extends Controller
      */
     public function store(Request $request)
     {
-
-
         foreach ($request->type_id as $index => $typeId) {
             $type = $request->type[$index];
             $payment = (float) $request->payment[$index];
@@ -139,7 +137,7 @@ class ReceiptController extends Controller
         $group_id = [2, 3];
         $users = User::join('users_groups', 'users.id', '=', 'users_groups.user_id')
             ->whereIn('users_groups.group_id', $group_id)
-            ->select('users.id', 'users.username')
+            ->select('users.id', 'users.username','users.first_name','users.last_name')
             ->get();
         $receipt = DB::table('receipt')
             ->leftJoin('receipt_details', 'receipt_details.receipt_id', '=', 'receipt.receipt_id')
@@ -503,7 +501,7 @@ class ReceiptController extends Controller
         $group_id = [2, 3];
         $users = User::join('users_groups', 'users.id', '=', 'users_groups.user_id')
             ->whereIn('users_groups.group_id', $group_id)
-            ->select('users.id', 'users.username')
+            ->select('users.id', 'users.username','users.first_name', 'users.last_name')
             ->get();
 
         // Calculate the next receipt ID
