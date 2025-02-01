@@ -273,23 +273,20 @@
                             </div>
 
                             <!-- Users -->
-                            @if (Request::is('create-accident*'))
-                                <div class="form-group" style="display: none;">
-                                    <label for="user_id"
-                                           class="col-md-3 control-label">{{ trans('general.users') }}</label>
-                                    <div class="col-md-7">
-                                        {{ Form::select('user_id', isset($fine) ? [$fine->user->username] + $users : ['' => 'Select'] + $users, isset($fine) ? $fine->user->id : null, ['class' => 'form-control  select2', 'id' => 'user_id', 'required', 'style' => 'width: 100%;']) }}
-                                    </div>
+                            <div class="form-group" @if(Request::is('create-accident*')) style="display: none;" @endif>
+                                <label for="user_id" class="col-md-3 control-label">{{ trans('general.users') }}</label>
+                                <div class="col-md-7">
+                                    {{ Form::select('user_id',
+                                        [''=>'Select'] + $users,
+                                        isset($fine) ? $fine->user_id : null,
+                                        ['class' => 'form-control select2',
+                                         'id' => 'user_id',
+                                         'required',
+                                         'style' => 'width: 100%;'
+                                        ]
+                                    ) }}
                                 </div>
-                            @else
-                                <div class="form-group">
-                                    <label for="user_id"
-                                           class="col-md-3 control-label">{{ trans('general.users') }}</label>
-                                    <div class="col-md-7">
-                                        {{ Form::select('user_id', isset($fine) ? [$fine->user->username] + $users : ['' => 'Select'] + $users, isset($fine) ? $fine->user->id : null, ['class' => 'form-control  select2', 'id' => 'user_id', 'required', 'style' => 'width: 100%;']) }}
-                                    </div>
-                                </div>
-                            @endif
+                            </div>
                             @if (Request::is('create-accident*'))
                                 <!-- Fine Number -->
                                 <div style="display: none;"
