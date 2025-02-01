@@ -249,23 +249,20 @@
 
 
                             <!-- Users -->
-                            @if (Request::is('create*'))
-                                <div class="form-group" style="display: none;">
-                                    <label for="user_id"
-                                        class="col-md-3 control-label">{{ trans('general.users') }}</label>
-                                    <div class="col-md-7">
-                                        {{ Form::select('user_id', isset($fine) ? [$fine->user->username] + $users : ['' => 'Select'] + $users, isset($fine) ? $fine->user->id : null, ['class' => 'form-control  select2', 'id' => 'user_id', 'required', 'style' => 'width: 100%;']) }}
-                                    </div>
+                            <div class="form-group" @if(Request::is('create*')) style="display: none;" @endif>
+                                <label for="user_id" class="col-md-3 control-label">{{ trans('general.users') }}</label>
+                                <div class="col-md-7">
+                                    {{ Form::select('user_id',
+                                        [''=>'Select'] + $users,
+                                        isset($fine) ? $fine->user_id : null,
+                                        ['class' => 'form-control select2',
+                                         'id' => 'user_id',
+                                         'required',
+                                         'style' => 'width: 100%;'
+                                        ]
+                                    ) }}
                                 </div>
-                            @else
-                                <div class="form-group">
-                                    <label for="user_id"
-                                        class="col-md-3 control-label">{{ trans('general.users') }}</label>
-                                    <div class="col-md-7">
-                                        {{ Form::select('user_id', isset($fine) ? [$fine->user->username] + $users : ['' => 'Select'] + $users, isset($fine) ? $fine->user->id : null, ['class' => 'form-control  select2', 'id' => 'user_id', 'required', 'style' => 'width: 100%;']) }}
-                                    </div>
-                                </div>
-                            @endif
+                            </div>
 
                             <!-- Fine Number -->
                             @if (Request::is('create*'))
@@ -582,27 +579,30 @@
                         asset_id: selectedAssetId
                     },
                     success: function(response) {
-                        console.log(response.message);
                         if (response.message === 'There is no user for Selected datetime.') {
                             // Show user modal if no user is found for the selected datetime
                             $('#Usermodal').modal('show');
+
                             var $select = $('#user_id');
                             $select.empty();
                             $select.append($('<option>', {
                                 value: '',
                                 text: 'Select a user'
                             }));
-                            $.each(response.users, function(id, username) {
+
+                            // Loop through response.users properly
+                            $.each(response.users, function (id, user) {
                                 $select.append($('<option>', {
-                                    value: id,
-                                    text: username
+                                    value: user.id, // Ensure 'id' is correctly referenced
+                                    text: user.first_name + ' ' + user.last_name + ' - ' + user.username
                                 }));
                             });
                         } else {
                             // Show success message in modal
+                            fullName = response.users.first_name + ' ' + response.users.last_name;
                             username = response.message.username || 'Unknown User';
                             userId = response.message.id || 'Unknown ID';
-                            var text = username +
+                            var text = fullName + ' - ' + username +
                                 ' is the assigned driver for the selected asset on the chosen date and time.';
                             $('#myselecteduser').text(text);
                             $('#SelecteduserModal').modal('show');
