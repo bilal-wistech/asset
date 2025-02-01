@@ -250,7 +250,7 @@
 
                 <tr class="total-row">
                     <td colspan="1"><strong>Total Received</strong></td>
-                    <td id="totalReceived" colspan="3">{{ number_format($totalPayment, 2) }}</td>
+                    <td id="totalReceived" colspan="3">{{ ($totalPayment) }}</td>
                 </tr>
                 <tr class="total-row">
                     <td colspan="1"><strong>Remaining Payable<strong></strong></td>
@@ -285,7 +285,7 @@
 
     <script>
         $(document).ready(function () {
-            const initialTotalPayment = parseFloat('{{ number_format($totalPayment, 2) }}');
+            const initialTotalPayment = parseFloat('{{ round($totalPayment, 2) }}');
 
             function calculateTotals() {
                 let totalAdditionalPayments = 0;
