@@ -92,6 +92,7 @@ class AccidentController extends Controller
         // }
         return redirect()->back()->with('success', 'Receipt  saved successfully!');
     }
+
     public function getUserFineBoth(Request $request)
     {
         $userId = $request->input('user_id');
@@ -164,6 +165,7 @@ class AccidentController extends Controller
             ->get();
         return view('layouts/regrid/payable_drivers')->with('users', $users);
     }
+
     public function index()
     {
 
@@ -193,6 +195,7 @@ class AccidentController extends Controller
         // dd($assets);
         return view('accidents.edit', compact('assets', 'fine_type', 'location', 'users'));
     }
+
     public function store(Request $request)
     {
         try {
@@ -263,7 +266,7 @@ class AccidentController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -283,7 +286,7 @@ class AccidentController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -293,7 +296,14 @@ class AccidentController extends Controller
 
         $assets = Asset::all()->pluck('asset_tag', 'id')->toArray();
 
-        $users = User::all()->pluck('username', 'id')->toArray();
+        $users = User::select('id', 'first_name', 'last_name', 'username')
+            ->get()
+            ->mapWithKeys(function ($user) {
+                // Combine first_name and last_name for display
+                $fullName = $user->first_name . ' ' . $user->last_name . ' - ' . $user->username;
+                return [$user->id => $fullName];
+            })
+            ->toArray();
         $fine_type = AccidentType::all()->pluck('name', 'id')->toArray();
         $location = Location::all()->pluck('name', 'id')->toArray();
 
@@ -390,10 +400,11 @@ class AccidentController extends Controller
 
         return redirect()->route('accidents')->with('error', 'Accident not found');
     }
+
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -404,6 +415,7 @@ class AccidentController extends Controller
         $data->delete();
         return redirect()->route('accidents')->with('success', 'data deleted successfully');
     }
+
     public function getFineTypeAmount(Request $request)
     {
         $fineTypeId = $request->fine_type_id;
@@ -458,7 +470,7 @@ class AccidentController extends Controller
         if ($asset) {
             $userId = $asset->user_id;
             $user = User::where('id', $userId)
-                ->select('id', 'username','first_name', 'last_name')
+                ->select('id', 'username', 'first_name', 'last_name')
                 ->first();
 
             return response()->json([
