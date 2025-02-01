@@ -57,7 +57,7 @@ class FineController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     // public function store(Request $request)
@@ -208,7 +208,7 @@ class FineController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -221,7 +221,7 @@ class FineController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -230,7 +230,14 @@ class FineController extends Controller
         $fine = Fine::find($id);
 
         $assets = Asset::all();
-        $users = User::all()->pluck('username', 'id')->toArray();
+        $users = User::select('id', 'first_name', 'last_name', 'username')
+            ->get()
+            ->mapWithKeys(function ($user) {
+                // Combine first_name and last_name for display
+                $fullName = $user->first_name . ' ' . $user->last_name . ' - ' . $user->username;
+                return [$user->id => $fullName];
+            })
+            ->toArray();
         $fine_type = FineType::all()->pluck('name', 'id')->toArray();
         $location = Location::all()->pluck('name', 'id')->toArray();
         return view('fines.edit', compact('fine', 'assets', 'users', 'fine_type', 'location'));
@@ -239,8 +246,8 @@ class FineController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param \Illuminate\Http\Request $request
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     // public function update(Request $request, $id)
@@ -331,7 +338,7 @@ class FineController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -341,6 +348,7 @@ class FineController extends Controller
         $data->delete();
         return redirect()->route('fines')->with('success', 'data deleted successfully');
     }
+
     public function getFineTypeAmount(Request $request)
     {
         $fineTypeId = $request->fine_type_id;
@@ -370,14 +378,14 @@ class FineController extends Controller
         if ($asset) {
             $userId = $asset->user_id;
             $user = User::where('id', $userId)
-                ->select('id', 'username')
+                ->select('id', 'username', 'first_name', 'last_name')
                 ->first();
             return response()->json([
                 'success' => true,
                 'message' => $user
             ]);
         } else {
-            $users = User::all()->pluck('username', 'id')->toArray();
+            $users = User::select('id', 'first_name', 'last_name', 'username')->get()->toArray();
             return response()->json([
 
                 'success' => false,
