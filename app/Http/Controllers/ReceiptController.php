@@ -14,6 +14,7 @@ use App\Models\ResponsibilityFine;
 use App\Models\FineType;
 use App\Models\AccidentType;
 use App\Models\User;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\SendPushNotification;
 use Kutia\Larafirebase\Facades\Larafirebase;
@@ -604,10 +605,46 @@ class ReceiptController extends Controller
         return response()->json($receipt);
     }
 
-
+    public function printReceipt($id)
+    {
+      
+        $receipt = DB::table('receipt')
+            ->leftJoin('receipt_details', 'receipt_details.receipt_id', '=', 'receipt.receipt_id')
+            ->leftJoin('users', 'users.id', '=', 'receipt.user_id')
+            ->where('receipt.receipt_id', $id)
+            ->select('receipt.*', 'receipt_details.*', 'users.username as user_name')
+            ->get();
+      foreach ($receipt as $item) {
+            $previousAmount = null;
+    
+            switch ($item->type) {
+                case 'Fine':
+                    $previousAmount = DB::table('fines')
+                        ->where('id', $item->type_id)
+                        ->value('amount');
+                    break;
+    
+                case 'Accident':
+                    $previousAmount = DB::table('accidents')
+                        ->where('id', $item->type_id)
+                        ->value('responsibility_amount');
+                    break;
+    
+                case 'Deduction':
+                    $previousAmount = DB::table('deductions')
+                        ->where('id', $item->type_id)
+                        ->value('amount');
+                    break;
+            }
+    
+            $item->previous_amount = $previousAmount;
+        }
+        $htmlContent = View::make('receipts.print', compact('receipt'))->render();
+    
+        return response($htmlContent, 200)->header('Content-Type', 'text/html');
+    }
     public function downloadReceipt($id)
     {
-        //dd($id);
         $receipt = DB::table('receipt')
             ->leftJoin('receipt_details', 'receipt_details.receipt_id', '=', 'receipt.receipt_id')
             ->leftJoin('users', 'users.id', '=', 'receipt.user_id')
@@ -641,7 +678,7 @@ class ReceiptController extends Controller
             $item->previous_amount = $previousAmount;
         }
         //dd($receipt);
-        $pdf = Pdf::loadView('receipts.pdf', compact('receipt'));
+        $pdf = Pdf::loadView('receipts.print', compact('receipt'));
         //dd($pdf);
         $pdfContent = $pdf->output();
 
