@@ -98,6 +98,9 @@
                     </table>
 
                     <div class="text-right mt-4">
+                        <button class="btn btn-download btn-danger" id="printReceiptBtn">
+                            <i class="fas fa-print"></i> Print Adjustment
+                        </button>
                         <button class="btn btn-download btn-success" id="downloadReceiptBtn">
                             <i class="fas fa-download"></i> Download Adjustment
                         </button>
@@ -192,6 +195,7 @@
                 method: 'GET',
                 xhrFields: {
                     responseType: 'blob' // Set response type to blob
+
                 },
                 success: function(blob, status, xhr) {
                     // Extract the filename from the Content-Disposition header
@@ -215,6 +219,14 @@
                     console.error('Error downloading the receipt:', error);
                 }
             });
+        });
+        $('#printReceiptBtn').on('click', function() {
+            var receiptId = $('#receiptId').text().replace('ADJ-', '');
+            var pdfUrl = '/receipts/print/' + receiptId;
+            var printWindow = window.open(pdfUrl, '_blank');
+            printWindow.onload = function() {
+                printWindow.print();
+            };
         });
     </script>
     @include ('partials.bootstrap-table')

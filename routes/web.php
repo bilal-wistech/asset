@@ -97,6 +97,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/get-user-fine', [AccidentController::class, 'getUserFineBoth'])->name('getUserFine');
     // Route::post('/submit-form', [AccidentController::class, 'SaveReceipt'])->name('form.savereceipt');
     // Receipts
+    Route::get('/receipts/print/{id}', [ReceiptController::class, 'printReceipt']);
     Route::get('/receipts/download/{id}', [ReceiptController::class, 'downloadReceipt']);
     Route::post('/get-receipts-details', [ReceiptController::class, 'getReceiptsdetail'])->name('receipts.get');
     Route::get('/invoice/{id}', [ReceiptController::class, 'showInvoice']);
