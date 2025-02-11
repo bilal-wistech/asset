@@ -867,8 +867,7 @@ insurance.asset_id, users.username
                                                                         </a>
                                                                     </li>
                                                                 @endcanany
-                                                                {{-- @if (auth()->user()->can('view', \App\Models\Accident::class) ||
-    auth()->user()->can('view', \App\Models\Fine::class))
+                                                                {{-- @if (auth()->user()->can('view', \App\Models\Accident::class) || auth()->user()->can('view', \App\Models\Fine::class))
 <li
 class="treeview{{ Request::is('fines*') || Request::is('create*') || Request::is('accidents*') || Request::is('create-accident*') || Request::is('accident/*/edit') || Request::is('fine/*/edit') ? ' active' : '' }}">
 <a href="#" class="dropdown-toggle">
@@ -1003,7 +1002,17 @@ class="fa-solid fa-file-invoice"></i>&nbsp;&nbsp;<span>{{ trans('general.fines')
                                                                                     </a>
                                                                                 </li>
                                                                             @endcan
-
+                                                                            {{-- Driver Salaries --}}
+                                                                            @can('salaries')
+                                                                                <li
+                                                                                    class="{{ Request::is('salaries') ? ' active' : '' }}">
+                                                                                    <a
+                                                                                        href="{{ route('salaries.index') }}">
+                                                                                        <i class="fa fa-dollar"
+                                                                                            aria-hidden="true"></i><span>{{ trans(' Salaries') }}</span>
+                                                                                    </a>
+                                                                                </li>
+                                                                            @endcan
                                                                         </ul>
                                                                     </li>
                                                                 @endif
