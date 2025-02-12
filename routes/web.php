@@ -116,6 +116,7 @@ Route::group(['middleware' => 'auth'], function () {
         ->name('cash-handover.store');
     Route::get('cash-handover/{id}/view', [CashHandoverController::class, 'view'])->name('cash-handover.view');
     Route::post('cash-handover/verifiy', [CashHandoverController::class, 'verification'])->name('cash-handover.verifiy');
+    Route::get('salaries/fetch-data', [SalaryController::class, 'fetchData'])->name('salaries.fetch-data');
     Route::resource('salaries', SalaryController::class);
 
     Route::post(

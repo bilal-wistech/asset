@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Salary extends Model
 {
     use HasFactory;
-
+    protected $fillable = ['riding_company_id', 'driver_id', 'user_id', 'amount_paid', 'from_date', 'to_date'];
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -17,7 +17,8 @@ class Salary extends Model
     {
         return $this->belongsTo(User::class, 'driver_id');
     }
-    public function ridingCompany(){
+    public function ridingCompany()
+    {
         return $this->belongsTo(RidingCompany::class);
     }
 }
