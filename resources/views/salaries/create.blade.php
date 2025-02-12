@@ -95,9 +95,11 @@
                 }
 
                 data.drivers.forEach(driver => {
+                    // console.log(driver);
+
                     let driverHtml = `
                         <div class="driver-row mb-4">
-                            <h4><strong>Driver: ${driver.name || driver.username}</strong></h4>
+                            <h4><strong>Driver: ${driver.fname} ${driver.lname} (${driver.name})</strong></h4>
                             <div class="row">
                     `;
 

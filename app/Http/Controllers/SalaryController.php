@@ -32,7 +32,7 @@ class SalaryController extends Controller
         $group_id = [2, 3];
         $drivers = User::join('users_groups', 'users.id', '=', 'users_groups.user_id')
             ->whereIn('users_groups.group_id', $group_id)
-            ->select('users.id', 'users.username')
+            ->select('users.id', 'users.username','users.first_name','users.last_name')
             ->get();
         return view('salaries.create', compact('ridingCompanies', 'drivers'));
     }
@@ -50,7 +50,7 @@ class SalaryController extends Controller
             $group_id = [2, 3];
             $drivers = User::join('users_groups', 'users.id', '=', 'users_groups.user_id')
                 ->whereIn('users_groups.group_id', $group_id)
-                ->select('users.id', 'users.username as name')
+                ->select('users.id', 'users.username as name','users.first_name as fname','users.last_name as lname')
                 ->get();
 
             $ridingCompanies = RidingCompany::select('id', 'name')->get();
