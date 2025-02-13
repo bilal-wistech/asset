@@ -85,30 +85,69 @@ class SalaryController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'driver_id' => 'required|exists:users,id', // Changed from drivers to users
+            'driver_id' => 'required|exists:users,id',
             'riding_company_id' => 'required|exists:riding_companies,id',
             'from_date' => 'required|date',
             'to_date' => 'required|date|after_or_equal:from_date',
-            'amount_paid' => 'required|numeric|min:0'
+            'amount_paid' => 'required|numeric|min:0',
+            'salary' => 'required|numeric|min:0'
         ]);
 
         try {
-            $salary = Salary::updateOrCreate(
-                [
-                    'driver_id' => $validated['driver_id'],
-                    'riding_company_id' => $validated['riding_company_id'],
-                    'from_date' => $validated['from_date'],
-                    'to_date' => $validated['to_date'],
-                ],
-                [
-                    'amount_paid' => $validated['amount_paid'],
-                    'user_id' => Auth::user()->id
-                ]
-            );
+            // Get all existing salary records for this driver in the date range
+            $existingRecords = Salary::where('driver_id', $validated['driver_id'])
+                ->where('from_date', $validated['from_date'])
+                ->where('to_date', $validated['to_date'])
+                ->get();
+
+            // If this is the first record or salary has changed, update all records
+            $shouldUpdateAll = $existingRecords->isEmpty() ||
+                ($existingRecords->first()->salary != $validated['salary']);
+
+            if ($shouldUpdateAll) {
+                // Get all riding companies
+                $ridingCompanies = RidingCompany::all();
+
+                // Update or create records for all companies
+                foreach ($ridingCompanies as $company) {
+                    $amount = ($company->id == $validated['riding_company_id'])
+                        ? $validated['amount_paid']
+                        : ($existingRecords->where('riding_company_id', $company->id)->first()->amount_paid ?? 0);
+
+                    Salary::updateOrCreate(
+                        [
+                            'driver_id' => $validated['driver_id'],
+                            'riding_company_id' => $company->id,
+                            'from_date' => $validated['from_date'],
+                            'to_date' => $validated['to_date'],
+                        ],
+                        [
+                            'amount_paid' => $amount,
+                            'user_id' => Auth::user()->id,
+                            'salary' => $validated['salary']
+                        ]
+                    );
+                }
+            } else {
+                // Just update the single record if only amount_paid changed
+                Salary::updateOrCreate(
+                    [
+                        'driver_id' => $validated['driver_id'],
+                        'riding_company_id' => $validated['riding_company_id'],
+                        'from_date' => $validated['from_date'],
+                        'to_date' => $validated['to_date'],
+                    ],
+                    [
+                        'amount_paid' => $validated['amount_paid'],
+                        'user_id' => Auth::user()->id,
+                        'salary' => $validated['salary']
+                    ]
+                );
+            }
 
             return response()->json([
                 'success' => true,
-                'salary' => $salary
+                'message' => 'Salary updated successfully'
             ]);
         } catch (\Exception $e) {
             \Log::error('Salary store error: ' . $e->getMessage());
