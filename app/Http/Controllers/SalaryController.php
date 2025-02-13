@@ -138,13 +138,20 @@ class SalaryController extends Controller
     {
         $validated = $request->validate([
             'driver_id' => 'required|exists:users,id',
-            'base_salary' => 'required|numeric|min:0'
+            'base_salary' => 'required|numeric|min:0',
+            'from_date' => 'required|date',
+            'to_date' => 'required|date|after_or_equal:from_date',
         ]);
 
         try {
+            // Create or update salary record
             DriverSalary::updateOrCreate(
                 ['driver_id' => $validated['driver_id']],
-                ['base_salary' => $validated['base_salary']]
+                [
+                    'base_salary' => $validated['base_salary'],
+                    'from_date' => $validated['from_date'],
+                    'to_date' => $validated['to_date']
+                ]
             );
 
             return response()->json([
@@ -154,10 +161,11 @@ class SalaryController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error updating base salary'
+                'message' => 'Error updating base salary: ' . $e->getMessage()
             ], 500);
         }
     }
+
     /**
      * Store a newly created resource in storage.
      *

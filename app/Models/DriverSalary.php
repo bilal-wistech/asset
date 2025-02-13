@@ -8,5 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class DriverSalary extends Model
 {
     use HasFactory;
-    protected  $fillable = ['driver_id', 'base_salary'];
+    protected  $fillable = ['driver_id', 'base_salary','from_date','to_date'];
 }

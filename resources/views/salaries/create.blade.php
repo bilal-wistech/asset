@@ -240,14 +240,17 @@
             const updateBaseSalary = debounce(function(input) {
                 const driverId = $(input).data('driver');
                 const amount = $(input).val();
-
+                const fromDate = $('#from_date').val();
+                const toDate = $('#to_date').val();
                 $.ajax({
                     url: '{{ route('salaries.update-driver-salary') }}',
                     method: 'POST',
                     data: {
                         _token: '{{ csrf_token() }}',
                         driver_id: driverId,
-                        base_salary: amount || 0
+                        base_salary: amount || 0,
+                        from_date: fromDate,
+                        to_date: toDate,
                     },
                     success: function(response) {
                         if (response.success) {
