@@ -86,6 +86,8 @@ class SalaryController extends Controller
 
             // Get driver base salaries
             $driverSalaries = DriverSalary::whereIn('driver_id', $drivers->pluck('id'))
+                ->whereBetween('from_date', [$fromDate, $toDate])
+                ->whereBetween('to_date', [$fromDate, $toDate])
                 ->get()
                 ->keyBy('driver_id');
 
