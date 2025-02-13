@@ -16,17 +16,30 @@
                 <div class="box-body">
                     <form id="salaryForm">
                         @csrf
-                        <div class="row mb-3">
-                            <div class="col-md-6">
+                        <div class="row mb-4">
+                            <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="from_date">From Date:</label>
                                     <input type="date" class="form-control" id="from_date" name="from_date" required>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="to_date">To Date:</label>
                                     <input type="date" class="form-control" id="to_date" name="to_date" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="search_driver_id">Driver:</label>
+                                    <select name="search_driver_id" id="search_driver_id" class="form-control">
+                                        <option value="">Select Driver</option>
+                                        @foreach($drivers as $driver)
+                                            <option value="{{ $driver->id }}">
+                                                {{ $driver->first_name }} {{ $driver->last_name }} ({{ $driver->username }})
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -44,6 +57,10 @@
 @section('moar_scripts')
     <script>
         $(document).ready(function() {
+            $('#search_driver_id').select2({
+                placeholder: "Select a driver",
+                allowClear: true
+            });
             function debounce(func, wait) {
                 let timeout;
                 return function(...args) {
