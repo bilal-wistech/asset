@@ -62,7 +62,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('get-accident-minimum-payment', [InsuranceController::class, 'getAccidentMinimumPayment']);
 
 
-
     //fine
     Route::get('/fines', [FineController::class, 'index'])->name('fines');
     Route::get('/create', [FineController::class, 'create'])->name('fines.create');
@@ -117,6 +116,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('cash-handover/{id}/view', [CashHandoverController::class, 'view'])->name('cash-handover.view');
     Route::post('cash-handover/verifiy', [CashHandoverController::class, 'verification'])->name('cash-handover.verifiy');
     Route::get('salaries/fetch-data', [SalaryController::class, 'fetchData'])->name('salaries.fetch-data');
+    Route::post('salaries/update-driver-salary', [SalaryController::class, 'updateDriverSalary'])
+        ->name('salaries.update-driver-salary');
     Route::resource('salaries', SalaryController::class);
 
     Route::post(

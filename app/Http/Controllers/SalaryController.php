@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DriverSalary;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Salary;
@@ -11,20 +12,29 @@ use Illuminate\Support\Facades\Auth;
 
 class SalaryController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function index()
     {
         return view('salaries.index');
     }
 
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function create()
     {
         $ridingCompanies = RidingCompany::all();
         $group_id = [2, 3];
         $drivers = User::join('users_groups', 'users.id', '=', 'users_groups.user_id')
             ->whereIn('users_groups.group_id', $group_id)
-            ->select('users.id', 'users.username', 'users.first_name', 'users.last_name')
+            ->select('users.id', 'users.username','users.first_name','users.last_name')
             ->get();
-
         return view('salaries.create', compact('ridingCompanies', 'drivers'));
     }
 
@@ -33,43 +43,90 @@ class SalaryController extends Controller
         try {
             $validated = $request->validate([
                 'from_date' => 'required|date',
-                'to_date' => 'required|date|after_or_equal:from_date'
+                'to_date' => 'required|date|after_or_equal:from_date',
+                'driver_id' => 'nullable|exists:users,id',
+                'incomplete' => 'nullable|in:incomplete'
             ]);
 
             $fromDate = Carbon::parse($validated['from_date']);
             $toDate = Carbon::parse($validated['to_date']);
 
-            // Get drivers
-            $group_id = [2, 3];
-            $drivers = User::join('users_groups', 'users.id', '=', 'users_groups.user_id')
-                ->whereIn('users_groups.group_id', $group_id)
-                ->select(
-                    'users.id',
-                    'users.username as name',
-                    'users.first_name as fname',
-                    'users.last_name as lname'
-                )
-                ->get();
+            // Only check for existing data if we're not looking for incomplete entries
+            if (empty($validated['incomplete'])) {
+                $existingData = Salary::whereBetween('from_date', [$fromDate, $toDate])
+                    ->orWhereBetween('to_date', [$fromDate, $toDate])
+                    ->exists();
 
-            // Get riding companies
+                if ($existingData) {
+                    return response()->json([
+                        'status' => 'warning',
+                        'message' => 'Data already exists for the selected date range'
+                    ]);
+                }
+            }
+
+            $group_id = [2, 3];
+            $driversQuery = User::join('users_groups', 'users.id', '=', 'users_groups.user_id')
+                ->whereIn('users_groups.group_id', $group_id)
+                ->select('users.id', 'users.username as name', 'users.first_name as fname', 'users.last_name as lname');
+
+            // Filter by selected driver if provided
+            if (!empty($validated['driver_id'])) {
+                $driversQuery->where('users.id', $validated['driver_id']);
+            }
+
+            $drivers = $driversQuery->get();
             $ridingCompanies = RidingCompany::select('id', 'name')->get();
 
-            // Get salaries for the date range
+            // Get all salaries for the date range
             $salaries = Salary::whereBetween('from_date', [$fromDate, $toDate])
                 ->whereBetween('to_date', [$fromDate, $toDate])
                 ->get()
                 ->groupBy(['driver_id', 'riding_company_id']);
+
+            // Get driver base salaries
+            $driverSalaries = DriverSalary::whereIn('driver_id', $drivers->pluck('id'))
+                ->get()
+                ->keyBy('driver_id');
+
+            // If incomplete filter is active, filter drivers with any missing salary
+            if (!empty($validated['incomplete'])) {
+                $driversWithIncomplete = $drivers->filter(function($driver) use ($salaries, $ridingCompanies, $driverSalaries) {
+                    // Check if base salary is missing or empty
+                    if (!isset($driverSalaries[$driver->id]) ||
+                        $driverSalaries[$driver->id]->base_salary === null ||
+                        $driverSalaries[$driver->id]->base_salary === '') {
+                        return true;
+                    }
+
+                    // Check if any company's salary is missing or empty
+                    foreach ($ridingCompanies as $company) {
+                        $companySalaries = $salaries[$driver->id][$company->id] ?? [];
+
+                        if (empty($companySalaries) ||
+                            !isset($companySalaries[0]) ||
+                            $companySalaries[0]->amount_paid === null ||
+                            $companySalaries[0]->amount_paid === '') {
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+
+                $drivers = $driversWithIncomplete->values(); // Reset array keys
+            }
 
             return response()->json([
                 'status' => 'success',
                 'data' => [
                     'drivers' => $drivers,
                     'ridingCompanies' => $ridingCompanies,
-                    'salaries' => $salaries
+                    'salaries' => $salaries,
+                    'driverSalaries' => $driverSalaries
                 ]
             ]);
         } catch (\Exception $e) {
-            Log::error('Error in fetchData: ' . $e->getMessage());
+            \Log::error('Error in fetchData: ' . $e->getMessage());
             return response()->json([
                 'status' => 'error',
                 'message' => 'Error fetching data'
@@ -77,71 +134,69 @@ class SalaryController extends Controller
         }
     }
 
-    public function store(Request $request)
+    public function updateDriverSalary(Request $request)
     {
+        $validated = $request->validate([
+            'driver_id' => 'required|exists:users,id',
+            'base_salary' => 'required|numeric|min:0'
+        ]);
+
         try {
-            $validated = $request->validate([
-                'driver_id' => 'required|exists:users,id',
-                'riding_company_id' => 'required|exists:riding_companies,id',
-                'from_date' => 'required|date',
-                'to_date' => 'required|date|after_or_equal:from_date',
-                'amount_paid' => 'nullable|numeric|min:0',
-                'salary' => 'nullable|numeric|min:0'
+            DriverSalary::updateOrCreate(
+                ['driver_id' => $validated['driver_id']],
+                ['base_salary' => $validated['base_salary']]
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Base salary updated successfully'
             ]);
-
-            // Get existing record if any
-            $existingSalary = Salary::where([
-                'driver_id' => $validated['driver_id'],
-                'riding_company_id' => $validated['riding_company_id'],
-                'from_date' => $validated['from_date'],
-                'to_date' => $validated['to_date'],
-            ])->first();
-
-            // If amount_paid is 0 or null and there's no existing record, don't create one
-            if (empty($validated['amount_paid']) && !$existingSalary) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'No data to save'
-                ]);
-            }
-
-            // If amount_paid is 0 or null and there is an existing record, delete it
-            if (empty($validated['amount_paid']) && $existingSalary) {
-                $existingSalary->delete();
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Record removed'
-                ]);
-            }
-
-            // Create or update the record only if there's a value
-            if (!empty($validated['amount_paid'])) {
-                $salary = Salary::updateOrCreate(
-                    [
-                        'driver_id' => $validated['driver_id'],
-                        'riding_company_id' => $validated['riding_company_id'],
-                        'from_date' => $validated['from_date'],
-                        'to_date' => $validated['to_date'],
-                    ],
-                    [
-                        'amount_paid' => $validated['amount_paid'],
-                        'salary' => $validated['salary'] ?? 0,
-                        'user_id' => Auth::id()
-                    ]
-                );
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Salary updated successfully',
-                    'data' => $salary
-                ]);
-            }
-
         } catch (\Exception $e) {
-            Log::error('Salary store error: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Error saving salary: ' . $e->getMessage()
+                'message' => 'Error updating base salary'
+            ], 500);
+        }
+    }
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'driver_id' => 'required|exists:users,id', // Changed from drivers to users
+            'riding_company_id' => 'required|exists:riding_companies,id',
+            'from_date' => 'required|date',
+            'to_date' => 'required|date|after_or_equal:from_date',
+            'amount_paid' => 'required|numeric|min:0'
+        ]);
+
+        try {
+            $salary = Salary::updateOrCreate(
+                [
+                    'driver_id' => $validated['driver_id'],
+                    'riding_company_id' => $validated['riding_company_id'],
+                    'from_date' => $validated['from_date'],
+                    'to_date' => $validated['to_date'],
+                ],
+                [
+                    'amount_paid' => $validated['amount_paid'],
+                    'user_id' => Auth::user()->id
+                ]
+            );
+
+            return response()->json([
+                'success' => true,
+                'salary' => $salary
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Salary store error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error saving salary'
             ], 500);
         }
     }
