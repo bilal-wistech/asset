@@ -278,6 +278,15 @@ insurance.asset_id, users.username
                             </a>
                         </li>
                     @endcan
+                    {{-- @can('index', \App\Models\RidingCompany::class)
+                        <li aria-hidden="true" {!! Request::is('ridingcompany*') ? ' class="active"' : '' !!} tabindex="-1">
+                            <a href="{{ url('riding-companies') }}" accesskey="2" tabindex="-1">
+                                <i class="fas fa-building fa-fw" aria-hidden="true"></i>
+                                <span class="sr-only">{{ trans('general.riding_companies') }}</span>
+                            </a>
+                        </li>
+                    @endcan --}}
+
                     @can('view', \App\Models\License::class)
                         <li aria-hidden="true" {!! Request::is('licenses*') ? ' class="active"' : '' !!} tabindex="-1">
                             <a href="{{ route('licenses.index') }}" accesskey="2" tabindex="-1">
@@ -867,8 +876,7 @@ insurance.asset_id, users.username
                                                                         </a>
                                                                     </li>
                                                                 @endcanany
-                                                                {{-- @if (auth()->user()->can('view', \App\Models\Accident::class) ||
-    auth()->user()->can('view', \App\Models\Fine::class))
+                                                                {{-- @if (auth()->user()->can('view', \App\Models\Accident::class) || auth()->user()->can('view', \App\Models\Fine::class))
 <li
 class="treeview{{ Request::is('fines*') || Request::is('create*') || Request::is('accidents*') || Request::is('create-accident*') || Request::is('accident/*/edit') || Request::is('fine/*/edit') ? ' active' : '' }}">
 <a href="#" class="dropdown-toggle">
@@ -1113,7 +1121,12 @@ class="fa-solid fa-file-invoice"></i>&nbsp;&nbsp;<span>{{ trans('general.fines')
                                                                                     </a>
                                                                                 </li>
                                                                             @endcan
-
+                                                                            <li>
+                                                                                <a href="{{ route('riding-companies.index') }}"
+                                                                                    {{ Request::is('/companies') ? ' class="active"' : '' }}>
+                                                                                    Riding Companies
+                                                                                </a>
+                                                                            </li>
                                                                             @can('view', \App\Models\Depreciation::class)
                                                                                 <li>
                                                                                     <a href="{{ route('depreciations.index') }}"
