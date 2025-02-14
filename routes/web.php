@@ -35,9 +35,7 @@ use App\Http\Controllers\AssetMaintenancesController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\dailyearningreportController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
-use App\Http\Controllers\ReceiptController;
 use App\Http\Controllers\RidingCompanyController;
-use Illuminate\Support\Facades\Route;
 
 
 Route::group(['middleware' => 'auth'], function () {
