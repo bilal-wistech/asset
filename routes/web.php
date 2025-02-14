@@ -35,6 +35,9 @@ use App\Http\Controllers\AssetMaintenancesController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\dailyearningreportController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\ReceiptController;
+use App\Http\Controllers\RidingCompanyController;
+use Illuminate\Support\Facades\Route;
 
 
 Route::group(['middleware' => 'auth'], function () {
@@ -119,6 +122,27 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('salaries/update-driver-salary', [SalaryController::class, 'updateDriverSalary'])
         ->name('salaries.update-driver-salary');
     Route::resource('salaries', SalaryController::class);
+   // Route::resource('riding-companies', RidingCompanyController::class)->except('show');
+   
+    // Display the list of riding companies (Index)
+    Route::get('/riding-companies', [RidingCompanyController::class, 'index'])->name('riding-companies.index');
+
+    // Show the form to create a new riding company (Create)
+    Route::get('/riding-companies/create', [RidingCompanyController::class, 'create'])->name('riding-companies.create');
+
+    // Store a newly created riding company (Store)
+    Route::post('/riding-companies', [RidingCompanyController::class, 'store'])->name('riding-companies.store');
+
+    // Show the form to edit an existing riding company (Edit)
+    Route::get('/riding-companies/{riding_company}/edit', [RidingCompanyController::class, 'edit'])->name('riding-companies.edit');
+
+    // Update an existing riding company (Update)
+    Route::put('/riding-companies/{riding_company}', [RidingCompanyController::class, 'update'])->name('riding-companies.update');
+    Route::patch('/riding-companies/{riding_company}', [RidingCompanyController::class, 'update'])->name('riding-companies.update'); // Optional
+
+    // Delete a riding company (Destroy)
+    Route::delete('/riding-companies/{riding_company}', [RidingCompanyController::class, 'destroy'])->name('riding-companies.destroy');
+
 
     Route::post(
         '{item_id}/upload',

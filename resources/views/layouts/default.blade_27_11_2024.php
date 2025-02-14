@@ -254,7 +254,8 @@
                                         <span class="sr-only">{{ trans('general.assets') }}</span>
                                     </a>
                                 </li>
-                            @endcan
+                            @endcan 
+                            
                             @can('view', \App\Models\License::class)
                                 <li aria-hidden="true"
                                     {!! (Request::is('licenses*') ? ' class="active"' : '') !!} tabindex="-1">
