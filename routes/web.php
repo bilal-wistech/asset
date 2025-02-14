@@ -1,37 +1,40 @@
 <?php
 
 use App\Http\Controllers\Account;
-use App\Http\Controllers\ActionlogController;
-use App\Http\Controllers\AssetAssignmentController;
-use App\Http\Controllers\AssetMaintenancesController;
-use App\Http\Controllers\Auth\ForgotPasswordController;
-use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Auth\ResetPasswordController;
-use App\Http\Controllers\CategoriesController;
-use App\Http\Controllers\CompaniesController;
-use App\Http\Controllers\dailyearningreportController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\DepartmentsController;
-use App\Http\Controllers\DepreciationsController;
-use App\Http\Controllers\DocumentController;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FineController;
-use App\Http\Controllers\AccidentController;
-use App\Http\Controllers\CashHandoverController;
-use App\Http\Controllers\DeductionController;
+use App\Http\Controllers\ModalController;
 use App\Http\Controllers\GroupsController;
 use App\Http\Controllers\HealthController;
+use App\Http\Controllers\SalaryController;
 use App\Http\Controllers\ImportsController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReceiptController;
+use App\Http\Controllers\ReportsController;
+use App\Http\Controllers\AccidentController;
+use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\ActionlogController;
+use App\Http\Controllers\CompaniesController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DeductionController;
 use App\Http\Controllers\InsuranceController;
 use App\Http\Controllers\LocationsController;
-use App\Http\Controllers\ManufacturersController;
-use App\Http\Controllers\ModalController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ReportsController;
-use App\Http\Controllers\SettingsController;
-use App\Http\Controllers\StatuslabelsController;
 use App\Http\Controllers\SuppliersController;
-use App\Http\Controllers\Users\UsersController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\ViewAssetsController;
+use App\Http\Controllers\DepartmentsController;
+use App\Http\Controllers\Users\UsersController;
+use App\Http\Controllers\CashHandoverController;
+use App\Http\Controllers\StatuslabelsController;
+use App\Http\Controllers\DepreciationsController;
+use App\Http\Controllers\ManufacturersController;
+use App\Http\Controllers\AssetAssignmentController;
+use App\Http\Controllers\AssetMaintenancesController;
+use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\dailyearningreportController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\ReceiptController;
 use App\Http\Controllers\RidingCompanyController;
 use Illuminate\Support\Facades\Route;
@@ -60,7 +63,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('insurance/toggleAllDrivers', [InsuranceController::class, 'toggleAllDrivers']);
 
     Route::get('get-accident-minimum-payment', [InsuranceController::class, 'getAccidentMinimumPayment']);
-
 
 
     //fine
@@ -116,6 +118,10 @@ Route::group(['middleware' => 'auth'], function () {
         ->name('cash-handover.store');
     Route::get('cash-handover/{id}/view', [CashHandoverController::class, 'view'])->name('cash-handover.view');
     Route::post('cash-handover/verifiy', [CashHandoverController::class, 'verification'])->name('cash-handover.verifiy');
+    Route::get('salaries/fetch-data', [SalaryController::class, 'fetchData'])->name('salaries.fetch-data');
+    Route::post('salaries/update-driver-salary', [SalaryController::class, 'updateDriverSalary'])
+        ->name('salaries.update-driver-salary');
+    Route::resource('salaries', SalaryController::class);
    // Route::resource('riding-companies', RidingCompanyController::class)->except('show');
    
     // Display the list of riding companies (Index)
