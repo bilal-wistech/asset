@@ -1011,7 +1011,17 @@ class="fa-solid fa-file-invoice"></i>&nbsp;&nbsp;<span>{{ trans('general.fines')
                                                                                     </a>
                                                                                 </li>
                                                                             @endcan
-
+                                                                            {{-- Driver Salaries --}}
+                                                                            @can('salaries')
+                                                                                <li
+                                                                                    class="{{ Request::is('salaries') ? ' active' : '' }}">
+                                                                                    <a
+                                                                                        href="{{ route('salaries.index') }}">
+                                                                                        <i class="fa fa-dollar"
+                                                                                            aria-hidden="true"></i><span>{{ trans(' Salaries') }}</span>
+                                                                                    </a>
+                                                                                </li>
+                                                                            @endcan
                                                                         </ul>
                                                                     </li>
                                                                 @endif
