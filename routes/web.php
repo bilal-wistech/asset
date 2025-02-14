@@ -37,7 +37,6 @@ use App\Http\Controllers\dailyearningreportController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\RidingCompanyController;
 
-
 Route::group(['middleware' => 'auth'], function () {
 
     Route::post('/fcm-token', [UsersController::class, 'updateToken'])->name('fcmToken');

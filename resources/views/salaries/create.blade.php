@@ -17,19 +17,19 @@
                     <form id="salaryForm">
                         @csrf
                         <div class="row mb-3">
-                            <div class="col-md-3">
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="from_date">From Date:</label>
                                     <input type="date" class="form-control" id="from_date" name="from_date" required>
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="to_date">To Date:</label>
                                     <input type="date" class="form-control" id="to_date" name="to_date" required>
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <div class="form-group">
                                     <label for="search_driver_id">Driver:</label>
                                     <select name="search_driver_id" id="search_driver_id" class="form-control">
@@ -42,7 +42,7 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <div class="form-group">
                                     <label for="incomplete">Filter:</label>
                                     <select name="incomplete" id="incomplete" class="form-control">
