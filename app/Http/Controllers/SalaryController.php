@@ -33,8 +33,9 @@ class SalaryController extends Controller
         $group_id = [2, 3];
         $drivers = User::join('users_groups', 'users.id', '=', 'users_groups.user_id')
             ->whereIn('users_groups.group_id', $group_id)
-            ->select('users.id', 'users.username','users.first_name','users.last_name')
+            ->select('users.id', 'users.username', 'users.first_name', 'users.last_name')
             ->get();
+
         return view('salaries.create', compact('ridingCompanies', 'drivers'));
     }
 
@@ -93,11 +94,13 @@ class SalaryController extends Controller
 
             // If incomplete filter is active, filter drivers with any missing salary
             if (!empty($validated['incomplete'])) {
-                $driversWithIncomplete = $drivers->filter(function($driver) use ($salaries, $ridingCompanies, $driverSalaries) {
+                $driversWithIncomplete = $drivers->filter(function ($driver) use ($salaries, $ridingCompanies, $driverSalaries) {
                     // Check if base salary is missing or empty
-                    if (!isset($driverSalaries[$driver->id]) ||
+                    if (
+                        !isset($driverSalaries[$driver->id]) ||
                         $driverSalaries[$driver->id]->base_salary === null ||
-                        $driverSalaries[$driver->id]->base_salary === '') {
+                        $driverSalaries[$driver->id]->base_salary === ''
+                    ) {
                         return true;
                     }
 
@@ -105,10 +108,12 @@ class SalaryController extends Controller
                     foreach ($ridingCompanies as $company) {
                         $companySalaries = $salaries[$driver->id][$company->id] ?? [];
 
-                        if (empty($companySalaries) ||
+                        if (
+                            empty($companySalaries) ||
                             !isset($companySalaries[0]) ||
                             $companySalaries[0]->amount_paid === null ||
-                            $companySalaries[0]->amount_paid === '') {
+                            $companySalaries[0]->amount_paid === ''
+                        ) {
                             return true;
                         }
                     }
@@ -228,10 +233,36 @@ class SalaryController extends Controller
      * @param  \App\Models\Salary  $salary
      * @return \Illuminate\Http\Response
      */
-    public function edit(Salary $salary)
+    public function edit($id)
     {
-        //
+        $salary = Salary::where('id', $id)->first();
+
+        if (!$salary) {
+            abort(404, "Salary not found.");
+        }
+        $ridingCompanies = RidingCompany::all();
+
+        $driverSalary = DriverSalary::where('driver_id', $salary->driver_id)
+            ->where('from_date', $salary->from_date)
+            ->where('to_date', $salary->to_date)
+            ->first();
+        $driver = User::where('id', $salary->driver_id)->first();
+        $salaries = DriverSalary::whereIn('driver_id', $ridingCompanies->pluck('id'))
+            ->where('from_date', $salary->from_date)
+            ->where('to_date', $salary->to_date)
+            ->get()
+            ->groupBy(function ($item) {
+                return $item->driver_id . '.' . $item->company_id;
+            });
+          //  $ridingSelectedCompany = RidingCompany::where('id', $salary->riding_company_id)->first();
+            $selectedCompanies = Salary::where('driver_id', $salary->driver_id)
+            ->where('from_date', $salary->from_date)
+            ->where('to_date', $salary->to_date)
+            ->get();
+        return view('salaries.edit', compact('salary','salaries', 'ridingCompanies', 'driverSalary', 'driver', 'selectedCompanies'));
     }
+
+
 
     /**
      * Update the specified resource in storage.

@@ -46,7 +46,7 @@ class SalaryTransformer
     {
         $actions = '';
 
-        
+      
             $actions .= '<a href="' . route('salaries.edit', $salary) . '" 
                    class="btn btn-sm btn-info" title="Edit">
                    <i class="fa fa-pencil"></i>
