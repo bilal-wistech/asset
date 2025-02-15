@@ -1,7 +1,7 @@
 @extends('layouts/default')
 
 @section('title')
-   Create Salaries
+    Edit Salaries
     @parent
 @stop
 
@@ -10,7 +10,7 @@
         <div class="col-md-12">
             <div class="box box-default">
                 <div class="box-header with-border">
-                    <h3 class="box-title">Create Salaries</h3>
+                    <h3 class="box-title">Edit Salaries</h3>
                 </div>
 
                 <div class="box-body">
@@ -20,46 +20,79 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="from_date">From Date:</label>
-                                    <input type="date" class="form-control" id="from_date" name="from_date" required>
+                                    <input type="date" class="form-control" id="from_date" name="from_date"
+                                        value="{{ $salary->from_date }}" disabled required>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="to_date">To Date:</label>
-                                    <input type="date" class="form-control" id="to_date" name="to_date" required>
+                                    <input type="date" class="form-control" id="to_date" name="to_date"
+                                        value="{{ $salary->to_date }}" disabled required>
                                 </div>
                             </div>
-                            <div class="col-md-2">
-                                <div class="form-group">
-                                    <label for="search_driver_id">Driver:</label>
-                                    <select name="search_driver_id" id="search_driver_id" class="form-control">
-                                        <option value="">Select Driver</option>
-                                        @foreach($drivers as $driver)
-                                            <option value="{{ $driver->id }}">
-                                                {{ $driver->first_name }} {{ $driver->last_name }} ({{ $driver->username }})
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-2">
-                                <div class="form-group">
-                                    <label for="incomplete">Filter:</label>
-                                    <select name="incomplete" id="incomplete" class="form-control">
-                                        <option value="">Show All</option>
-                                        <option value="incomplete">Show Incomplete Only</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
 
-                        <div id="date-range-warning" class="alert alert-warning" style="display: none;">
-                            Data already exists for the selected date range
-                        </div>
 
+                        </div>
                         <div id="drivers-container">
-                            <!-- Drivers and their salary inputs will be populated here -->
+                           
+                                <div class="driver-row mb-4">
+                                    <h4><strong>Driver: {{ $driver->first_name }} {{ $driver->last_name }} ({{ $driver->username }})</strong></h4>
+                                    <div class="row">
+            
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label>Base Salary</label>
+                                                <input type="number" class="form-control base-salary-input"
+                                                    data-driver="{{ $driver->id }}" 
+                                                    value="{{ isset($driverSalary) ? $driverSalary->base_salary : 0 }}"  
+                                                    min="0" step="0.01">
+                                            </div>
+                                        </div>
+                        
+                                        <!-- Company Salaries -->
+                                        @php $total = 0; @endphp
+
+                                        @foreach ($ridingCompanies as $company)
+                                            @php
+                                                $salaryKey = $driver->id . '.' . $company->id;
+                                                $salaryAmount = $salaries[$salaryKey][0]->amount_paid ?? 0;
+                                            $selectedCompany = collect($selectedCompanies)->firstWhere('riding_company_id', $company->id);
+                                            if ($selectedCompany) {
+                                                    $salaryAmount = $selectedCompany->amount_paid;
+                                                }
+                                                 $total += $salaryAmount;
+                                            @endphp
+                                        
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label>{{ $company->name }}</label>
+                                                    <input type="number" class="form-control salary-input"
+                                                        data-driver="{{ $driver->id }}"
+                                                        data-company="{{ $company->id }}"
+                                                        value="{{ $salaryAmount }}" 
+                                                        min="0" step="0.01">
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                        
+                                        
+                        
+                                        <!-- Total Salary -->
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label>Total</label>
+                                                <input type="text" class="form-control driver-total"
+                                                    data-driver="{{ $driver->id }}"
+                                                    readonly
+                                                    value="{{ number_format($total, 2) }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                          
                         </div>
+                        
                     </form>
                 </div>
             </div>
