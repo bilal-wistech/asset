@@ -251,6 +251,7 @@
                     },
                     success: function(response) {
                         if (response.success) {
+                            toastr.success('salary updated successfully');
                             updateDriverTotal(driverId);
                             // Optional: Show success indicator
                             $(input).addClass('is-valid');
@@ -287,7 +288,7 @@
                     },
                     success: function(response) {
                         if (response.success) {
-                            // Optional: Show success indicator
+                            toastr.success('Base salary updated successfully');
                             $(input).addClass('is-valid');
                             setTimeout(() => $(input).removeClass('is-valid'), 2000);
                         } else {
@@ -326,5 +327,14 @@
                 updateBaseSalary(this);
             });
         });
+        toastr.options = {
+        "closeButton": true,
+        "progressBar": true,
+        "positionClass": "toast-top-right",
+        "showDuration": "300",
+        "hideDuration": "1000",
+        "timeOut": "3000", // 3 seconds
+        "extendedTimeOut": "1000"
+    };
     </script>
 @stop
