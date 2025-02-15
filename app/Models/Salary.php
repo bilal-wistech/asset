@@ -21,4 +21,9 @@ class Salary extends Model
     {
         return $this->belongsTo(RidingCompany::class);
     }
+    public function driverSalary()
+    {
+        return $this->hasOne(DriverSalary::class, 'driver_id', 'driver_id');
+    }
+
 }
