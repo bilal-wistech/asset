@@ -46,6 +46,11 @@ class SalaryTransformer
                    <i class="fa fa-pencil"></i>
                 </a>';
 
+                 // View Button
+            $actions .= '<a href="' . route('salaries.show', $salary) . '" 
+                class="btn btn-sm btn-primary" title="View">
+                <i class="fa fa-eye"></i>
+            </a>';
 
         return $actions;
     }
