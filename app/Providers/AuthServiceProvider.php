@@ -326,5 +326,11 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('salaries', function ($user) {
             return $user->hasAccess('salaries');
         });
+        Gate::define('salaries.create', function ($user) {
+            return $user->hasAccess('salaries.create');
+        });
+        Gate::define('salaries.edit', function ($user) {
+            return $user->hasAccess('salaries.edit');
+        });
     }
 }
