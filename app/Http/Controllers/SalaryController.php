@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Salary;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Models\RidingCompany;
 use Illuminate\Support\Facades\Auth;
 
@@ -222,10 +223,47 @@ class SalaryController extends Controller
      * @param  \App\Models\Salary  $salary
      * @return \Illuminate\Http\Response
      */
-    public function show(Salary $salary)
-    {
-        //
-    }
+    public function show($id)
+
+        {
+            $salary = Salary::findOrFail($id); // Get the salary or fail with 404
+
+             $ridingCompanies = RidingCompany::all(); // Get all riding companies
+
+             $driver = User::findOrFail($salary->driver_id); // Get driver details
+
+            // Get the driver's base salary for the given period
+            $driverSalary = DriverSalary::where('driver_id', $salary->driver_id)
+                ->where('from_date', $salary->from_date)
+                ->where('to_date', $salary->to_date)
+                ->first();
+
+                //dd($driverSalary);
+
+
+        // Get payments grouped by company_id for the specific driver and period
+            $salaries = Salary::where('driver_id', $salary->driver_id)
+            ->where('from_date', $salary->from_date)
+            ->where('to_date', $salary->to_date)
+            ->select('riding_company_id', DB::raw('SUM(amount_paid) as total_paid'))
+            ->groupBy('riding_company_id')
+            ->get();
+
+            //dd($salaries);
+
+        // Get selected companies that have paid the driver
+        $selectedCompanies = Salary::where('driver_id', $salary->driver_id)
+            ->where('from_date', $salary->from_date)
+            ->where('to_date', $salary->to_date)
+            ->get();
+
+
+                //dd($salary, $driverSalary, $salaries, $selectedCompanies);
+
+            return view('salaries.show', compact('salary', 'salaries', 'ridingCompanies', 'driverSalary', 'driver', 'selectedCompanies'));
+        }
+
+        
 
     /**
      * Show the form for editing the specified resource.
