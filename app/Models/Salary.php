@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 
 class Salary extends Model
@@ -24,6 +25,12 @@ class Salary extends Model
     public function driverSalary()
     {
         return $this->hasOne(DriverSalary::class, 'driver_id', 'driver_id');
+    }
+    public function getActivitylogOptions(): LogOptions
+    {
+        $log = new LogOptions();
+        return $log->logAll()
+            ->useLogName('Salary');
     }
 
 }

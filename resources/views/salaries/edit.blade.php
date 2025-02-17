@@ -5,6 +5,13 @@
     @parent
 @stop
 
+@section('header_right')
+    @can('index', \App\Models\Salary::class)
+        <a href="{{ route('salaries.index') }}" class="btn btn-primary pull-right">
+            View Salary</a>
+    @endcan
+@stop
+
 @section('content')
     <div class="row">
         <div class="col-md-12">
@@ -35,64 +42,65 @@
 
                         </div>
                         <div id="drivers-container">
-                           
-                                <div class="driver-row mb-4">
-                                    <h4><strong>Driver: {{ $driver->first_name }} {{ $driver->last_name }} ({{ $driver->username }})</strong></h4>
-                                    <div class="row">
-            
+
+                            <div class="driver-row mb-4">
+                                <h4><strong>Driver: {{ $driver->first_name }} {{ $driver->last_name }}
+                                        ({{ $driver->username }})</strong></h4>
+                                <div class="row">
+
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label>Base Salary</label>
+                                            <input type="number" class="form-control base-salary-input"
+                                                data-driver="{{ $driver->id }}"
+                                                value="{{ isset($driverSalary) ? $driverSalary->base_salary : 0 }}"
+                                                min="0" step="0.01">
+                                        </div>
+                                    </div>
+
+                                    <!-- Company Salaries -->
+                                    @php $total = 0; @endphp
+
+                                    @foreach ($ridingCompanies as $company)
+                                        @php
+                                            $salaryKey = $driver->id . '.' . $company->id;
+                                            $salaryAmount = $salaries[$salaryKey][0]->amount_paid ?? 0;
+                                            $selectedCompany = collect($selectedCompanies)->firstWhere(
+                                                'riding_company_id',
+                                                $company->id,
+                                            );
+                                            if ($selectedCompany) {
+                                                $salaryAmount = $selectedCompany->amount_paid;
+                                            }
+                                            $total += $salaryAmount;
+                                        @endphp
+
                                         <div class="col-md-3">
                                             <div class="form-group">
-                                                <label>Base Salary</label>
-                                                <input type="number" class="form-control base-salary-input"
-                                                    data-driver="{{ $driver->id }}" 
-                                                    value="{{ isset($driverSalary) ? $driverSalary->base_salary : 0 }}"  
-                                                    min="0" step="0.01">
+                                                <label>{{ $company->name }}</label>
+                                                <input type="number" class="form-control salary-input"
+                                                    data-driver="{{ $driver->id }}" data-company="{{ $company->id }}"
+                                                    value="{{ $salaryAmount }}" min="0" step="0.01">
                                             </div>
                                         </div>
-                        
-                                        <!-- Company Salaries -->
-                                        @php $total = 0; @endphp
+                                    @endforeach
 
-                                        @foreach ($ridingCompanies as $company)
-                                            @php
-                                                $salaryKey = $driver->id . '.' . $company->id;
-                                                $salaryAmount = $salaries[$salaryKey][0]->amount_paid ?? 0;
-                                            $selectedCompany = collect($selectedCompanies)->firstWhere('riding_company_id', $company->id);
-                                            if ($selectedCompany) {
-                                                    $salaryAmount = $selectedCompany->amount_paid;
-                                                }
-                                                 $total += $salaryAmount;
-                                            @endphp
-                                        
-                                            <div class="col-md-3">
-                                                <div class="form-group">
-                                                    <label>{{ $company->name }}</label>
-                                                    <input type="number" class="form-control salary-input"
-                                                        data-driver="{{ $driver->id }}"
-                                                        data-company="{{ $company->id }}"
-                                                        value="{{ $salaryAmount }}" 
-                                                        min="0" step="0.01">
-                                                </div>
-                                            </div>
-                                        @endforeach
-                                        
-                                        
-                        
-                                        <!-- Total Salary -->
-                                        <div class="col-md-3">
-                                            <div class="form-group">
-                                                <label>Total</label>
-                                                <input type="text" class="form-control driver-total"
-                                                    data-driver="{{ $driver->id }}"
-                                                    readonly
-                                                    value="{{ number_format($total, 2) }}">
-                                            </div>
+
+
+                                    <!-- Total Salary -->
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label>Total</label>
+                                            <input type="text" class="form-control driver-total"
+                                                data-driver="{{ $driver->id }}" readonly
+                                                value="{{ number_format($total, 2) }}">
                                         </div>
                                     </div>
                                 </div>
-                          
+                            </div>
+
                         </div>
-                        
+
                     </form>
                 </div>
             </div>
@@ -328,13 +336,13 @@
             });
         });
         toastr.options = {
-        "closeButton": true,
-        "progressBar": true,
-        "positionClass": "toast-top-right",
-        "showDuration": "300",
-        "hideDuration": "1000",
-        "timeOut": "3000", // 3 seconds
-        "extendedTimeOut": "1000"
-    };
+            "closeButton": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "3000", // 3 seconds
+            "extendedTimeOut": "1000"
+        };
     </script>
 @stop
