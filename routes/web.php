@@ -118,9 +118,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('salaries/fetch-data', [SalaryController::class, 'fetchData'])->name('salaries.fetch-data');
     Route::post('salaries/update-driver-salary', [SalaryController::class, 'updateDriverSalary'])
         ->name('salaries.update-driver-salary');
-    Route::resource('salaries', SalaryController::class);
-   // Route::resource('riding-companies', RidingCompanyController::class)->except('show');
-   
+    Route::get('/salaries', [SalaryController::class, 'index'])->name('salaries.index');
+    Route::resource('salaries', SalaryController::class)->except('index');
+    // Route::resource('riding-companies', RidingCompanyController::class)->except('show');
+
     // Display the list of riding companies (Index)
     Route::get('/riding-companies', [RidingCompanyController::class, 'index'])->name('riding-companies.index');
 
