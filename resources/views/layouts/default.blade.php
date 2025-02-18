@@ -925,7 +925,8 @@ class="fa-solid fa-file-invoice"></i>&nbsp;&nbsp;<span>{{ trans('general.fines')
                                                                         Request::is('fines*') ||
                                                                         Request::is('drivers-ledger') ||
                                                                         Request::is('receipts*') ||
-                                                                        Request::is('deductions*')
+                                                                        Request::is('deductions*') ||
+                                                                        Request::is('salaries')
                                                                             ? ' active'
                                                                             : '' }}">
                                                                         <a href="#" class="dropdown-toggle">
@@ -1015,7 +1016,7 @@ class="fa-solid fa-file-invoice"></i>&nbsp;&nbsp;<span>{{ trans('general.fines')
                                                                                 </li>
                                                                             @endcan
                                                                             {{-- Driver Salaries --}}
-                                                                            @can('salaries')
+                                                                            @can('salaries.index', \App\Models\Salary::class)
                                                                                 <li
                                                                                     class="{{ Request::is('salaries') ? ' active' : '' }}">
                                                                                     <a

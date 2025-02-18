@@ -887,28 +887,4 @@ return [
             'display' => true,
         ],
     ],
-    'Salaries' => [
-        [
-            'permission' => 'salaries.index',
-            'label' => 'View',
-            'note' => 'This will allow users to view driver salaries',
-            'display' => true,
-        ],
-    ],
-    'Create Salaries' => [
-        [
-            'permission' => 'salaries.create',
-            'label' => 'Create',
-            'note' => 'This will allow users to create driver salaries',
-            'display' => true,
-        ],
-    ],
-    'Edit Salaries' => [
-        [
-            'permission' => 'salaries.create',
-            'label' => 'Edit',
-            'note' => 'This will allow users to edit driver salaries',
-            'display' => true,
-        ],
-    ]
 ];
