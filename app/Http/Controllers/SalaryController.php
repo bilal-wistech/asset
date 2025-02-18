@@ -30,7 +30,7 @@ class SalaryController extends Controller
      */
     public function create()
     {
-        $ridingCompanies = RidingCompany::all();
+        $ridingCompanies = RidingCompany::where('status', 'active')->select('id', 'name')->get();
         $group_id = [2, 3];
         $drivers = User::join('users_groups', 'users.id', '=', 'users_groups.user_id')
             ->whereIn('users_groups.group_id', $group_id)
@@ -78,7 +78,7 @@ class SalaryController extends Controller
             }
 
             $drivers = $driversQuery->get();
-            $ridingCompanies = RidingCompany::select('id', 'name')->get();
+            $ridingCompanies = RidingCompany::where('status', 'active')->select('id', 'name')->get();
 
             // Get all salaries for the date range
             $salaries = Salary::whereBetween('from_date', [$fromDate, $toDate])
@@ -224,32 +224,31 @@ class SalaryController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show($id)
+    {
+        $salary = Salary::findOrFail($id); // Get the salary or fail with 404
 
-        {
-            $salary = Salary::findOrFail($id); // Get the salary or fail with 404
+        $ridingCompanies = RidingCompany::all(); // Get all riding companies
 
-             $ridingCompanies = RidingCompany::all(); // Get all riding companies
+        $driver = User::findOrFail($salary->driver_id); // Get driver details
 
-             $driver = User::findOrFail($salary->driver_id); // Get driver details
+        // Get the driver's base salary for the given period
+        $driverSalary = DriverSalary::where('driver_id', $salary->driver_id)
+            ->where('from_date', $salary->from_date)
+            ->where('to_date', $salary->to_date)
+            ->first();
 
-            // Get the driver's base salary for the given period
-            $driverSalary = DriverSalary::where('driver_id', $salary->driver_id)
-                ->where('from_date', $salary->from_date)
-                ->where('to_date', $salary->to_date)
-                ->first();
-
-                //dd($driverSalary);
+        //dd($driverSalary);
 
 
         // Get payments grouped by company_id for the specific driver and period
-            $salaries = Salary::where('driver_id', $salary->driver_id)
+        $salaries = Salary::where('driver_id', $salary->driver_id)
             ->where('from_date', $salary->from_date)
             ->where('to_date', $salary->to_date)
             ->select('riding_company_id', DB::raw('SUM(amount_paid) as total_paid'))
             ->groupBy('riding_company_id')
             ->get();
 
-            //dd($salaries);
+        //dd($salaries);
 
         // Get selected companies that have paid the driver
         $selectedCompanies = Salary::where('driver_id', $salary->driver_id)
@@ -258,12 +257,12 @@ class SalaryController extends Controller
             ->get();
 
 
-                //dd($salary, $driverSalary, $salaries, $selectedCompanies);
+        //dd($salary, $driverSalary, $salaries, $selectedCompanies);
 
-            return view('salaries.show', compact('salary', 'salaries', 'ridingCompanies', 'driverSalary', 'driver', 'selectedCompanies'));
-        }
+        return view('salaries.show', compact('salary', 'salaries', 'ridingCompanies', 'driverSalary', 'driver', 'selectedCompanies'));
+    }
 
-        
+
 
     /**
      * Show the form for editing the specified resource.
@@ -292,12 +291,12 @@ class SalaryController extends Controller
             ->groupBy(function ($item) {
                 return $item->driver_id . '.' . $item->company_id;
             });
-          //  $ridingSelectedCompany = RidingCompany::where('id', $salary->riding_company_id)->first();
-            $selectedCompanies = Salary::where('driver_id', $salary->driver_id)
+        //  $ridingSelectedCompany = RidingCompany::where('id', $salary->riding_company_id)->first();
+        $selectedCompanies = Salary::where('driver_id', $salary->driver_id)
             ->where('from_date', $salary->from_date)
             ->where('to_date', $salary->to_date)
             ->get();
-        return view('salaries.edit', compact('salary','salaries', 'ridingCompanies', 'driverSalary', 'driver', 'selectedCompanies'));
+        return view('salaries.edit', compact('salary', 'salaries', 'ridingCompanies', 'driverSalary', 'driver', 'selectedCompanies'));
     }
 
 
