@@ -1016,7 +1016,7 @@ class="fa-solid fa-file-invoice"></i>&nbsp;&nbsp;<span>{{ trans('general.fines')
                                                                                 </li>
                                                                             @endcan
                                                                             {{-- Driver Salaries --}}
-                                                                            {{-- @can('salaries.index', \App\Models\Salary::class) --}}
+                                                                            @can('salaries.index', \App\Models\Salary::class)
                                                                                 <li
                                                                                     class="{{ Request::is('salaries') ? ' active' : '' }}">
                                                                                     <a
@@ -1025,7 +1025,7 @@ class="fa-solid fa-file-invoice"></i>&nbsp;&nbsp;<span>{{ trans('general.fines')
                                                                                             aria-hidden="true"></i><span>{{ trans(' Salaries') }}</span>
                                                                                     </a>
                                                                                 </li>
-                                                                            {{-- @endcan --}}
+                                                                            @endcan
                                                                         </ul>
                                                                     </li>
                                                                 @endif
