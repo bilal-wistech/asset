@@ -2,9 +2,10 @@
 
 use App\Http\Controllers\Api;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\SalaryController;
+use App\Http\Controllers\Api\ReceiptController;
 use App\Http\Controllers\Api\AccidentController;
 use App\Http\Controllers\Api\DeductionController;
-use App\Http\Controllers\Api\ReceiptController;
 
 
 
@@ -615,6 +616,21 @@ Route::group(['prefix' => 'v1', 'middleware' => ['api', 'throttle:api']], functi
         ]
     )->name('api.cash-handover.cashHandover');
 
+    Route::get(
+        '/salaries',
+        [
+            SalaryController::class,
+            'index'
+        ]
+    )->name('api.salaries.index');
+
+    Route::get(
+        '/riding-companies',
+        [
+            Api\RidingCompanyController::class,
+            'index'
+        ]
+    )->name('api.riding-companies.index');
 
     /**
      * Fields API routes

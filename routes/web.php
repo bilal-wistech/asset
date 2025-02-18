@@ -1,40 +1,41 @@
 <?php
 
 use App\Http\Controllers\Account;
-use App\Http\Controllers\ActionlogController;
-use App\Http\Controllers\AssetAssignmentController;
-use App\Http\Controllers\AssetMaintenancesController;
-use App\Http\Controllers\Auth\ForgotPasswordController;
-use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Auth\ResetPasswordController;
-use App\Http\Controllers\CategoriesController;
-use App\Http\Controllers\CompaniesController;
-use App\Http\Controllers\dailyearningreportController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\DepartmentsController;
-use App\Http\Controllers\DepreciationsController;
-use App\Http\Controllers\DocumentController;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FineController;
-use App\Http\Controllers\AccidentController;
-use App\Http\Controllers\CashHandoverController;
-use App\Http\Controllers\DeductionController;
+use App\Http\Controllers\ModalController;
 use App\Http\Controllers\GroupsController;
 use App\Http\Controllers\HealthController;
+use App\Http\Controllers\SalaryController;
 use App\Http\Controllers\ImportsController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReceiptController;
+use App\Http\Controllers\ReportsController;
+use App\Http\Controllers\AccidentController;
+use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\ActionlogController;
+use App\Http\Controllers\CompaniesController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DeductionController;
 use App\Http\Controllers\InsuranceController;
 use App\Http\Controllers\LocationsController;
-use App\Http\Controllers\ManufacturersController;
-use App\Http\Controllers\ModalController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ReportsController;
-use App\Http\Controllers\SettingsController;
-use App\Http\Controllers\StatuslabelsController;
 use App\Http\Controllers\SuppliersController;
-use App\Http\Controllers\Users\UsersController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\ViewAssetsController;
-use App\Http\Controllers\ReceiptController;
-use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\DepartmentsController;
+use App\Http\Controllers\Users\UsersController;
+use App\Http\Controllers\CashHandoverController;
+use App\Http\Controllers\StatuslabelsController;
+use App\Http\Controllers\DepreciationsController;
+use App\Http\Controllers\ManufacturersController;
+use App\Http\Controllers\AssetAssignmentController;
+use App\Http\Controllers\AssetMaintenancesController;
+use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\dailyearningreportController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\RidingCompanyController;
 
 Route::group(['middleware' => 'auth'], function () {
 
@@ -59,7 +60,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('insurance/toggleAllDrivers', [InsuranceController::class, 'toggleAllDrivers']);
 
     Route::get('get-accident-minimum-payment', [InsuranceController::class, 'getAccidentMinimumPayment']);
-
 
 
     //fine
@@ -115,7 +115,31 @@ Route::group(['middleware' => 'auth'], function () {
         ->name('cash-handover.store');
     Route::get('cash-handover/{id}/view', [CashHandoverController::class, 'view'])->name('cash-handover.view');
     Route::post('cash-handover/verifiy', [CashHandoverController::class, 'verification'])->name('cash-handover.verifiy');
-    // Route::resource('receipts', ReceiptController::class);
+    Route::get('salaries/fetch-data', [SalaryController::class, 'fetchData'])->name('salaries.fetch-data');
+    Route::post('salaries/update-driver-salary', [SalaryController::class, 'updateDriverSalary'])
+        ->name('salaries.update-driver-salary');
+    Route::resource('salaries', SalaryController::class);
+   // Route::resource('riding-companies', RidingCompanyController::class)->except('show');
+   
+    // Display the list of riding companies (Index)
+    Route::get('/riding-companies', [RidingCompanyController::class, 'index'])->name('riding-companies.index');
+
+    // Show the form to create a new riding company (Create)
+    Route::get('/riding-companies/create', [RidingCompanyController::class, 'create'])->name('riding-companies.create');
+
+    // Store a newly created riding company (Store)
+    Route::post('/riding-companies', [RidingCompanyController::class, 'store'])->name('riding-companies.store');
+
+    // Show the form to edit an existing riding company (Edit)
+    Route::get('/riding-companies/{riding_company}/edit', [RidingCompanyController::class, 'edit'])->name('riding-companies.edit');
+
+    // Update an existing riding company (Update)
+    Route::put('/riding-companies/{riding_company}', [RidingCompanyController::class, 'update'])->name('riding-companies.update');
+    Route::patch('/riding-companies/{riding_company}', [RidingCompanyController::class, 'update'])->name('riding-companies.update'); // Optional
+
+    // Delete a riding company (Destroy)
+    Route::delete('/riding-companies/{riding_company}', [RidingCompanyController::class, 'destroy'])->name('riding-companies.destroy');
+
 
     Route::post(
         '{item_id}/upload',

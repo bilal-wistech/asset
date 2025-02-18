@@ -323,5 +323,14 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('cash-handover.verifiy', function ($user) {
             return $user->hasAccess('cash-handover.verifiy');
         });
+        Gate::define('salaries', function ($user) {
+            return $user->hasAccess('salaries');
+        });
+        Gate::define('salaries.create', function ($user) {
+            return $user->hasAccess('salaries.create');
+        });
+        Gate::define('salaries.edit', function ($user) {
+            return $user->hasAccess('salaries.edit');
+        });
     }
 }
