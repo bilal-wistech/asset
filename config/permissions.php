@@ -905,7 +905,7 @@ return [
     ],
     'Edit Salaries' => [
         [
-            'permission' => 'salaries.create',
+            'permission' => 'salaries.edit',
             'label' => 'Edit',
             'note' => 'This will allow users to edit driver salaries',
             'display' => true,
