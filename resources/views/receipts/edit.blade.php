@@ -165,6 +165,10 @@
                                                 {{ old('deduction_way', $receipt[0]->deduction_way) == 'salary' ? 'selected' : '' }}>
                                             Salary
                                         </option>
+                                        <option value="salary cash"
+                                                {{ old('deduction_way', $receipt[0]->deduction_way) == 'salary cash' ? 'selected' : '' }}>
+                                            Salary Cash
+                                        </option>
                                     </select>
                                 </div>
                             </div>
