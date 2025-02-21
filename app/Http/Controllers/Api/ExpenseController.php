@@ -24,12 +24,9 @@ class ExpenseController extends Controller
         //  return 'hello';  
         $user = Auth::guard('api')->user();
         $response = AddExpence::with('type', 'asset')->where('user_id', $user->id)->get();
-        
-      
-        return response($response, 200);
-        
-        
 
+
+        return response($response, 200);
     }
 
     /**
@@ -39,7 +36,7 @@ class ExpenseController extends Controller
      */
     public function create()
     {
-       
+
         $user = User::with(
             'assets',
             'assets.model',
@@ -49,21 +46,21 @@ class ExpenseController extends Controller
             'licenses',
         )->find(Auth::user()->id);
         $assets = [];
-        if($user->assets != null){
-              foreach ($user->assets as $asset) {
-             
-            // return $asset;
-            //   $assets[] ='"' .  $asset->id. '"'  . ':' . $asset->name . '('. $asset->asset_tag . ')';
-              $name = isset($asset->name) ? $asset->name : $asset->asset_tag;
-              $assets[$asset->id] = $name;//$asset->only('id', 'name', 'asset_tag');
-            // $assets[] =  $asset->id . "''" . "'' : ''" .'(' . $asset->asset_tag . ')' . '"';
-           
+        if ($user->assets != null) {
+            foreach ($user->assets as $asset) {
 
+                // return $asset;
+                //   $assets[] ='"' .  $asset->id. '"'  . ':' . $asset->name . '('. $asset->asset_tag . ')';
+                $name = isset($asset->name) ? $asset->name : $asset->asset_tag;
+                $assets[$asset->id] = $name; //$asset->only('id', 'name', 'asset_tag');
+                // $assets[] =  $asset->id . "''" . "'' : ''" .'(' . $asset->asset_tag . ')' . '"';
+
+
+            }
         }
-        }
-      
-       $type = TypeOfExpence::all();
-        
+
+        $type = TypeOfExpence::all();
+
         $user_id = Auth::guard('api')->user()->id;
         //dd($user_id);
         //$user = Auth::user()->id;
@@ -83,43 +80,40 @@ class ExpenseController extends Controller
      */
     public function store(Request $request)
     {
-             
-               $store_expence = new AddExpence;
-               $store_expence->total_milage = $request->meter;
-               $store_expence->amount = $request->amount;
-               $store_expence->asset_id = $request->asset_id;
-               $store_expence->type_id = $request->type_id;
-                $store_expence->pump_station = $request->pump_station;
-             
-               $store_expence->user_id = Auth::guard('api')->user()->id;
-       
-              
-              // $img = $request->file('file');
-              if($request->file('file')){
-               $image = $request->file('file');
-               $imageName = time() . '.' . $image->getClientOriginalExtension();
-               
-               $image_resize = Image::make($image->getRealPath());
-             
-               $image_resize->resize(1000,1000);    
-              // dd($image_resize);
-               $path = 'uploads/' . $imageName;
-                
-               $image_resize->save($path);
-               
-               $imageUri = 'uploads/' . $imageName;  
-       
-               $store_expence->image = $path;
-            //    return response()->json(['image' => $imageUri], 200);
-              }
-              if ($store_expence->save()) {
-                return response()->json(['result' => 'Data is stored successfully'], 200);
+        // dd($request);
+        try {
+            $store_expence = new AddExpence;
+            $store_expence->total_milage = $request->meter;
+            $store_expence->amount = $request->amount;
+            $store_expence->asset_id = $request->asset_id;
+            $store_expence->type_id = $request->type_id;
+            $store_expence->pump_station = $request->pump_station;
+            $store_expence->user_id = Auth::guard('api')->user()->id;
+
+            if ($request->file('file')) {
+                $image = $request->file('file');
+                // dd($image);
+                $imageName = time() . '.' . $image->getClientOriginalExtension();
+
+                $image_resize = Image::make($image->getRealPath());
+                $image_resize->resize(1000, 1000);
+
+                $path = 'uploads/' . $imageName;
+                $image_resize->save($path);
+
+                $imageUri = 'uploads/' . $imageName;
+                $store_expence->image = $path;
             }
-            else
-              {
+            // dd($store_expence);
+            if ($store_expence->save()) {
+                return response()->json(['result' => 'Data is stored successfully'], 200);
+            } else {
                 return response()->json(['message' => 'There is an error in uploading'], 400);
-              }
-            //   return  $store_expence->image;
+            }
+        } catch (\Exception $e) {
+            \Log::error('Image upload failed:', ['error' => $e->getMessage()]);
+            return response()->json(['message' => 'Image upload failed: ' . $e->getMessage()], 400);
+        }
     }
 
     /**
