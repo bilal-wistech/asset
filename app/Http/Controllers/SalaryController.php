@@ -334,7 +334,7 @@ class SalaryController extends Controller
             ->where('from_date', $from_date)
             ->where('to_date', $to_date)
             ->first();
-
+        $driver = User::findOrFail($driver_id);
         return response()->json([
             'status' => 200,
             'data' => [
@@ -342,7 +342,8 @@ class SalaryController extends Controller
                 'salaryCash' => $salaryCash,
                 'expense' => $expenses,
                 'salary' => $salary,
-                'driverSalary' => $driverSalary
+                'driverSalary' => $driverSalary,
+                'driver' => $driver
             ]
         ]);
     }
