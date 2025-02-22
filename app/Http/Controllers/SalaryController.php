@@ -299,29 +299,8 @@ class SalaryController extends Controller
             ->get();
         return view('salaries.edit', compact('salary', 'salaries', 'ridingCompanies', 'driverSalary', 'driver', 'selectedCompanies'));
     }
-
-
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Salary  $salary
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Salary $salary)
+    public function salarySlip($driver_id)
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Salary  $salary
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Salary $salary)
-    {
-        //
+        
     }
 }

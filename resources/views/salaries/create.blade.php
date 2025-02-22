@@ -139,7 +139,7 @@
                     <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
-                                <label>Base Salary</label>
+                                <label>As Per Pay Slip</label>
                                 <input type="number"
                                     class="form-control base-salary-input"
                                     data-driver="${driver.id}"

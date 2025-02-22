@@ -32,20 +32,23 @@
                                     </select>
                                 </div>
                             </div>
+                            
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="date">Amount:</label>
-                                    <input type="number" class="form-control" id="total_amount" name="total_amount" required>
+                                    <label for="salary_to_be_included_from">Salary to be included From:</label>
+                                    <input type="date" name="salary_to_be_included_from" id="salary_to_be_included_from">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="salary_daterange">Salary to be included:</label>
-                                    <input type="text" class="form-control" id="salary_daterange" name="salary_daterange"
-                                        required>
-                                    <!-- Hidden inputs to store individual dates -->
-                                    <input type="hidden" name="salary_to_be_included_from" id="salary_to_be_included_from">
-                                    <input type="hidden" name="salary_to_be_included_to" id="salary_to_be_included_to">
+                                    <label for="salary_to_be_included_to">Salary to be included To:</label>
+                                    <input type="date" name="salary_to_be_included_to" id="salary_to_be_included_to">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="date">Amount:</label>
+                                    <input type="number" class="form-control" id="total_amount" name="total_amount" required>
                                 </div>
                             </div>
                         </div>
@@ -65,16 +68,5 @@
                 placeholder: "Select a driver",
                 allowClear: true
             });
-        flatpickr("#salary_daterange", {
-            mode: "range",
-            dateFormat: "Y-m-d",
-            onChange: function(selectedDates, dateStr, instance) {
-                if (selectedDates.length === 2) {
-                    // Set hidden inputs with selected dates
-                    document.getElementById('salary_to_be_included_from').value = selectedDates[0].toISOString().split('T')[0];
-                    document.getElementById('salary_to_be_included_to').value = selectedDates[1].toISOString().split('T')[0];
-                }
-            }
-        });
     </script>
 @stop
