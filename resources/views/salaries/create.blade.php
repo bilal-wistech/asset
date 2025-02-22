@@ -187,7 +187,7 @@
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
-                                <button type="button" class="btn btn-primary" id="${driver.id}"
+                                <button type="button" class="btn btn-primary payslip" id="driver-${driver.id}"
                                 data-driver="${driver.id}"
                                 data-from-date="${fromDate}"
                                 data-to-date="${toDate}"
@@ -303,6 +303,41 @@
 
             $(document).on('input', '.base-salary-input', function() {
                 updateBaseSalary(this);
+            });
+            $(document).on('click', '.payslip', function() {
+                const driverId = $(this).data('driver');
+                const fromDate = $(this).data('from-date');
+                const toDate = $(this).data('to-date');
+
+                $.ajax({
+                    url: '{{ route('salaries.salary-slip') }}',
+                    type: 'POST',
+                    data: {
+                        driver_id: driverId,
+                        from_date: fromDate,
+                        to_date: toDate,
+                        _token: $('meta[name="csrf-token"]').attr('content') // For CSRF protection
+                    },
+                    success: function(response) {
+                        if (response.status === 200) {
+                            const data = response.data;
+                            console.log('Adjustments:', data.adjustments);
+                            console.log('Salary Cash:', data.salaryCash);
+                            console.log('Expenses:', data.expense);
+                            console.log('Salary:', data.salary);
+                            console.log('Driver Salary:', data.driverSalary);
+
+                            // Here you can handle the data, perhaps show it in a modal or update the UI
+                            // For example:
+                            // displaySalarySlip(data);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error:', error);
+                        // Handle error - maybe show an alert to the user
+                        alert('Error fetching salary slip data');
+                    }
+                });
             });
         });
     </script>

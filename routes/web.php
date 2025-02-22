@@ -122,7 +122,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('salaries/update-driver-salary', [SalaryController::class, 'updateDriverSalary'])
         ->name('salaries.update-driver-salary');
     Route::get('/salaries', [SalaryController::class, 'index'])->name('salaries.index');
-    Route::get('salaries/salary-slip/{driver_id}/{from_date}/{to_date}', [SalaryController::class, 'salarySlip'])->name('salaries.salary-slip');
+    Route::post('salaries/salary-slip', [SalaryController::class, 'salarySlip'])->name('salaries.salary-slip');
     Route::resource('salaries', SalaryController::class)->except('index');
     // Route::resource('riding-companies', RidingCompanyController::class)->except('show');
 

@@ -301,8 +301,11 @@ class SalaryController extends Controller
             ->get();
         return view('salaries.edit', compact('salary', 'salaries', 'ridingCompanies', 'driverSalary', 'driver', 'selectedCompanies'));
     }
-    public function salarySlip($driver_id, $from_date, $to_date)
+    public function salarySlip(Request $request)
     {
+        $driver_id = $request->driver_id;
+        $from_date = $request->from_date;
+        $to_date = $request->to_date;
         $adjustments = Receipt::with('receiptDetails', 'driver', 'user')
             ->where('user_id', $driver_id)
             ->where('deduction_way', 'salary')
