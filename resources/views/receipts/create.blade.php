@@ -156,7 +156,7 @@
                                         <option value="" disabled selected>Select Adjustment Way</option>
                                         <option value="cash">Cash</option>
                                         <option value="salary">Salary</option>
-                                        <option value="salary cash">Salary Cash</option>
+                                        {{-- <option value="salary cash">Salary Cash</option> --}}
                                     </select>
                                 </div>
                             </div>
