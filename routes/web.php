@@ -108,6 +108,11 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/receipt/{id}', [ReceiptController::class, 'GetReceipt']);
     Route::post('/receipts/{id}/update', [ReceiptController::class, 'update'])->name('receipts.update');
     Route::match(['get', 'post'], '/receipts/{id}/delete', [ReceiptController::class, 'destroy'])->name('receipts.delete');
+    Route::get('salary-cash', [ReceiptController::class, 'salaryCash'])->name('salary-cash.index');
+    Route::get('salary-cash/create', [ReceiptController::class, 'salaryCashCreate'])->name('salary-cash.create');
+    Route::post('salary-cash/store', [ReceiptController::class, 'salaryCashStore'])->name('salary-cash.store');
+
+
     //cash handover
     Route::get('/cash-handover', [CashHandoverController::class, 'index'])->name('cash-handover');
     Route::get('/cash-handover/create', [CashHandoverController::class, 'create'])->name('cash-handover.create');

@@ -38,9 +38,19 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    @php
+                                        $id = null;
+                                    @endphp
                                     @foreach ($handover->receipts as $receipt)
+                                        @php
+                                            if ($receipt->deduction_way === 'cash') {
+                                                $id = 'ADJ-' . $receipt->id;
+                                            } else {
+                                                $id = 'SC-ADJ-' . $receipt->id;
+                                            }
+                                        @endphp
                                         <tr>
-                                            <td>ADJ-{{ $receipt->id }}</td>
+                                            <td>{{ $id }}</td>
                                             <td>{{ $receipt->date }}</td>
                                             <td>{{ $receipt->total_amount ?? 0 }}</td>
                                         </tr>

@@ -138,7 +138,7 @@ class ReceiptController extends Controller
         $group_id = [2, 3];
         $users = User::join('users_groups', 'users.id', '=', 'users_groups.user_id')
             ->whereIn('users_groups.group_id', $group_id)
-            ->select('users.id', 'users.username','users.first_name','users.last_name')
+            ->select('users.id', 'users.username', 'users.first_name', 'users.last_name')
             ->get();
         $receipt = DB::table('receipt')
             ->leftJoin('receipt_details', 'receipt_details.receipt_id', '=', 'receipt.receipt_id')
@@ -502,7 +502,7 @@ class ReceiptController extends Controller
         $group_id = [2, 3];
         $users = User::join('users_groups', 'users.id', '=', 'users_groups.user_id')
             ->whereIn('users_groups.group_id', $group_id)
-            ->select('users.id', 'users.username','users.first_name', 'users.last_name')
+            ->select('users.id', 'users.username', 'users.first_name', 'users.last_name')
             ->get();
 
         // Calculate the next receipt ID
@@ -607,40 +607,40 @@ class ReceiptController extends Controller
 
     public function printReceipt($id)
     {
-      
+
         $receipt = DB::table('receipt')
             ->leftJoin('receipt_details', 'receipt_details.receipt_id', '=', 'receipt.receipt_id')
             ->leftJoin('users', 'users.id', '=', 'receipt.user_id')
             ->where('receipt.receipt_id', $id)
             ->select('receipt.*', 'receipt_details.*', 'users.username as user_name')
             ->get();
-      foreach ($receipt as $item) {
+        foreach ($receipt as $item) {
             $previousAmount = null;
-    
+
             switch ($item->type) {
                 case 'Fine':
                     $previousAmount = DB::table('fines')
                         ->where('id', $item->type_id)
                         ->value('amount');
                     break;
-    
+
                 case 'Accident':
                     $previousAmount = DB::table('accidents')
                         ->where('id', $item->type_id)
                         ->value('responsibility_amount');
                     break;
-    
+
                 case 'Deduction':
                     $previousAmount = DB::table('deductions')
                         ->where('id', $item->type_id)
                         ->value('amount');
                     break;
             }
-    
+
             $item->previous_amount = $previousAmount;
         }
         $htmlContent = View::make('receipts.print', compact('receipt'))->render();
-    
+
         return response($htmlContent, 200)->header('Content-Type', 'text/html');
     }
     public function downloadReceipt($id)
@@ -736,5 +736,47 @@ class ReceiptController extends Controller
         }
 
         return response()->json($responseData);
+    }
+    public function salaryCash(Request $request)
+    {
+        // $this->authorize('salaries.index', Salary::class);
+        return view('salary-cash.index');
+    }
+    public function salaryCashCreate()
+    {
+        $group_id = [2, 3];
+        $drivers = User::join('users_groups', 'users.id', '=', 'users_groups.user_id')
+            ->whereIn('users_groups.group_id', $group_id)
+            ->select('users.id', 'users.username', 'users.first_name', 'users.last_name')
+            ->get();
+        return view('salary-cash.create', compact('drivers'));
+    }
+    public function salaryCashStore(Request $request)
+    {
+        $validated = $request->validate([
+            'date' => 'required|date',
+            'user_id' => 'required|exists:users,id',
+            'salary_to_be_included_from' => 'required|date',
+            'salary_to_be_included_to' => 'required|date|after_or_equal:salary_to_be_included_from',
+            'total_amount' => 'required|numeric'
+        ]);
+
+        // Store in database (assuming you have a Receipt model)
+        $salaryCash = Receipt::create([
+            'date' => $request->date,
+            'user_id' => $request->user_id,
+            'salary_to_be_included_from' => $request->salary_to_be_included_from,
+            'salary_to_be_included_to' => $request->salary_to_be_included_to,
+            'deduction_way' => 'salary cash',
+            'added_by' => Auth::user()->id,
+            'total_amount' => $request->total_amount,
+        ]);
+
+        if ($salaryCash) {
+            Receipt::where('id', $salaryCash->id)->update(['receipt_id' => $salaryCash->id]);
+            return redirect()->route('salary-cash.index')->with('success', 'Salary cash record created successfully');
+        } else {
+            return redirect()->route('salary-cash.index')->with('error', 'Failed to create salary cash record');
+        }
     }
 }

@@ -37,9 +37,15 @@ class CashHandoverTransformer
     public function transform($handover)
     {
         if ($handover) {
+            $id = null;
+            if ($handover->deduction_way === 'cash') {
+                $id = 'ADJ-' . $handover->receipt_id;
+            } else {
+                $id = 'SC-ADJ-' . $handover->receipt_id;
+            }
             $array = [
                 'state' => !$handover->handed_over, // Disable checkbox if handed over
-                'id' => 'ADJ-' . $handover->receipt_id,
+                'id' => $id,
                 'username' => $handover->user ? $handover->user->username : 'User not available',
                 'date' => Carbon::parse($handover->date)->format('d-m-Y'),
                 'total_amount' => $handover->total_amount,

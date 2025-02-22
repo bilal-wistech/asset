@@ -1026,6 +1026,16 @@ class="fa-solid fa-file-invoice"></i>&nbsp;&nbsp;<span>{{ trans('general.fines')
                                                                                     </a>
                                                                                 </li>
                                                                             @endcan
+                                                                            {{-- @can('salaries.index', \App\Models\Salary::class) --}}
+                                                                            <li
+                                                                                class="{{ Request::is('salary-cash') ? ' active' : '' }}">
+                                                                                <a
+                                                                                    href="{{ route('salary-cash.index') }}">
+                                                                                    <i class="fa fa-dollar"
+                                                                                        aria-hidden="true"></i><span>{{ trans(' Salary Cash') }}</span>
+                                                                                </a>
+                                                                            </li>
+                                                                        {{-- @endcan --}}
                                                                         </ul>
                                                                     </li>
                                                                 @endif

@@ -16,7 +16,7 @@ class CashHandoverController extends Controller
     {
 
         $cashHandover = Receipt::with(['receiptDetails', 'user'])
-            ->where('deduction_way', 'cash')
+            ->whereIn('deduction_way', ['cash','salary cash'])
             ->where('added_by', Auth::user()->id)
             ->where('handed_over', 0)
             ->whereNull('deleted_at');
