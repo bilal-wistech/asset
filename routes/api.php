@@ -600,6 +600,13 @@ Route::group(['prefix' => 'v1', 'middleware' => ['api', 'throttle:api']], functi
             'index'
         ]
     )->name('api.receipts.index');
+    Route::get(
+        '/salary-cash',
+        [
+            Api\ReceiptController::class,
+            'SalaryCash'
+        ]
+    )->name('api.salary-cash');
     // cash handover
     Route::get(
         '/cash-handover',

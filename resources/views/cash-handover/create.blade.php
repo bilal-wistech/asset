@@ -258,7 +258,7 @@
                 // Get all selected rows
                 var selectedRowData = $table.bootstrapTable('getSelections');
                 var receiptIds = selectedRowData.map(function(row) {
-                    return row.id.replace('ADJ-', '');
+                    return row.id.replace(/^SC-ADJ-|^ADJ-/, '');
                 });
 
                 // Prepare form data
