@@ -37,9 +37,13 @@ class Receipt extends Model
     public function user()
     {
         // return 'dd';
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class,'added_by');
     }
-
+    public function driver()
+    {
+        // return 'dd';
+        return $this->belongsTo(User::class,'user_id');
+    }
     // Define the relationship with the ReceiptDetail model (One-to-Many)
     public function receiptDetails()
     {

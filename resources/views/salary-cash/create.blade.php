@@ -35,14 +35,14 @@
                             
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="salary_to_be_included_from">Salary to be included From:</label>
-                                    <input type="date" name="salary_to_be_included_from" id="salary_to_be_included_from">
+                                    <label for="salary_to_be_included_from">Salary to be Included From:</label>
+                                    <input type="date" class="form-control" id="salary_to_be_included_from" name="salary_to_be_included_from" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="salary_to_be_included_to">Salary to be included To:</label>
-                                    <input type="date" name="salary_to_be_included_to" id="salary_to_be_included_to">
+                                    <label for="salary_to_be_included_to">Salary to be Included To:</label>
+                                    <input type="date" class="form-control" id="salary_to_be_included_to" name="salary_to_be_included_to" required>
                                 </div>
                             </div>
                             <div class="col-md-6">

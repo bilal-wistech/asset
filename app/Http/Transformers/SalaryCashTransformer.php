@@ -38,7 +38,7 @@ class SalaryCashTransformer
         
             $array = [
                 'id' => 'SC-ADJ-' . $cash->receipt_id,
-                'username' => $cash->user ? $cash->user->username : 'User not available',
+                'username' => ($cash->driver ? $cash->driver->first_name . ' ' . $cash->driver->last_name : 'Unknown') . ' (' . $cash->driver->username . ')',
                 'deduction_way' => $cash->deduction_way,
                 'date' => $cash->date,
                 'created_at' => $cash->created_at ? Helper::getFormattedDateObject($cash->created_at, 'datetime') : null,
