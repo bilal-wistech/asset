@@ -111,8 +111,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('salary-cash', [ReceiptController::class, 'salaryCash'])->name('salary-cash.index');
     Route::get('salary-cash/create', [ReceiptController::class, 'salaryCashCreate'])->name('salary-cash.create');
     Route::post('salary-cash/store', [ReceiptController::class, 'salaryCashStore'])->name('salary-cash.store');
-
-
     //cash handover
     Route::get('/cash-handover', [CashHandoverController::class, 'index'])->name('cash-handover');
     Route::get('/cash-handover/create', [CashHandoverController::class, 'create'])->name('cash-handover.create');
@@ -124,6 +122,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('salaries/update-driver-salary', [SalaryController::class, 'updateDriverSalary'])
         ->name('salaries.update-driver-salary');
     Route::get('/salaries', [SalaryController::class, 'index'])->name('salaries.index');
+    Route::get('salaries/salary-slip/{driver_id}/{from_date}/{to_date}', [SalaryController::class, 'salarySlip'])->name('salaries.salary-slip');
     Route::resource('salaries', SalaryController::class)->except('index');
     // Route::resource('riding-companies', RidingCompanyController::class)->except('show');
 

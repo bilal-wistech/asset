@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AddExpence;
 use App\Models\DriverSalary;
+use App\Models\Receipt;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Salary;
@@ -299,8 +301,46 @@ class SalaryController extends Controller
             ->get();
         return view('salaries.edit', compact('salary', 'salaries', 'ridingCompanies', 'driverSalary', 'driver', 'selectedCompanies'));
     }
-    public function salarySlip($driver_id)
+    public function salarySlip($driver_id, $from_date, $to_date)
     {
-        
+        $adjustments = Receipt::with('receiptDetails', 'driver', 'user')
+            ->where('user_id', $driver_id)
+            ->where('deduction_way', 'salary')
+            ->whereBetween('date', [$from_date, $to_date])
+            ->get();
+
+        $salaryCash = Receipt::with('driver', 'user')
+            ->where('user_id', $driver_id)
+            ->where('deduction_way', 'salary cash')
+            ->whereBetween('date', [$from_date, $to_date])
+            ->get();
+
+        $expenses = AddExpence::with('userdata', 'type')
+            ->where('user_id', $driver_id)
+            ->where('approved', 1)
+            ->whereBetween('created_at', [$from_date, $to_date])
+            ->get();
+
+        $salary = Salary::with('user', 'driver', 'ridingCompany')
+            ->where('driver_id', $driver_id)
+            ->where('from_date', $from_date)
+            ->where('to_date', $to_date)
+            ->get();
+
+        $driverSalary = DriverSalary::where('driver_id', $driver_id)
+            ->where('from_date', $from_date)
+            ->where('to_date', $to_date)
+            ->first();
+
+        return response()->json([
+            'status' => 200,
+            'data' => [
+                'adjustments' => $adjustments,
+                'salaryCash' => $salaryCash,
+                'expense' => $expenses,
+                'salary' => $salary,
+                'driverSalary' => $driverSalary
+            ]
+        ]);
     }
 }
