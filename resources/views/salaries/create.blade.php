@@ -1,7 +1,7 @@
 @extends('layouts/default')
 
 @section('title')
-   Create Salaries
+    Create Salaries
     @parent
 @stop
 
@@ -34,7 +34,7 @@
                                     <label for="search_driver_id">Driver:</label>
                                     <select name="search_driver_id" id="search_driver_id" class="form-control">
                                         <option value="">Select Driver</option>
-                                        @foreach($drivers as $driver)
+                                        @foreach ($drivers as $driver)
                                             <option value="{{ $driver->id }}">
                                                 {{ $driver->first_name }} {{ $driver->last_name }} ({{ $driver->username }})
                                             </option>
@@ -125,6 +125,8 @@
 
             function updateDriversContainer(data) {
                 const container = $('#drivers-container');
+                const fromDate = $('#from_date').val();
+                const toDate = $('#to_date').val();
                 container.empty();
 
                 if (!data.drivers || !data.ridingCompanies) {
@@ -181,6 +183,16 @@
                                     data-driver="${driver.id}"
                                     readonly
                                     value="${total.toFixed(2)}">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <button type="button" class="btn btn-primary" id="${driver.id}"
+                                data-driver="${driver.id}"
+                                data-from-date="${fromDate}"
+                                data-to-date="${toDate}"
+                                style="margin-top:22px;"
+                                >Payslip</button>
                             </div>
                         </div>
                     </div>
