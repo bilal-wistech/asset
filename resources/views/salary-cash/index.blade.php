@@ -42,8 +42,8 @@
                                             {{ trans('Created By') }}</th>
                                         <th data-sortable="true" data-field="date" data-visible="true">
                                             {{ trans('Cash Salary Date') }}</th>
-                                        {{-- <th data-field="actions" data-sortable="false">
-                                            {{ trans('Actions') }}</th> --}}
+                                        <th data-field="actions" data-sortable="false">
+                                            {{ trans('Actions') }}</th>
                                     </tr>
                                 </thead>
                             </table>
