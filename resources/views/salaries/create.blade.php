@@ -362,61 +362,73 @@
                 const totalAdditions = (isNaN(salaryCash) ? 0 : salaryCash) + (isNaN(
                     expnsesTotalAmount) ? 0 : expnsesTotalAmount);
                 const total = baseSalary - totalDeductions + totalAdditions;
+                const formatDate = (dateString) => {
+                    const date = new Date(dateString);
+                    const options = {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    };
+                    return date.toLocaleDateString('en-US', options);
+                };
+
+                // Format fromDate and toDate
+                const formattedFromDate = formatDate(fromDate);
+                const formattedToDate = formatDate(toDate);
                 let html = `
-        <div class="salary-slip-container" style="max-width: 800px; margin: 0 auto; padding: 20px;">
-            <h2 class="text-center mb-4">Salary Slip</h2>
-            
-            <div class="d-flex justify-content-between mb-4">
-                <div><strong>Name: ${data.driver.first_name} ${data.driver.last_name} (${data.driver.username})</strong></div>
-                <div><strong>From ${fromDate} to ${toDate}</strong></div>
-            </div>
-
-            <table class="table table-bordered">
-                <tr>
-                    <td>As Per Pay Slip</td>
-                    <td class="text-right">${baseSalary.toFixed(2)}</td>
-                </tr>
-                
-                <tr>
-                    <td colspan="2"><strong>Deductions:</strong></td>
-                </tr>
-                <tr>
-    <td>Cash in Hand</td>
-    <td class="text-right">${parseFloat(data?.totalCashInHand) ?? 0}</td>
-</tr>
-                ${Object.entries(data.adjustmentTotals).map(([key, value]) => 
-    value ? `
-                                <tr>
-                                    <td>${key.charAt(0).toUpperCase() + key.slice(1)}</td>
-                                    <td class="text-right">${parseFloat(value).toFixed(2)}</td>
-                                </tr>` : ''
-).join('')}
-
-                <tr>
-                    <td colspan="2"><strong>Other Additions:</strong></td>
-                </tr>
-                ${data.salaryCash ? `
-                                    <tr>
-                                        <td>Cash Adjustment</td>
-                                        <td class="text-right">${parseFloat(data.salaryCash.total_amount)}</td>
-                                    </tr>
-                                ` : ''}
-                ${Object.entries(data.expenseTotals).map(([key, value]) => 
-    value ? `
-                                <tr>
-                                    <td>${key.charAt(0).toUpperCase() + key.slice(1)}</td>
-                                    <td class="text-right">${parseFloat(value).toFixed(2)}</td>
-                                </tr>` : ''
-).join('')}
-
-
-                <tr>
-                    <td><strong>Total Payable in Bank</strong></td>
-                    <td class="text-right">${parseFloat(total).toFixed(2)}<strong></strong></td>
-                </tr>
-            </table>
+    <div class="salary-slip-container" style="max-width: 800px; margin: 0 auto; padding: 20px;">
+        <strong><h2 class="text-center mb-4">Salary Slip</h2></strong>
+        
+        <div class="d-flex justify-content-between mb-4" style="display: flex; justify-content: space-between;">
+            <div><strong>Name: ${data.driver.first_name} ${data.driver.last_name} (${data.driver.username})</strong></div>
+            <div><strong>From ${formattedFromDate} to ${formattedToDate}</strong></div>
         </div>
-    `;
+
+        <table class="table table-bordered">
+            <tr>
+                <td>As Per Pay Slip</td>
+                <td class="text-right">${parseFloat(baseSalary ?? 0).toFixed(2)}</td>
+            </tr>
+            
+            <tr>
+                <td colspan="2"><strong>Deductions:</strong></td>
+            </tr>
+            <tr>
+                <td>Cash in Hand</td>
+                <td class="text-right">${parseFloat(data?.totalCashInHand ?? 0).toFixed(2)}</td>
+            </tr>
+            ${Object.entries(data.adjustmentTotals).map(([key, value]) => 
+                value ? `
+                            <tr>
+                                <td>${key.charAt(0).toUpperCase() + key.slice(1)}</td>
+                                <td class="text-right">${parseFloat(value ?? 0).toFixed(2)}</td>
+                            </tr>` : ''
+            ).join('')}
+
+            <tr>
+                <td colspan="2"><strong>Other Additions:</strong></td>
+            </tr>
+            ${data.salaryCash ? `
+                        <tr>
+                            <td>Cash Adjustment</td>
+                            <td class="text-right">${parseFloat(data?.salaryCash?.total_amount ?? 0).toFixed(2)}</td>
+                        </tr>
+                    ` : ''}
+            ${Object.entries(data.expenseTotals).map(([key, value]) => 
+                value ? `
+                            <tr>
+                                <td>${key.charAt(0).toUpperCase() + key.slice(1)}</td>
+                                <td class="text-right">${parseFloat(value ?? 0).toFixed(2)}</td>
+                            </tr>` : ''
+            ).join('')}
+
+            <tr>
+                <td><strong>Total Payable in Bank</strong></td>
+                <td class="text-right">${parseFloat(total ?? 0).toFixed(2)}<strong></strong></td>
+            </tr>
+        </table>
+    </div>
+`;
 
                 // Show in modal
                 $('#salarySlipModal .modal-body').html(html);
