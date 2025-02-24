@@ -1,7 +1,7 @@
 @extends('layouts/default')
 
 @section('title')
-   Create Salaries
+    Create Salaries
     @parent
 @stop
 
@@ -34,7 +34,7 @@
                                     <label for="search_driver_id">Driver:</label>
                                     <select name="search_driver_id" id="search_driver_id" class="form-control">
                                         <option value="">Select Driver</option>
-                                        @foreach($drivers as $driver)
+                                        @foreach ($drivers as $driver)
                                             <option value="{{ $driver->id }}">
                                                 {{ $driver->first_name }} {{ $driver->last_name }} ({{ $driver->username }})
                                             </option>
@@ -61,6 +61,24 @@
                             <!-- Drivers and their salary inputs will be populated here -->
                         </div>
                     </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="salarySlipModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Content will be inserted here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    {{-- <button type="button" class="btn btn-primary" onclick="printSalarySlip()">Print</button> --}}
                 </div>
             </div>
         </div>
@@ -125,6 +143,8 @@
 
             function updateDriversContainer(data) {
                 const container = $('#drivers-container');
+                const fromDate = $('#from_date').val();
+                const toDate = $('#to_date').val();
                 container.empty();
 
                 if (!data.drivers || !data.ridingCompanies) {
@@ -181,6 +201,16 @@
                                     data-driver="${driver.id}"
                                     readonly
                                     value="${total.toFixed(2)}">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <button type="button" class="btn btn-primary payslip" id="driver-${driver.id}"
+                                data-driver="${driver.id}"
+                                data-from-date="${fromDate}"
+                                data-to-date="${toDate}"
+                                style="margin-top:22px;"
+                                >Payslip</button>
                             </div>
                         </div>
                     </div>
@@ -292,6 +322,118 @@
             $(document).on('input', '.base-salary-input', function() {
                 updateBaseSalary(this);
             });
+            $(document).on('click', '.payslip', function() {
+                const driverId = $(this).data('driver');
+                const fromDate = $(this).data('from-date');
+                const toDate = $(this).data('to-date');
+
+                $.ajax({
+                    url: '{{ route('salaries.salary-slip') }}',
+                    type: 'POST',
+                    data: {
+                        driver_id: driverId,
+                        from_date: fromDate,
+                        to_date: toDate,
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        if (response.status === 200) {
+                            const data = response.data;
+                            displaySalarySlip(data, fromDate, toDate);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error:', error);
+                        alert('Error fetching salary slip data');
+                    }
+                });
+            });
+
+            function displaySalarySlip(data, fromDate, toDate) {
+                // Get base salary
+                const baseSalary = data.driverSalary ? parseFloat(data.driverSalary.base_salary || 0) : 0;
+                const totalCashInHand = parseFloat(data.totalCashInHand);
+                const adjustmentsTotalAmount = parseFloat(data.adjustmentsTotalAmount);
+                const salaryCash = parseFloat(data.salaryCash.total_amount)
+                const expnsesTotalAmount = parseFloat(data.expensesTotalAmount)
+                // Check if both values are valid numbers
+                const totalDeductions = (isNaN(totalCashInHand) ? 0 : totalCashInHand) + (isNaN(
+                    adjustmentsTotalAmount) ? 0 : adjustmentsTotalAmount);
+                const totalAdditions = (isNaN(salaryCash) ? 0 : salaryCash) + (isNaN(
+                    expnsesTotalAmount) ? 0 : expnsesTotalAmount);
+                const total = baseSalary - totalDeductions + totalAdditions;
+                const formatDate = (dateString) => {
+                    const date = new Date(dateString);
+                    const options = {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    };
+                    return date.toLocaleDateString('en-US', options);
+                };
+
+                // Format fromDate and toDate
+                const formattedFromDate = formatDate(fromDate);
+                const formattedToDate = formatDate(toDate);
+                let html = `
+    <div class="salary-slip-container" style="max-width: 800px; margin: 0 auto; padding: 20px;">
+        <strong><h2 class="text-center mb-4">Salary Slip</h2></strong>
+        
+        <div class="d-flex justify-content-between mb-4" style="display: flex; justify-content: space-between;">
+            <div><strong>Name: ${data.driver.first_name} ${data.driver.last_name} (${data.driver.username})</strong></div>
+            <div><strong>From ${formattedFromDate} to ${formattedToDate}</strong></div>
+        </div>
+
+        <table class="table table-bordered">
+            <tr>
+                <td>As Per Pay Slip</td>
+                <td class="text-right">${parseFloat(baseSalary ?? 0).toFixed(2)}</td>
+            </tr>
+            
+            <tr>
+                <td colspan="2"><strong>Deductions:</strong></td>
+            </tr>
+            <tr>
+                <td>Cash in Hand</td>
+                <td class="text-right">${parseFloat(data?.totalCashInHand ?? 0).toFixed(2)}</td>
+            </tr>
+            ${Object.entries(data.adjustmentTotals).map(([key, value]) => 
+                value ? `
+                            <tr>
+                                <td>${key.charAt(0).toUpperCase() + key.slice(1)}</td>
+                                <td class="text-right">${parseFloat(value ?? 0).toFixed(2)}</td>
+                            </tr>` : ''
+            ).join('')}
+
+            <tr>
+                <td colspan="2"><strong>Other Additions:</strong></td>
+            </tr>
+            ${data.salaryCash ? `
+                        <tr>
+                            <td>Cash Adjustment</td>
+                            <td class="text-right">${parseFloat(data?.salaryCash?.total_amount ?? 0).toFixed(2)}</td>
+                        </tr>
+                    ` : ''}
+            ${Object.entries(data.expenseTotals).map(([key, value]) => 
+                value ? `
+                            <tr>
+                                <td>${key.charAt(0).toUpperCase() + key.slice(1)}</td>
+                                <td class="text-right">${parseFloat(value ?? 0).toFixed(2)}</td>
+                            </tr>` : ''
+            ).join('')}
+
+            <tr>
+                <td><strong>Total Payable in Bank</strong></td>
+                <td class="text-right">${parseFloat(total ?? 0).toFixed(2)}<strong></strong></td>
+            </tr>
+        </table>
+    </div>
+`;
+
+                // Show in modal
+                $('#salarySlipModal .modal-body').html(html);
+                $('#salarySlipModal').modal('show');
+            }
         });
     </script>
 @stop
