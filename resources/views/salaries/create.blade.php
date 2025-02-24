@@ -65,6 +65,24 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="salarySlipModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Content will be inserted here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    {{-- <button type="button" class="btn btn-primary" onclick="printSalarySlip()">Print</button> --}}
+                </div>
+            </div>
+        </div>
+    </div>
 @stop
 
 @section('moar_scripts')
@@ -316,29 +334,84 @@
                         driver_id: driverId,
                         from_date: fromDate,
                         to_date: toDate,
-                        _token: $('meta[name="csrf-token"]').attr('content') // For CSRF protection
+                        _token: $('meta[name="csrf-token"]').attr('content')
                     },
                     success: function(response) {
                         if (response.status === 200) {
                             const data = response.data;
-                            console.log('Adjustments:', data.adjustments);
-                            console.log('Salary Cash:', data.salaryCash);
-                            console.log('Expenses:', data.expense);
-                            console.log('Salary:', data.salary);
-                            console.log('Driver Salary:', data.driverSalary);
-
-                            // Here you can handle the data, perhaps show it in a modal or update the UI
-                            // For example:
-                            // displaySalarySlip(data);
+                            displaySalarySlip(data, fromDate, toDate);
                         }
                     },
                     error: function(xhr, status, error) {
                         console.error('Error:', error);
-                        // Handle error - maybe show an alert to the user
                         alert('Error fetching salary slip data');
                     }
                 });
             });
+
+            function displaySalarySlip(data, fromDate, toDate) {
+                // Get base salary
+                const baseSalary = data.driverSalary ? parseFloat(data.driverSalary.base_salary || 0) : 0;
+
+                let html = `
+        <div class="salary-slip-container" style="max-width: 800px; margin: 0 auto; padding: 20px;">
+            <h2 class="text-center mb-4">Salary Slip</h2>
+            
+            <div class="d-flex justify-content-between mb-4">
+                <div><strong>Name: ${data.driver.first_name} ${data.driver.last_name} (${data.driver.username})</strong></div>
+                <div><strong>From ${fromDate} to ${toDate}</strong></div>
+            </div>
+
+            <table class="table table-bordered">
+                <tr>
+                    <td>As Per Pay Slip</td>
+                    <td class="text-right">${baseSalary.toFixed(2)}</td>
+                </tr>
+                
+                <tr>
+                    <td colspan="2"><strong>Deductions:</strong></td>
+                </tr>
+                <tr>
+                    <td>Cash in Hand</td>
+                    <td class="text-right"></td>
+                </tr>
+                <tr>
+                    <td>Fines</td>
+                    <td class="text-right"></td>
+                </tr>
+                <tr>
+                    <td>Other Deduction</td>
+                    <td class="text-right"></td>
+                </tr>
+
+                <tr>
+                    <td colspan="2"><strong>Other Additions:</strong></td>
+                </tr>
+                <tr>
+                    <td>Cash Adjustment</td>
+                    <td class="text-right"></td>
+                </tr>
+                <tr>
+                    <td>Fuel</td>
+                    <td class="text-right">0.00</td>
+                </tr>
+                <tr>
+                    <td>Maintenance</td>
+                    <td class="text-right">0.00</td>
+                </tr>
+
+                <tr>
+                    <td><strong>Total Payable in Bank</strong></td>
+                    <td class="text-right"><strong></strong></td>
+                </tr>
+            </table>
+        </div>
+    `;
+
+                // Show in modal
+                $('#salarySlipModal .modal-body').html(html);
+                $('#salarySlipModal').modal('show');
+            }
         });
     </script>
 @stop

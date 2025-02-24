@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AddExpence;
-use App\Models\DriverSalary;
-use App\Models\Receipt;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Salary;
+use App\Models\Receipt;
+use App\Models\AddExpence;
+use App\Models\DriverSalary;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Models\RidingCompany;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class SalaryController extends Controller
 {
@@ -303,48 +304,96 @@ class SalaryController extends Controller
     }
     public function salarySlip(Request $request)
     {
-        $driver_id = $request->driver_id;
-        $from_date = $request->from_date;
-        $to_date = $request->to_date;
-        $adjustments = Receipt::with('receiptDetails', 'driver', 'user')
-            ->where('user_id', $driver_id)
-            ->where('deduction_way', 'salary')
-            ->whereBetween('date', [$from_date, $to_date])
-            ->get();
+        try {
+            // Validate request
+            $validated = $request->validate([
+                'driver_id' => 'required|exists:users,id',
+                'from_date' => 'required|date',
+                'to_date' => 'required|date|after_or_equal:from_date',
+            ]);
 
-        $salaryCash = Receipt::with('driver', 'user')
-            ->where('user_id', $driver_id)
-            ->where('deduction_way', 'salary cash')
-            ->whereBetween('date', [$from_date, $to_date])
-            ->get();
+            $driver_id = $request->driver_id;
+            $from_date = $request->from_date;
+            $to_date = $request->to_date;
 
-        $expenses = AddExpence::with('userdata', 'type')
-            ->where('user_id', $driver_id)
-            ->where('approved', 1)
-            ->whereBetween('created_at', [$from_date, $to_date])
-            ->get();
+            // Fetch all required data
+            $adjustments = Receipt::with(['receiptDetails', 'driver', 'user'])
+                ->where('user_id', $driver_id)
+                ->where('deduction_way', 'salary')
+                ->whereBetween('date', [$from_date, $to_date])
+                ->get();
 
-        $salary = Salary::with('user', 'driver', 'ridingCompany')
-            ->where('driver_id', $driver_id)
-            ->where('from_date', $from_date)
-            ->where('to_date', $to_date)
-            ->get();
+            $salaryCash = Receipt::with(['driver', 'user'])
+                ->where('user_id', $driver_id)
+                ->where('deduction_way', 'salary cash')
+                ->where('salary_to_be_included_from', $from_date)
+                ->where('salary_to_be_included_to', $to_date)
+                ->first();
 
-        $driverSalary = DriverSalary::where('driver_id', $driver_id)
-            ->where('from_date', $from_date)
-            ->where('to_date', $to_date)
-            ->first();
-        $driver = User::findOrFail($driver_id);
-        return response()->json([
-            'status' => 200,
-            'data' => [
-                'adjustments' => $adjustments,
-                'salaryCash' => $salaryCash,
-                'expense' => $expenses,
-                'salary' => $salary,
-                'driverSalary' => $driverSalary,
-                'driver' => $driver
-            ]
-        ]);
+            $expenses = AddExpence::with(['userdata', 'type'])
+                ->where('user_id', $driver_id)
+                ->where('approved', 1)
+                ->whereBetween('created_at', [$from_date, $to_date])
+                ->get();
+
+            $salary = Salary::with(['user', 'driver', 'ridingCompany'])
+                ->where('driver_id', $driver_id)
+                ->where('from_date', $from_date)
+                ->where('to_date', $to_date)
+                ->get();
+
+            $driverSalary = DriverSalary::where('driver_id', $driver_id)
+                ->where('from_date', $from_date)
+                ->where('to_date', $to_date)
+                ->first();
+
+            $driver = User::findOrFail($driver_id);
+
+            // Calculate totals directly
+            $totals = [];
+
+            foreach ($adjustments as $adjustment) {
+                foreach ($adjustment->receiptDetails as $details) {
+                    $type = strtolower(trim($details->type));
+                    if (!isset($totals[$type])) {
+                        $totals[$type] = 0;
+                    }
+                    $totals[$type] += floatval($details->payment);
+                }
+            }
+
+            foreach ($expenses as $expense) {
+                $type = strtolower(trim($expense->type->title));
+                if (!isset($totals[$type])) {
+                    $totals[$type] = 0;
+                }
+                $totals[$type] += floatval($expense->amount);
+            }
+            // dd($totals);
+            ksort($totals);
+
+            return response()->json([
+                'status' => 200,
+                'data' => [
+                    'adjustments' => $adjustments,
+                    'salaryCash' => $salaryCash,
+                    'expense' => $expenses,
+                    'salary' => $salary,
+                    'driverSalary' => $driverSalary,
+                    'driver' => $driver,
+                    'totals' => $totals
+                ]
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => 422,
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'An error occurred while processing the salary slip'
+            ], 500);
+        }
     }
 }
