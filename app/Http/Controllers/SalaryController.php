@@ -312,9 +312,9 @@ class SalaryController extends Controller
                 'to_date' => 'required|date|after_or_equal:from_date',
             ]);
 
-            $driver_id = $request->driver_id;
-            $from_date = $request->from_date;
-            $to_date = $request->to_date;
+            $driver_id = $validated['driver_id'];
+            $from_date = $validated['from_date'];
+            $to_date = $validated['to_date'];
 
             // Fetch all required data
             $adjustments = Receipt::with(['receiptDetails', 'driver', 'user'])
@@ -322,7 +322,7 @@ class SalaryController extends Controller
                 ->where('deduction_way', 'salary')
                 ->whereBetween('date', [$from_date, $to_date])
                 ->get();
-
+            
             $salaryCash = Receipt::with(['driver', 'user'])
                 ->where('user_id', $driver_id)
                 ->where('deduction_way', 'salary cash')
@@ -349,39 +349,44 @@ class SalaryController extends Controller
 
             $driver = User::findOrFail($driver_id);
 
-            // Calculate totals directly
-            $totals = [];
-
+            // Calculate totals
+            $adjustmentTotals = [];
+            $expenseTotals = [];
+            $totalCashInHand = 0;
             foreach ($adjustments as $adjustment) {
                 foreach ($adjustment->receiptDetails as $details) {
                     $type = strtolower(trim($details->type));
-                    if (!isset($totals[$type])) {
-                        $totals[$type] = 0;
+                    if (!isset($adjustmentTotals[$type])) {
+                        $adjustmentTotals[$type] = 0;  // Fixed variable name
                     }
-                    $totals[$type] += floatval($details->payment);
+                    $adjustmentTotals[$type] += floatval($details->payment);
                 }
             }
 
             foreach ($expenses as $expense) {
                 $type = strtolower(trim($expense->type->title));
-                if (!isset($totals[$type])) {
-                    $totals[$type] = 0;
+                if (!isset($expenseTotals[$type])) {
+                    $expenseTotals[$type] = 0;
                 }
-                $totals[$type] += floatval($expense->amount);
+                $expenseTotals[$type] += floatval($expense->amount);
             }
-            // dd($totals);
-            ksort($totals);
-
+            foreach ($salary as $cashInHand) {
+                $totalCashInHand += floatval($cashInHand->amount_paid);
+            }
             return response()->json([
                 'status' => 200,
                 'data' => [
                     'adjustments' => $adjustments,
                     'salaryCash' => $salaryCash,
-                    'expense' => $expenses,
+                    'expenses' => $expenses,  // Fixed key name
                     'salary' => $salary,
                     'driverSalary' => $driverSalary,
                     'driver' => $driver,
-                    'totals' => $totals
+                    'adjustmentTotals' => $adjustmentTotals,
+                    'expenseTotals' => $expenseTotals,
+                    'totalCashInHand' => $totalCashInHand,
+                    'adjustmentsTotalAmount' => floatval($adjustments->sum('total_amount')),
+                    'expensesTotalAmount' => floatval($expenses->sum('amount'))
                 ]
             ]);
         } catch (ValidationException $e) {
@@ -390,6 +395,7 @@ class SalaryController extends Controller
                 'errors' => $e->errors()
             ], 422);
         } catch (\Exception $e) {
+            \Log::error('Salary slip error: ' . $e->getMessage());  // Added logging
             return response()->json([
                 'status' => 500,
                 'message' => 'An error occurred while processing the salary slip'
