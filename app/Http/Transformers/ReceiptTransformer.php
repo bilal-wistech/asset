@@ -56,6 +56,8 @@ class ReceiptTransformer
 
         return [];
     }
+
+   
 }
 ?>
 

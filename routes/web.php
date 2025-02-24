@@ -111,6 +111,11 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('salary-cash', [ReceiptController::class, 'salaryCash'])->name('salary-cash.index');
     Route::get('salary-cash/create', [ReceiptController::class, 'salaryCashCreate'])->name('salary-cash.create');
     Route::post('salary-cash/store', [ReceiptController::class, 'salaryCashStore'])->name('salary-cash.store');
+    Route::get('salary-cash/{id}/edit', [ReceiptController::class, 'salaryCashEdit'])->name('salary-cash.edit');
+    Route::put('salary-cash/{id}/update', [ReceiptController::class, 'salaryCashUpdate'])->name('salary-cash.update');
+
+
+
     //cash handover
     Route::get('/cash-handover', [CashHandoverController::class, 'index'])->name('cash-handover');
     Route::get('/cash-handover/create', [CashHandoverController::class, 'create'])->name('cash-handover.create');
