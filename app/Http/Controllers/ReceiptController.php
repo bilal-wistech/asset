@@ -779,4 +779,68 @@ class ReceiptController extends Controller
             return redirect()->route('salary-cash.index')->with('error', 'Failed to create salary cash record');
         }
     }
+
+    public function salaryCashEdit($id)
+    {
+        $group_id = [2, 3];
+        $drivers = User::join('users_groups', 'users.id', '=', 'users_groups.user_id')
+            ->whereIn('users_groups.group_id', $group_id)
+            ->select('users.id', 'users.username', 'users.first_name', 'users.last_name')
+            ->get();
+
+        $reciept = Receipt::findOrFail($id);
+        
+        return view('salary-cash.edit', compact('reciept', 'drivers'));
+    }
+
+    // public function salaryCashEdit($id)
+    // {
+    //     $group_id = [2, 3];
+    
+    //     // Fetch the receipt record
+    //     $reciept = Receipt::findOrFail($id);
+    
+    //     // Fetch only the driver associated with the receipt
+    //     $driver = User::join('users_groups', 'users.id', '=', 'users_groups.user_id')
+    //         ->whereIn('users_groups.group_id', $group_id)
+    //         ->where('users.id', $reciept->user_id) // Fetch only the driver from the receipt
+    //         ->select('users.id', 'users.username', 'users.first_name', 'users.last_name')
+    //         ->first(); // Use first() instead of get() since it's a single record
+    
+    //     return view('salary-cash.edit', compact('reciept', 'driver'));
+    // }
+    
+
+    public function salaryCashUpdate($id, Request $request){
+        $validated = $request->validate([
+            'date' => 'required|date',
+            'user_id' => 'required|exists:users,id',
+            'salary_to_be_included_from' => 'required|date',
+            'salary_to_be_included_to' => 'required|date|after_or_equal:salary_to_be_included_from',
+            'total_amount' => 'required|numeric'
+        ]);
+
+        // Find the existing salary cash record
+        $salaryCash = Receipt::findOrFail($id);
+
+         $update = $salaryCash->update([
+             'date' => $request->date,
+             'user_id' => $request->user_id,
+             'salary_to_be_included_from' => $request->salary_to_be_included_from,
+             'salary_to_be_included_to' => $request->salary_to_be_included_to,
+             'deduction_way' => 'salary cash',
+             'added_by' => Auth::user()->id, // Updating admin who made the change
+             'total_amount' => $request->total_amount,
+         ]);
+
+        if ($update) {
+            Receipt::where('id', $salaryCash->id)->update(['receipt_id' => $salaryCash->id]);
+            return redirect()->route('salary-cash.index')->with('success', 'Salary cash record created successfully');
+        } else {
+            return redirect()->route('salary-cash.index')->with('error', 'Failed to create salary cash record');
+        }
+
+    }
+
+
 }

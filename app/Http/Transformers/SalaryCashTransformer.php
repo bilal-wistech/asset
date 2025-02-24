@@ -45,22 +45,21 @@ class SalaryCashTransformer
                 'total_amount' => round($cash->total_amount, 2),
                 'salary_to_be_included_from_to' => $cash->salary_to_be_included_from.' - '.$cash->salary_to_be_included_to,
                 'added_by' => ($cash->user ? $cash->user->first_name . ' ' . $cash->user->last_name : 'Unknown') . ' (' . $cash->user->username . ')',
-                // 'actions' => $this->getActionButtons($cash),
+                'actions' => $this->getActionButtons($cash),
             ];
 
             return $array;
     }
-    private function getActionButtons($salary)
+    private function getActionButtons($cash)
     {
+
         $actions = '';
+            $actions .= '<a href="' . route('salary-cash.edit', $cash) . '" 
+                   class="btn btn-sm btn-info" title="Edit">
+                   <i class="fa fa-pencil"></i>
+                </a>';
 
-      
-            // $actions .= '<a href="' . route('salaries.edit', $salary) . '" 
-            //        class="btn btn-sm btn-info" title="Edit">
-            //        <i class="fa fa-pencil"></i>
-            //     </a>';
-
-            //      // View Button
+                 // View Button
             // $actions .= '<a href="' . route('salaries.show', $salary) . '" 
             //     class="btn btn-sm btn-primary" title="View">
             //     <i class="fa fa-eye"></i>
