@@ -361,7 +361,7 @@
                     adjustmentsTotalAmount) ? 0 : adjustmentsTotalAmount);
                 const totalAdditions = (isNaN(salaryCash) ? 0 : salaryCash) + (isNaN(
                     expnsesTotalAmount) ? 0 : expnsesTotalAmount);
-                const total = baseSalary - totalDeductions + totalAdditions;
+                const total = totalDeductions + totalAdditions;
                 const formatDate = (dateString) => {
                     const date = new Date(dateString);
                     const options = {
