@@ -50,7 +50,7 @@
                                     <div class="col-md-3">
                                         <div class="form-group">
                                             <label>Salary</label>
-                                            <input type="number" class="form-control base-salary-input"
+                                            <input type="number" class="form-control salary-field-input"
                                                 data-driver="{{ $driver->id }}"
                                                 value="{{ isset($driverSalary) ? $driverSalary->salary : 0 }}"
                                                 min="0" step="0.01">
@@ -183,21 +183,32 @@
 
                 data.drivers.forEach(driver => {
                     let driverHtml = `
-                <div class="driver-row mb-4">
-                    <h4><strong>Driver: ${driver.fname} ${driver.lname} (${driver.name})</strong></h4>
-                    <div class="row">
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label>Base Salary</label>
-                                <input type="number"
-                                    class="form-control base-salary-input"
-                                    data-driver="${driver.id}"
-                                    value="${data.driverSalaries[driver.id]?.base_salary || ''}"
-                                    min="0"
-                                    step="0.01">
-                            </div>
-                        </div>
-            `;
+        <div class="driver-row mb-4">
+            <h4><strong>Driver: ${driver.fname} ${driver.lname} (${driver.name})</strong></h4>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Salary</label>
+                        <input type="number"
+                            class="form-control salary-field-input"
+                            data-driver="${driver.id}"
+                            value="${data.driverSalaries[driver.id]?.salary || ''}"
+                            min="0"
+                            step="0.01">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Base Salary</label>
+                        <input type="number"
+                            class="form-control base-salary-input"
+                            data-driver="${driver.id}"
+                            value="${data.driverSalaries[driver.id]?.base_salary || ''}"
+                            min="0"
+                            step="0.01">
+                    </div>
+                </div>
+    `;
 
                     let total = 0;
                     data.ridingCompanies.forEach(company => {
@@ -207,40 +218,40 @@
                         total += parseFloat(amount || 0);
 
                         driverHtml += `
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label>${company.name}</label>
-                            <input type="number"
-                                class="form-control salary-input"
-                                data-driver="${driver.id}"
-                                data-company="${company.id}"
-                                value="${amount}"
-                                min="0"
-                                step="0.01">
-                        </div>
-                    </div>
-                `;
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>${company.name}</label>
+                    <input type="number"
+                        class="form-control salary-input"
+                        data-driver="${driver.id}"
+                        data-company="${company.id}"
+                        value="${amount}"
+                        min="0"
+                        step="0.01">
+                </div>
+            </div>
+        `;
                     });
 
                     driverHtml += `
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label>Total</label>
-                                <input type="text" class="form-control driver-total"
-                                    data-driver="${driver.id}"
-                                    readonly
-                                    value="${total.toFixed(2)}">
-                            </div>
-                        </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Total</label>
+                        <input type="text" class="form-control driver-total"
+                            data-driver="${driver.id}"
+                            readonly
+                            value="${total.toFixed(2)}">
                     </div>
                 </div>
-            `;
+            </div>
+        </div>
+    `;
 
                     container.append(driverHtml);
                 });
             }
 
-            // Updated updateSalary function with proper implementation
+            // Company salary update function
             const updateSalary = debounce(function(input) {
                 const driverId = $(input).data('driver');
                 const companyId = $(input).data('company');
@@ -287,11 +298,16 @@
                 });
             }, 500);
 
+            // Base salary update function
             const updateBaseSalary = debounce(function(input) {
                 const driverId = $(input).data('driver');
                 const amount = $(input).val();
                 const fromDate = $('#from_date').val();
                 const toDate = $('#to_date').val();
+
+                // Get the salary field value
+                const salaryAmount = $(`.salary-field-input[data-driver="${driverId}"]`).val() || 0;
+
                 $.ajax({
                     url: '{{ route('salaries.update-driver-salary') }}',
                     method: 'POST',
@@ -299,6 +315,7 @@
                         _token: '{{ csrf_token() }}',
                         driver_id: driverId,
                         base_salary: amount || 0,
+                        salary: salaryAmount,
                         from_date: fromDate,
                         to_date: toDate,
                     },
@@ -315,6 +332,47 @@
                     },
                     error: function(xhr) {
                         const error = xhr.responseJSON?.message || 'Error saving base salary';
+                        alert(error);
+                        $(input).addClass('is-invalid');
+                        setTimeout(() => $(input).removeClass('is-invalid'), 2000);
+                    }
+                });
+            }, 500);
+
+            // Salary field update function
+            const updateSalaryField = debounce(function(input) {
+                const driverId = $(input).data('driver');
+                const amount = $(input).val();
+                const fromDate = $('#from_date').val();
+                const toDate = $('#to_date').val();
+
+                // Get the base_salary field value
+                const baseSalaryAmount = $(`.base-salary-input[data-driver="${driverId}"]`).val() || 0;
+
+                $.ajax({
+                    url: '{{ route('salaries.update-driver-salary') }}',
+                    method: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        driver_id: driverId,
+                        base_salary: baseSalaryAmount,
+                        salary: amount || 0,
+                        from_date: fromDate,
+                        to_date: toDate,
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            toastr.success('Salary updated successfully');
+                            $(input).addClass('is-valid');
+                            setTimeout(() => $(input).removeClass('is-valid'), 2000);
+                        } else {
+                            alert('Error saving salary. Please try again.');
+                            $(input).addClass('is-invalid');
+                            setTimeout(() => $(input).removeClass('is-invalid'), 2000);
+                        }
+                    },
+                    error: function(xhr) {
+                        const error = xhr.responseJSON?.message || 'Error saving salary';
                         alert(error);
                         $(input).addClass('is-invalid');
                         setTimeout(() => $(input).removeClass('is-invalid'), 2000);
@@ -342,7 +400,12 @@
             $(document).on('input', '.base-salary-input', function() {
                 updateBaseSalary(this);
             });
+
+            $(document).on('input', '.salary-field-input', function() {
+                updateSalaryField(this);
+            });
         });
+
         toastr.options = {
             "closeButton": true,
             "progressBar": true,
