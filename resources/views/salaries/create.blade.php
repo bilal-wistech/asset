@@ -154,21 +154,32 @@
 
                 data.drivers.forEach(driver => {
                     let driverHtml = `
-                <div class="driver-row mb-4">
-                    <h4><strong>Driver: ${driver.fname} ${driver.lname} (${driver.name})</strong></h4>
-                    <div class="row">
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label>As Per Pay Slip</label>
-                                <input type="number"
-                                    class="form-control base-salary-input"
-                                    data-driver="${driver.id}"
-                                    value="${data.driverSalaries[driver.id]?.base_salary || ''}"
-                                    min="0"
-                                    step="0.01">
-                            </div>
-                        </div>
-            `;
+        <div class="driver-row mb-4">
+            <h4><strong>Driver: ${driver.fname} ${driver.lname} (${driver.name})</strong></h4>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Salary</label>
+                        <input type="number"
+                            class="form-control driver-salary-input"
+                            data-driver="${driver.id}"
+                            value="${data.driverSalaries[driver.id]?.salary || ''}"
+                            min="0"
+                            step="0.01">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>As Per Pay Slip</label>
+                        <input type="number"
+                            class="form-control base-salary-input"
+                            data-driver="${driver.id}"
+                            value="${data.driverSalaries[driver.id]?.base_salary || ''}"
+                            min="0"
+                            step="0.01">
+                    </div>
+                </div>
+    `;
 
                     let total = 0;
                     data.ridingCompanies.forEach(company => {
@@ -178,51 +189,51 @@
                         total += parseFloat(amount || 0);
 
                         driverHtml += `
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label>${company.name}</label>
-                            <input type="number"
-                                class="form-control salary-input"
-                                data-driver="${driver.id}"
-                                data-company="${company.id}"
-                                value="${amount}"
-                                min="0"
-                                step="0.01">
-                        </div>
-                    </div>
-                `;
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>${company.name}</label>
+                    <input type="number"
+                        class="form-control company-salary-input"
+                        data-driver="${driver.id}"
+                        data-company="${company.id}"
+                        value="${amount}"
+                        min="0"
+                        step="0.01">
+                </div>
+            </div>
+        `;
                     });
 
                     driverHtml += `
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label>Total</label>
-                                <input type="text" class="form-control driver-total"
-                                    data-driver="${driver.id}"
-                                    readonly
-                                    value="${total.toFixed(2)}">
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <button type="button" class="btn btn-primary payslip" id="driver-${driver.id}"
-                                data-driver="${driver.id}"
-                                data-from-date="${fromDate}"
-                                data-to-date="${toDate}"
-                                style="margin-top:22px;"
-                                >Payslip</button>
-                            </div>
-                        </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Total</label>
+                        <input type="text" class="form-control driver-total"
+                            data-driver="${driver.id}"
+                            readonly
+                            value="${total.toFixed(2)}">
                     </div>
                 </div>
-            `;
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <button type="button" class="btn btn-primary payslip" id="driver-${driver.id}"
+                        data-driver="${driver.id}"
+                        data-from-date="${fromDate}"
+                        data-to-date="${toDate}"
+                        style="margin-top:22px;"
+                        >Payslip</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
 
                     container.append(driverHtml);
                 });
             }
 
             // Updated updateSalary function with proper implementation
-            const updateSalary = debounce(function(input) {
+            const updateCompanySalary = debounce(function(input) {
                 const driverId = $(input).data('driver');
                 const companyId = $(input).data('company');
                 const amount = $(input).val();
@@ -267,18 +278,23 @@
                 });
             }, 500);
 
-            const updateBaseSalary = debounce(function(input) {
+            const updateDriverSalary = debounce(function(input) {
                 const driverId = $(input).data('driver');
-                const amount = $(input).val();
                 const fromDate = $('#from_date').val();
                 const toDate = $('#to_date').val();
+
+                // Get both salary and base_salary values
+                const salary = $(`.driver-salary-input[data-driver="${driverId}"]`).val();
+                const baseSalary = $(`.base-salary-input[data-driver="${driverId}"]`).val();
+
                 $.ajax({
                     url: '{{ route('salaries.update-driver-salary') }}',
                     method: 'POST',
                     data: {
                         _token: '{{ csrf_token() }}',
                         driver_id: driverId,
-                        base_salary: amount || 0,
+                        base_salary: baseSalary || 0,
+                        salary: salary || 0,
                         from_date: fromDate,
                         to_date: toDate,
                     },
@@ -288,13 +304,14 @@
                             $(input).addClass('is-valid');
                             setTimeout(() => $(input).removeClass('is-valid'), 2000);
                         } else {
-                            alert('Error saving base salary. Please try again.');
+                            alert('Error saving salary information. Please try again.');
                             $(input).addClass('is-invalid');
                             setTimeout(() => $(input).removeClass('is-invalid'), 2000);
                         }
                     },
                     error: function(xhr) {
-                        const error = xhr.responseJSON?.message || 'Error saving base salary';
+                        const error = xhr.responseJSON?.message ||
+                            'Error saving salary information';
                         alert(error);
                         $(input).addClass('is-invalid');
                         setTimeout(() => $(input).removeClass('is-invalid'), 2000);
@@ -304,7 +321,7 @@
 
             function updateDriverTotal(driverId) {
                 let total = 0;
-                $(`.salary-input[data-driver="${driverId}"]`).each(function() {
+                $(`.company-salary-input[data-driver="${driverId}"]`).each(function() {
                     total += parseFloat($(this).val() || 0);
                 });
                 $(`.driver-total[data-driver="${driverId}"]`).val(total.toFixed(2));
@@ -313,15 +330,21 @@
             // Event Listeners
             $('#from_date, #to_date, #search_driver_id, #incomplete').change(fetchSalaryData);
 
-            $(document).on('input', '.salary-input', function() {
+            // Update event listeners to use the correct class names and update functions
+            $(document).on('input', '.company-salary-input', function() {
                 const driverId = $(this).data('driver');
                 updateDriverTotal(driverId);
-                updateSalary(this);
+                updateCompanySalary(this);
             });
 
             $(document).on('input', '.base-salary-input', function() {
-                updateBaseSalary(this);
+                updateDriverSalary(this);
             });
+
+            $(document).on('input', '.driver-salary-input', function() {
+                updateDriverSalary(this);
+            });
+
             $(document).on('click', '.payslip', function() {
                 const driverId = $(this).data('driver');
                 const fromDate = $(this).data('from-date');
@@ -376,58 +399,58 @@
                 const formattedFromDate = formatDate(fromDate);
                 const formattedToDate = formatDate(toDate);
                 let html = `
-    <div class="salary-slip-container" style="max-width: 800px; margin: 0 auto; padding: 20px;">
-        <strong><h2 class="text-center mb-4">Salary Slip</h2></strong>
-        
-        <div class="d-flex justify-content-between mb-4" style="display: flex; justify-content: space-between;">
-            <div><strong>Name: ${data.driver.first_name} ${data.driver.last_name} (${data.driver.username})</strong></div>
-            <div><strong>From ${formattedFromDate} to ${formattedToDate}</strong></div>
-        </div>
+<div class="salary-slip-container" style="max-width: 800px; margin: 0 auto; padding: 20px;">
+<strong><h2 class="text-center mb-4">Salary Slip</h2></strong>
 
-        <table class="table table-bordered">
-            <tr>
-                <td>As Per Pay Slip</td>
-                <td class="text-right">${parseFloat(baseSalary ?? 0).toFixed(2)}</td>
-            </tr>
-            
-            <tr>
-                <td colspan="2"><strong>Deductions:</strong></td>
-            </tr>
-            <tr>
-                <td>Cash in Hand</td>
-                <td class="text-right">${parseFloat(data?.totalCashInHand ?? 0).toFixed(2)}</td>
-            </tr>
-            ${Object.entries(data.adjustmentTotals).map(([key, value]) => 
-                value ? `
-                            <tr>
-                                <td>${key.charAt(0).toUpperCase() + key.slice(1)}</td>
-                                <td class="text-right">${parseFloat(value ?? 0).toFixed(2)}</td>
-                            </tr>` : ''
-            ).join('')}
+<div class="d-flex justify-content-between mb-4" style="display: flex; justify-content: space-between;">
+    <div><strong>Name: ${data.driver.first_name} ${data.driver.last_name} (${data.driver.username})</strong></div>
+    <div><strong>From ${formattedFromDate} to ${formattedToDate}</strong></div>
+</div>
 
-            <tr>
-                <td colspan="2"><strong>Other Additions:</strong></td>
-            </tr>
-            ${data.salaryCash ? `
+<table class="table table-bordered">
+    <tr>
+        <td>As Per Pay Slip</td>
+        <td class="text-right">${parseFloat(baseSalary ?? 0).toFixed(2)}</td>
+    </tr>
+    
+    <tr>
+        <td colspan="2"><strong>Deductions:</strong></td>
+    </tr>
+    <tr>
+        <td>Cash in Hand</td>
+        <td class="text-right">${parseFloat(data?.totalCashInHand ?? 0).toFixed(2)}</td>
+    </tr>
+    ${Object.entries(data.adjustmentTotals).map(([key, value]) => 
+        value ? `
                         <tr>
-                            <td>Cash Adjustment</td>
-                            <td class="text-right">${parseFloat(data?.salaryCash?.total_amount ?? 0).toFixed(2)}</td>
-                        </tr>
-                    ` : ''}
-            ${Object.entries(data.expenseTotals).map(([key, value]) => 
-                value ? `
-                            <tr>
-                                <td>${key.charAt(0).toUpperCase() + key.slice(1)}</td>
-                                <td class="text-right">${parseFloat(value ?? 0).toFixed(2)}</td>
-                            </tr>` : ''
-            ).join('')}
+                            <td>${key.charAt(0).toUpperCase() + key.slice(1)}</td>
+                            <td class="text-right">${parseFloat(value ?? 0).toFixed(2)}</td>
+                        </tr>` : ''
+    ).join('')}
 
-            <tr>
-                <td><strong>Total Payable in Bank</strong></td>
-                <td class="text-right">${parseFloat(total ?? 0).toFixed(2)}<strong></strong></td>
-            </tr>
-        </table>
-    </div>
+    <tr>
+        <td colspan="2"><strong>Other Additions:</strong></td>
+    </tr>
+    ${data.salaryCash ? `
+                    <tr>
+                        <td>Cash Adjustment</td>
+                        <td class="text-right">${parseFloat(data?.salaryCash?.total_amount ?? 0).toFixed(2)}</td>
+                    </tr>
+                ` : ''}
+    ${Object.entries(data.expenseTotals).map(([key, value]) => 
+        value ? `
+                        <tr>
+                            <td>${key.charAt(0).toUpperCase() + key.slice(1)}</td>
+                            <td class="text-right">${parseFloat(value ?? 0).toFixed(2)}</td>
+                        </tr>` : ''
+    ).join('')}
+
+    <tr>
+        <td><strong>Total Payable in Bank</strong></td>
+        <td class="text-right">${parseFloat(total ?? 0).toFixed(2)}<strong></strong></td>
+    </tr>
+</table>
+</div>
 `;
 
                 // Show in modal

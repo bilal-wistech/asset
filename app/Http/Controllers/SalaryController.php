@@ -108,7 +108,13 @@ class SalaryController extends Controller
                     ) {
                         return true;
                     }
-
+                    if (
+                        !isset($driverSalaries[$driver->id]) ||
+                        $driverSalaries[$driver->id]->salary === null ||
+                        $driverSalaries[$driver->id]->salary === ''
+                    ) {
+                        return true;
+                    }
                     // Check if any company's salary is missing or empty
                     foreach ($ridingCompanies as $company) {
                         $companySalaries = $salaries[$driver->id][$company->id] ?? [];
@@ -151,6 +157,7 @@ class SalaryController extends Controller
         $validated = $request->validate([
             'driver_id' => 'required|exists:users,id',
             'base_salary' => 'required|numeric|min:0',
+            'salary' => 'required|numeric|min:0',
             'from_date' => 'required|date',
             'to_date' => 'required|date|after_or_equal:from_date',
         ]);
@@ -160,6 +167,7 @@ class SalaryController extends Controller
             DriverSalary::updateOrCreate(
                 ['driver_id' => $validated['driver_id']],
                 [
+                    'salary' => $validated['salary'],
                     'base_salary' => $validated['base_salary'],
                     'from_date' => $validated['from_date'],
                     'to_date' => $validated['to_date']
@@ -322,7 +330,7 @@ class SalaryController extends Controller
                 ->where('deduction_way', 'salary')
                 ->whereBetween('date', [$from_date, $to_date])
                 ->get();
-            
+
             $salaryCash = Receipt::with(['driver', 'user'])
                 ->where('user_id', $driver_id)
                 ->where('deduction_way', 'salary cash')

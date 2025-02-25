@@ -47,10 +47,18 @@
                                 <h4><strong>Driver: {{ $driver->first_name }} {{ $driver->last_name }}
                                         ({{ $driver->username }})</strong></h4>
                                 <div class="row">
-
                                     <div class="col-md-3">
                                         <div class="form-group">
-                                            <label>Base Salary</label>
+                                            <label>Salary</label>
+                                            <input type="number" class="form-control base-salary-input"
+                                                data-driver="{{ $driver->id }}"
+                                                value="{{ isset($driverSalary) ? $driverSalary->salary : 0 }}"
+                                                min="0" step="0.01">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label>As Per Payslip</label>
                                             <input type="number" class="form-control base-salary-input"
                                                 data-driver="{{ $driver->id }}"
                                                 value="{{ isset($driverSalary) ? $driverSalary->base_salary : 0 }}"
