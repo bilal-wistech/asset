@@ -2,13 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\DriverSalary;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Salary;
+use App\Models\Receipt;
+use App\Models\AddExpence;
+use App\Models\DriverSalary;
 use Illuminate\Http\Request;
 use App\Models\RidingCompany;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class SalaryController extends Controller
 {
@@ -19,6 +23,7 @@ class SalaryController extends Controller
      */
     public function index()
     {
+        $this->authorize('salaries.index', Salary::class);
         return view('salaries.index');
     }
 
@@ -29,12 +34,13 @@ class SalaryController extends Controller
      */
     public function create()
     {
-        $ridingCompanies = RidingCompany::all();
+        $ridingCompanies = RidingCompany::where('status', 'active')->select('id', 'name')->get();
         $group_id = [2, 3];
         $drivers = User::join('users_groups', 'users.id', '=', 'users_groups.user_id')
             ->whereIn('users_groups.group_id', $group_id)
-            ->select('users.id', 'users.username','users.first_name','users.last_name')
+            ->select('users.id', 'users.username', 'users.first_name', 'users.last_name')
             ->get();
+
         return view('salaries.create', compact('ridingCompanies', 'drivers'));
     }
 
@@ -76,7 +82,7 @@ class SalaryController extends Controller
             }
 
             $drivers = $driversQuery->get();
-            $ridingCompanies = RidingCompany::select('id', 'name')->get();
+            $ridingCompanies = RidingCompany::where('status', 'active')->select('id', 'name')->get();
 
             // Get all salaries for the date range
             $salaries = Salary::whereBetween('from_date', [$fromDate, $toDate])
@@ -93,11 +99,13 @@ class SalaryController extends Controller
 
             // If incomplete filter is active, filter drivers with any missing salary
             if (!empty($validated['incomplete'])) {
-                $driversWithIncomplete = $drivers->filter(function($driver) use ($salaries, $ridingCompanies, $driverSalaries) {
+                $driversWithIncomplete = $drivers->filter(function ($driver) use ($salaries, $ridingCompanies, $driverSalaries) {
                     // Check if base salary is missing or empty
-                    if (!isset($driverSalaries[$driver->id]) ||
+                    if (
+                        !isset($driverSalaries[$driver->id]) ||
                         $driverSalaries[$driver->id]->base_salary === null ||
-                        $driverSalaries[$driver->id]->base_salary === '') {
+                        $driverSalaries[$driver->id]->base_salary === ''
+                    ) {
                         return true;
                     }
 
@@ -105,10 +113,12 @@ class SalaryController extends Controller
                     foreach ($ridingCompanies as $company) {
                         $companySalaries = $salaries[$driver->id][$company->id] ?? [];
 
-                        if (empty($companySalaries) ||
+                        if (
+                            empty($companySalaries) ||
                             !isset($companySalaries[0]) ||
                             $companySalaries[0]->amount_paid === null ||
-                            $companySalaries[0]->amount_paid === '') {
+                            $companySalaries[0]->amount_paid === ''
+                        ) {
                             return true;
                         }
                     }
@@ -217,10 +227,46 @@ class SalaryController extends Controller
      * @param  \App\Models\Salary  $salary
      * @return \Illuminate\Http\Response
      */
-    public function show(Salary $salary)
+    public function show($id)
     {
-        //
+        $salary = Salary::findOrFail($id); // Get the salary or fail with 404
+
+        $ridingCompanies = RidingCompany::all(); // Get all riding companies
+
+        $driver = User::findOrFail($salary->driver_id); // Get driver details
+
+        // Get the driver's base salary for the given period
+        $driverSalary = DriverSalary::where('driver_id', $salary->driver_id)
+            ->where('from_date', $salary->from_date)
+            ->where('to_date', $salary->to_date)
+            ->first();
+
+        //dd($driverSalary);
+
+
+        // Get payments grouped by company_id for the specific driver and period
+        $salaries = Salary::where('driver_id', $salary->driver_id)
+            ->where('from_date', $salary->from_date)
+            ->where('to_date', $salary->to_date)
+            ->select('riding_company_id', DB::raw('SUM(amount_paid) as total_paid'))
+            ->groupBy('riding_company_id')
+            ->get();
+
+        //dd($salaries);
+
+        // Get selected companies that have paid the driver
+        $selectedCompanies = Salary::where('driver_id', $salary->driver_id)
+            ->where('from_date', $salary->from_date)
+            ->where('to_date', $salary->to_date)
+            ->get();
+
+
+        //dd($salary, $driverSalary, $salaries, $selectedCompanies);
+
+        return view('salaries.show', compact('salary', 'salaries', 'ridingCompanies', 'driverSalary', 'driver', 'selectedCompanies'));
     }
+
+
 
     /**
      * Show the form for editing the specified resource.
@@ -228,31 +274,132 @@ class SalaryController extends Controller
      * @param  \App\Models\Salary  $salary
      * @return \Illuminate\Http\Response
      */
-    public function edit(Salary $salary)
+    public function edit($id)
     {
-        //
-    }
+        $salary = Salary::where('id', $id)->first();
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Salary  $salary
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Salary $salary)
-    {
-        //
-    }
+        if (!$salary) {
+            abort(404, "Salary not found.");
+        }
+        $ridingCompanies = RidingCompany::all();
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Salary  $salary
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Salary $salary)
+        $driverSalary = DriverSalary::where('driver_id', $salary->driver_id)
+            ->where('from_date', $salary->from_date)
+            ->where('to_date', $salary->to_date)
+            ->first();
+        $driver = User::where('id', $salary->driver_id)->first();
+        $salaries = DriverSalary::whereIn('driver_id', $ridingCompanies->pluck('id'))
+            ->where('from_date', $salary->from_date)
+            ->where('to_date', $salary->to_date)
+            ->get()
+            ->groupBy(function ($item) {
+                return $item->driver_id . '.' . $item->company_id;
+            });
+        //  $ridingSelectedCompany = RidingCompany::where('id', $salary->riding_company_id)->first();
+        $selectedCompanies = Salary::where('driver_id', $salary->driver_id)
+            ->where('from_date', $salary->from_date)
+            ->where('to_date', $salary->to_date)
+            ->get();
+        return view('salaries.edit', compact('salary', 'salaries', 'ridingCompanies', 'driverSalary', 'driver', 'selectedCompanies'));
+    }
+    public function salarySlip(Request $request)
     {
-        //
+        try {
+            // Validate request
+            $validated = $request->validate([
+                'driver_id' => 'required|exists:users,id',
+                'from_date' => 'required|date',
+                'to_date' => 'required|date|after_or_equal:from_date',
+            ]);
+
+            $driver_id = $validated['driver_id'];
+            $from_date = $validated['from_date'];
+            $to_date = $validated['to_date'];
+
+            // Fetch all required data
+            $adjustments = Receipt::with(['receiptDetails', 'driver', 'user'])
+                ->where('user_id', $driver_id)
+                ->where('deduction_way', 'salary')
+                ->whereBetween('date', [$from_date, $to_date])
+                ->get();
+            
+            $salaryCash = Receipt::with(['driver', 'user'])
+                ->where('user_id', $driver_id)
+                ->where('deduction_way', 'salary cash')
+                ->where('salary_to_be_included_from', $from_date)
+                ->where('salary_to_be_included_to', $to_date)
+                ->first();
+
+            $expenses = AddExpence::with(['userdata', 'type'])
+                ->where('user_id', $driver_id)
+                ->where('approved', 1)
+                ->whereBetween('created_at', [$from_date, $to_date])
+                ->get();
+
+            $salary = Salary::with(['user', 'driver', 'ridingCompany'])
+                ->where('driver_id', $driver_id)
+                ->where('from_date', $from_date)
+                ->where('to_date', $to_date)
+                ->get();
+
+            $driverSalary = DriverSalary::where('driver_id', $driver_id)
+                ->where('from_date', $from_date)
+                ->where('to_date', $to_date)
+                ->first();
+
+            $driver = User::findOrFail($driver_id);
+
+            // Calculate totals
+            $adjustmentTotals = [];
+            $expenseTotals = [];
+            $totalCashInHand = 0;
+            foreach ($adjustments as $adjustment) {
+                foreach ($adjustment->receiptDetails as $details) {
+                    $type = strtolower(trim($details->type));
+                    if (!isset($adjustmentTotals[$type])) {
+                        $adjustmentTotals[$type] = 0;  // Fixed variable name
+                    }
+                    $adjustmentTotals[$type] += floatval($details->payment);
+                }
+            }
+
+            foreach ($expenses as $expense) {
+                $type = strtolower(trim($expense->type->title));
+                if (!isset($expenseTotals[$type])) {
+                    $expenseTotals[$type] = 0;
+                }
+                $expenseTotals[$type] += floatval($expense->amount);
+            }
+            foreach ($salary as $cashInHand) {
+                $totalCashInHand += floatval($cashInHand->amount_paid);
+            }
+            return response()->json([
+                'status' => 200,
+                'data' => [
+                    'adjustments' => $adjustments,
+                    'salaryCash' => $salaryCash,
+                    'expenses' => $expenses,  // Fixed key name
+                    'salary' => $salary,
+                    'driverSalary' => $driverSalary,
+                    'driver' => $driver,
+                    'adjustmentTotals' => $adjustmentTotals,
+                    'expenseTotals' => $expenseTotals,
+                    'totalCashInHand' => $totalCashInHand,
+                    'adjustmentsTotalAmount' => floatval($adjustments->sum('total_amount')),
+                    'expensesTotalAmount' => floatval($expenses->sum('amount'))
+                ]
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => 422,
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('Salary slip error: ' . $e->getMessage());  // Added logging
+            return response()->json([
+                'status' => 500,
+                'message' => 'An error occurred while processing the salary slip'
+            ], 500);
+        }
     }
 }

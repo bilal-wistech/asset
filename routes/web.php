@@ -108,6 +108,14 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/receipt/{id}', [ReceiptController::class, 'GetReceipt']);
     Route::post('/receipts/{id}/update', [ReceiptController::class, 'update'])->name('receipts.update');
     Route::match(['get', 'post'], '/receipts/{id}/delete', [ReceiptController::class, 'destroy'])->name('receipts.delete');
+    Route::get('salary-cash', [ReceiptController::class, 'salaryCash'])->name('salary-cash.index');
+    Route::get('salary-cash/create', [ReceiptController::class, 'salaryCashCreate'])->name('salary-cash.create');
+    Route::post('salary-cash/store', [ReceiptController::class, 'salaryCashStore'])->name('salary-cash.store');
+    Route::get('salary-cash/{id}/edit', [ReceiptController::class, 'salaryCashEdit'])->name('salary-cash.edit');
+    Route::put('salary-cash/{id}/update', [ReceiptController::class, 'salaryCashUpdate'])->name('salary-cash.update');
+
+
+
     //cash handover
     Route::get('/cash-handover', [CashHandoverController::class, 'index'])->name('cash-handover');
     Route::get('/cash-handover/create', [CashHandoverController::class, 'create'])->name('cash-handover.create');
@@ -118,9 +126,11 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('salaries/fetch-data', [SalaryController::class, 'fetchData'])->name('salaries.fetch-data');
     Route::post('salaries/update-driver-salary', [SalaryController::class, 'updateDriverSalary'])
         ->name('salaries.update-driver-salary');
-    Route::resource('salaries', SalaryController::class);
-   // Route::resource('riding-companies', RidingCompanyController::class)->except('show');
-   
+    Route::get('/salaries', [SalaryController::class, 'index'])->name('salaries.index');
+    Route::post('salaries/salary-slip', [SalaryController::class, 'salarySlip'])->name('salaries.salary-slip');
+    Route::resource('salaries', SalaryController::class)->except('index');
+    // Route::resource('riding-companies', RidingCompanyController::class)->except('show');
+
     // Display the list of riding companies (Index)
     Route::get('/riding-companies', [RidingCompanyController::class, 'index'])->name('riding-companies.index');
 

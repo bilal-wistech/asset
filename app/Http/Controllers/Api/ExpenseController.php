@@ -24,12 +24,9 @@ class ExpenseController extends Controller
         //  return 'hello';  
         $user = Auth::guard('api')->user();
         $response = AddExpence::with('type', 'asset')->where('user_id', $user->id)->get();
-        
-      
-        return response($response, 200);
-        
-        
 
+
+        return response($response, 200);
     }
 
     /**
@@ -39,7 +36,7 @@ class ExpenseController extends Controller
      */
     public function create()
     {
-       
+
         $user = User::with(
             'assets',
             'assets.model',
@@ -49,21 +46,21 @@ class ExpenseController extends Controller
             'licenses',
         )->find(Auth::user()->id);
         $assets = [];
-        if($user->assets != null){
-              foreach ($user->assets as $asset) {
-             
-            // return $asset;
-            //   $assets[] ='"' .  $asset->id. '"'  . ':' . $asset->name . '('. $asset->asset_tag . ')';
-              $name = isset($asset->name) ? $asset->name : $asset->asset_tag;
-              $assets[$asset->id] = $name;//$asset->only('id', 'name', 'asset_tag');
-            // $assets[] =  $asset->id . "''" . "'' : ''" .'(' . $asset->asset_tag . ')' . '"';
-           
+        if ($user->assets != null) {
+            foreach ($user->assets as $asset) {
 
+                // return $asset;
+                //   $assets[] ='"' .  $asset->id. '"'  . ':' . $asset->name . '('. $asset->asset_tag . ')';
+                $name = isset($asset->name) ? $asset->name : $asset->asset_tag;
+                $assets[$asset->id] = $name; //$asset->only('id', 'name', 'asset_tag');
+                // $assets[] =  $asset->id . "''" . "'' : ''" .'(' . $asset->asset_tag . ')' . '"';
+
+
+            }
         }
-        }
-      
-       $type = TypeOfExpence::all();
-        
+
+        $type = TypeOfExpence::all();
+
         $user_id = Auth::guard('api')->user()->id;
         //dd($user_id);
         //$user = Auth::user()->id;

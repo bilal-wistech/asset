@@ -24,7 +24,9 @@ class Receipt extends Model
         'user_id',
         'date',
         'deduction_way',
-        'added_by'
+        'added_by',
+        'salary_to_be_included_from',
+        'salary_to_be_included_to'
     ];
     public function getActivitylogOptions(): LogOptions
     {
@@ -35,9 +37,13 @@ class Receipt extends Model
     public function user()
     {
         // return 'dd';
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class,'added_by');
     }
-
+    public function driver()
+    {
+        // return 'dd';
+        return $this->belongsTo(User::class,'user_id');
+    }
     // Define the relationship with the ReceiptDetail model (One-to-Many)
     public function receiptDetails()
     {

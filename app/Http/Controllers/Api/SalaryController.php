@@ -6,38 +6,49 @@ use App\Models\Salary;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Transformers\SalaryTransformer;
-
+use Illuminate\Support\Facades\DB;
 class SalaryController extends Controller
 {
     public function index(Request $request)
     {
-        $salaries = Salary::select('salaries.*');
-
+        $salaries = Salary::query()
+            ->select(
+                'id',
+                'driver_id',
+                DB::raw('SUM(amount_paid) as total_amount_paid'),
+                DB::raw('MIN(from_date) as from_date'),
+                DB::raw('MAX(to_date) as to_date'),
+                'user_id',
+                'created_at'
+            )
+            ->groupBy('driver_id');
+        
         if ($request->filled('search')) {
             $salaries = $salaries->TextSearch($request->input('search'));
         }
-        // Set the offset to the API call's offset, unless the offset is higher than the actual count of items in which
-        // case we override with the actual count, so we should return 0 items.
-        $offset = (($salaries) && ($request->get('offset') > $salaries->count())) ? $salaries->count() : $request->get('offset', 0);
-
-        // Check to make sure the limit is not higher than the max allowed
-        ((config('app.max_results') >= $request->input('limit')) && ($request->filled('limit'))) ? $limit = $request->input('limit') : $limit = config('app.max_results');
-
+    
+        // Allowed columns for sorting
         $allowed_columns = [
-            'riding_company_id',
             'driver_id',
-            'user_id',
-            'amount_paid',
+            'total_amount_paid',
             'from_date',
-            'to_date',
-            'created_at'
+            'to_date'
         ];
+        
         $order = $request->input('order') === 'asc' ? 'asc' : 'desc';
-        $sort = in_array($request->input('sort'), $allowed_columns) ? e($request->input('sort')) : 'created_at';
+        $sort = in_array($request->input('sort'), $allowed_columns) ? $request->input('sort') : 'from_date';
         $salaries = $salaries->orderBy($sort, $order);
-
+    
+        // Pagination
+        $offset = $request->get('offset', 0);
+        $limit = min($request->input('limit', config('app.max_results')), config('app.max_results'));
+        
         $total = $salaries->count();
         $salaries = $salaries->skip($offset)->take($limit)->get();
+    
         return (new SalaryTransformer)->transformSalary($salaries, $total);
     }
+
+
 }
+

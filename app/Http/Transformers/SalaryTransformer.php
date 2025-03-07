@@ -22,37 +22,39 @@ class SalaryTransformer
     }
     public function transform($salary)
     {
-
-        //  dd($expData_value);
-
-        if ($salary) {
-
-
-            $array = [
-                'id' => $salary->id,
-                'riding_company' => $salary->ridingCompany != null ? $salary->ridingCompany->name : '',
-                'driver' => $salary->driver && $salary->driver->username != null ? $salary->driver->username : 'not available',
-                'amount_paid' => $salary->amount_paid,
-                'from_date' => $salary->from_date ?? '',
-                'to_date' => $salary->to_date ?? '',
-                'created_by' => $salary->user->username ?? '',
-                'created_at' => Helper::getFormattedDateObject($salary->created_at, 'datetime'),
-                'actions' => $this->getActionButtons($salary)
-            ];
-            return $array;
-        }
+        return [
+            'driver' => optional($salary->driver)->username ?? 'Not Available',
+            'base_salary' => optional($salary->driverSalary)->base_salary ?? 0,
+            'total_amount_paid' => $salary->total_amount_paid ?? 0, // Sum of amount_paid
+            'from_date' => $salary->from_date ?? '',
+            'to_date' => $salary->to_date ?? '',
+            'user_id' => optional($salary->user)->username ?? 'Not Available',
+            'actions' => $this->getActionButtons($salary),
+        ];
+        return $array;
+       
+            
+        
     }
     private function getActionButtons($salary)
     {
         $actions = '';
 
-        
+      
             $actions .= '<a href="' . route('salaries.edit', $salary) . '" 
                    class="btn btn-sm btn-info" title="Edit">
                    <i class="fa fa-pencil"></i>
                 </a>';
 
+                 // View Button
+            $actions .= '<a href="' . route('salaries.show', $salary) . '" 
+                class="btn btn-sm btn-primary" title="View">
+                <i class="fa fa-eye"></i>
+            </a>';
 
         return $actions;
     }
+
 }
+
+
