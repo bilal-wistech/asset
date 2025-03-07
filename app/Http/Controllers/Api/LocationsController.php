@@ -111,96 +111,144 @@ class LocationsController extends Controller
         ]);
     }
 
- public function updateProfile(Request $request, $id)
-    {
-        //dd($request->files);
-        $user = User::find($id);
-        
-        if (!$user) {
-            return response()->json(['message' => 'User not found'], 404);
+public function updateProfile(Request $request, $id)
+{
+    $user = User::find($id);
+
+    if (!$user) {
+        return response()->json(['message' => 'User not found'], 404);
+    }
+
+    try {
+        $validatedData = $request->validate([
+            'username' => 'nullable|string|max:255',
+            'email' => 'nullable|string|max:255',
+            'first_name' => 'nullable|string|max:255',
+            'last_name' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:20',
+            'expiry_date_id_card' => 'nullable|date',
+            'expiry_date_taxi_tag' => 'nullable|date',
+            'expiry_date_driving_license_international' => 'nullable|date',
+            'expiry_date_driving_license_local' => 'nullable|date',
+            'expiry_date_maltese_license' => 'nullable|date',
+        ]);
+
+        // Handle avatar upload
+        if ($request->hasFile('avatar')) {
+            // es function ko check krein.
+            app(ImageUploadRequest::class)->handleImages($user, 600, 'avatar', 'avatars', 'avatar');
+        }
+     elseif ($request->avatar) {
+    $imageData = $request->avatar;
+ if (preg_match('/^data:image\/(\w+);base64,/', $imageData, $matches)) {
+        $extension = $matches[1]; // jpg, png, etc.
+        $imageData = substr($imageData, strpos($imageData, ',') + 1); // Remove header
+        $imageData = base64_decode($imageData);
+
+        if ($imageData === false) {
+            return response()->json(['error' => 'Invalid base64 encoding'], 400);
+        }
+  $directory = public_path('uploads/avatars');
+      $filename = 'user-avatar-' . uniqid() . '.' . $extension;
+        $path = $directory . '/' . $filename;
+ file_put_contents($path, $imageData);
+ $user->avatar = $filename;
+        $user->save();
+    } else {
+        return response()->json(['error' => 'Invalid image format'], 400);
+    }
+}
+
+
+        // Handle document uploads
+        $documents = [
+            'id_card_front',
+            'id_card_back',
+            'driving_license_local',
+            'driving_license_international',
+            'maltese_driving_license',
+            'taxi_tag',
+            'taxi_tag_back',
+            'driving_license_local_back',
+            'driving_license_international_back',
+            'maltese_driving_license_back',
+        ];
+
+        foreach ($documents as $field) {
+    if ($request->hasFile($field)) {
+       
+        $file = $request->file($field);
+        $fileExtension = strtolower($file->getClientOriginalExtension());
+
+      
+        $allowedFileTypes = ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png', 'gif'];
+
+        if (!in_array($fileExtension, $allowedFileTypes)) {
+            return response()->json(['message' => 'Invalid file type'], 400);
         }
 
-        try {
-            $validatedData = $request->validate([
-                'username' => 'nullable|string|max:255',
-                'email' => 'nullable|string|max:255',
-                'first_name' => 'nullable|string|max:255',
-                'last_name' => 'nullable|string|max:255',
-                'phone' => 'nullable|string|max:20',
-                'id_card_front' => 'nullable|mimes:jpeg,jpg,png,gif,bmp,webp,svg,pdf',
-                'id_card_back' => 'nullable|mimes:jpeg,jpg,png,gif,bmp,webp,svg,pdf',
-                'driving_license_local' => 'nullable|mimes:jpeg,jpg,png,gif,bmp,webp,svg,pdf',
-                'driving_license_international' => 'nullable|mimes:jpeg,jpg,png,gif,bmp,webp,svg,pdf',
-                'maltese_driving_license' => 'nullable|mimes:jpeg,jpg,png,gif,bmp,webp,svg,pdf',
-                'taxi_tag' => 'nullable|mimes:jpeg,jpg,png,gif,bmp,webp,svg,pdf',
-                'taxi_tag_back' => 'nullable|mimes:jpeg,jpg,png,gif,bmp,webp,svg,pdf',
-                'driving_license_local_back' => 'nullable|mimes:jpeg,jpg,png,gif,bmp,webp,svg,pdf',
-                'driving_license_international_back' => 'nullable|mimes:jpeg,jpg,png,gif,bmp,webp,svg,pdf',
-                'maltese_driving_license_back' => 'nullable|mimes:jpeg,jpg,png,gif,bmp,webp,svg,pdf',
-                'expiry_date_id_card' => 'nullable|date',
-                'expiry_date_taxi_tag' => 'nullable|date',
-                'expiry_date_driving_license_international' => 'nullable|date',
-                'expiry_date_driving_license_local' => 'nullable|date',
-                'expiry_date_maltese_license' => 'nullable|date',
-            ]);
+        $fileName = time() . '-' . $file->getClientOriginalName();
+        $filePath = 'user_documents/' . $fileName;
+        
+        $file->move(public_path('user_documents'), $fileName);
+        $user->{$field} = $filePath;
+    } 
+    elseif ($request->filled($field) && is_string($request->$field)) {
+      
+        $base64Data = $request->$field;
+   if (preg_match('/^data:(\w+\/\w+);base64,/', $base64Data, $matches)) {
+            $mimeType = $matches[1]; 
+            $fileExtension = explode('/', $mimeType)[1]; 
 
-            // Handle avatar upload
-            if ($request->hasFile('avatar')) {
-                // es function ko check krein.
-                app(ImageUploadRequest::class)->handleImages($user, 600, 'avatar', 'avatars', 'avatar');
+            $allowedFileTypes = ['jpeg', 'jpg', 'png', 'gif', 'pdf', 'doc', 'docx'];
+
+            if (!in_array($fileExtension, $allowedFileTypes)) {
+                return response()->json(['message' => 'Invalid file type'], 400);
             }
 
-            // Handle document uploads
-            $documents = [
-                'id_card_front',
-                'id_card_back',
-                'driving_license_local',
-                'driving_license_international',
-                'maltese_driving_license',
-                'taxi_tag',
-                'taxi_tag_back',
-                'driving_license_local_back',
-                'driving_license_international_back',
-                'maltese_driving_license_back',
-            ];
-            foreach ($documents as $field) {
+         
+            $base64Data = substr($base64Data, strpos($base64Data, ',') + 1);
+            $decodedFile = base64_decode($base64Data);
 
-                if ($request->hasFile($field)) {
-                    // Upload the file and get the file path
-                    $file = $request->file($field);
-                    $file_name = time() . '-' . $file->getClientOriginalName();
-                    $file_path = "user_documents/" . $file_name;
-                    
-                    $file->move(public_path("user_documents"), $file_name);
-
-                    // $filePath = $file->storeAs('user_documents', $file->getClientOriginalName(), 'public');
-
-                    // Update the corresponding user column with the file path
-                    $user->{$field} = $file_path;
-                   
-                    $user->save();
-                }
-
-                unset($validatedData[$field]);
+            if ($decodedFile === false) {
+                return response()->json(['message' => 'Failed to decode Base64 string'], 400);
             }
-
-            
 
            
-            // Update user data
-            $user->update($validatedData);
+            $fileName = time() . '-' . uniqid() . '.' . $fileExtension;
+            $filePath = public_path('user_documents/' . $fileName);
 
-            return response()->json([
-                'message' => 'User updated successfully!',
-                'user' => $user
-            ], 200);
-
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json(['errors' => $e->errors()], 422);
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'An error occurred while updating the user.'], 500);
+         
+            if (in_array($fileExtension, ['jpeg', 'jpg', 'png', 'gif'])) {
+                $img = Image::make($decodedFile);
+                $img->resize(1000, 1000)->save($filePath);
+            } else {
+               
+                file_put_contents($filePath, $decodedFile);
+            }
+ $user->{$field} = 'user_documents/' . $fileName;
         }
     }
+}
+
+        // Save user updates *once*
+        $user->update($validatedData);
+        $user->save();
+
+        return response()->json([
+            'message' => 'User updated successfully!',
+            'user' => $user
+        ], 200);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return response()->json(['errors' => $e->errors()], 422);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'An error occurred while updating the user.',
+            'error' => $e->getMessage() // Debugging purpose
+        ], 500);
+    }
+}
 
  public function getUserProfileData($user_id = null)
     {
