@@ -78,7 +78,11 @@ class AssetAssignmentController extends Controller
 
         // $asset = Asset::where(['id'=>$asset_id])->first();
 
-        $userIds = $item->asset->latestInsurance->drivers->pluck('driver_name')->toArray();
+        // $userIds = $item->asset->latestInsurance->drivers->pluck('driver_name')->toArray();
+        $userIds = optional($item->asset->latestInsurance)->drivers
+            ?->whereNotNull('driver_id')
+            ->pluck('driver_name')
+            ->toArray() ?? [];
         $users = Helper::getUsersNames($userIds);
 
         $assigned_ids = $item->userIds->pluck('driver_id')->toArray();
