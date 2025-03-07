@@ -81,47 +81,78 @@ class ExpenseController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+  public function store(Request $request)
     {
-             
-               $store_expence = new AddExpence;
-               $store_expence->total_milage = $request->meter;
-               $store_expence->amount = $request->amount;
-               $store_expence->asset_id = $request->asset_id;
-               $store_expence->type_id = $request->type_id;
-                $store_expence->pump_station = $request->pump_station;
-             
-               $store_expence->user_id = Auth::guard('api')->user()->id;
        
-              
-              // $img = $request->file('file');
-              if($request->file('file')){
-               $image = $request->file('file');
-               $imageName = time() . '.' . $image->getClientOriginalExtension();
-               
-               $image_resize = Image::make($image->getRealPath());
-             
-               $image_resize->resize(1000,1000);    
-              // dd($image_resize);
-               $path = 'uploads/' . $imageName;
-                
-               $image_resize->save($path);
-               
-               $imageUri = 'uploads/' . $imageName;  
-       
-               $store_expence->image = $path;
-            //    return response()->json(['image' => $imageUri], 200);
-              }
-              if ($store_expence->save()) {
-                return response()->json(['result' => 'Data is stored successfully'], 200);
-            }
-            else
-              {
-                return response()->json(['message' => 'There is an error in uploading'], 400);
-              }
-            //   return  $store_expence->image;
-    }
 
+        try {
+            $store_expense = new AddExpence;
+            $store_expense->total_milage = $request->meter;
+            $store_expense->amount = $request->amount;
+            $store_expense->asset_id = $request->asset_id;
+            $store_expense->type_id = $request->type_id;
+            $store_expense->pump_station = $request->pump_station;
+            $store_expense->user_id = Auth::guard('api')->user()->id;
+
+            // Handle file upload
+            if ($request->file('file')) {
+                $image = $request->file('file');
+                $imageName = time() . '.' . $image->getClientOriginalExtension();
+
+                $image_resize = Image::make($image->getRealPath());
+                $image_resize->resize(1000, 1000);
+
+                $path = 'uploads/' . $imageName;
+                $image_resize->save($path);
+
+                $store_expense->image = $path;
+            }
+            // Handle base64 image
+            elseif ($request->has('image') && is_string($request->image)) {
+                $imageData = $request->image;
+
+                // Check if the image contains data URI scheme
+                if (preg_match('/^data:image\/(\w+);base64,/', $imageData, $matches)) {
+                    $imageType = $matches[1];
+                    $imageData = substr($imageData, strpos($imageData, ',') + 1);
+                    $decodedImage = base64_decode($imageData);
+
+                    if ($decodedImage === false) {
+                        throw new \Exception('Failed to decode base64 string');
+                    }
+
+                    $imageName = time() . '.' . $imageType;
+                    $path = 'uploads/' . $imageName;
+
+                    $img = Image::make($decodedImage);
+                    $img->resize(1000, 1000);
+                    $img->save($path);
+
+                    $store_expense->image = $path;
+                }
+            }
+
+            if ($store_expense->save()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Expense created successfully',
+                    'data' => $store_expense
+                ], 201);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to create expense'
+                ], 500);
+            }
+        } catch (\Exception $e) {
+            Log::error('Failed to create expense:', ['error' => $e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create expense',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
     /**
      * Display the specified resource.
      *

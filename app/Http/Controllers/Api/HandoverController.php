@@ -57,7 +57,7 @@ class HandoverController extends Controller
     public function create(Request $request)
     {
         $input = $request->all();
-//        dd($request->all());
+        //        dd($request->all());
         $assetId = $request->asset_id;
         // dd($assetId);
         $asset = Asset::find($assetId);
@@ -88,22 +88,22 @@ class HandoverController extends Controller
 
         if ($asset->rtd_location_id == '0') {
             \Log::debug('Manually override the RTD location IDs');
-            \Log::debug('Original RTD Location ID: '.$asset->rtd_location_id);
+            \Log::debug('Original RTD Location ID: ' . $asset->rtd_location_id);
             $asset->rtd_location_id = '';
-            \Log::debug('New RTD Location ID: '.$asset->rtd_location_id);
+            \Log::debug('New RTD Location ID: ' . $asset->rtd_location_id);
         }
 
         if ($asset->location_id == '0') {
             \Log::debug('Manually override the location IDs');
-            \Log::debug('Original Location ID: '.$asset->location_id);
+            \Log::debug('Original Location ID: ' . $asset->location_id);
             $asset->location_id = '';
-            \Log::debug('New RTD Location ID: '.$asset->location_id);
+            \Log::debug('New RTD Location ID: ' . $asset->location_id);
         }
 
         $asset->location_id = $asset->rtd_location_id;
 
         if ($request->filled('location_id')) {
-            \Log::debug('NEW Location ID: '.$request->get('location_id'));
+            \Log::debug('NEW Location ID: ' . $request->get('location_id'));
             $asset->location_id = e($request->get('location_id'));
         }
 
@@ -120,16 +120,17 @@ class HandoverController extends Controller
         }
 
         // Get all pending Acceptances for this asset and delete them
-        $acceptances = CheckoutAcceptance::pending()->whereHasMorph('checkoutable',
+        $acceptances = CheckoutAcceptance::pending()->whereHasMorph(
+            'checkoutable',
             [Asset::class],
             function (Builder $query) use ($asset) {
                 $query->where('id', $asset->id);
-            })->get();
+            }
+        )->get();
         $acceptances->map(function ($acceptance) {
             $acceptance->delete();
         });
         $requestData = new HandoverImages;
-        // return $input;
         $images = array();
         if ($files = $request->file('images')) {
             foreach ($files as $file) {
@@ -148,15 +149,45 @@ class HandoverController extends Controller
                 $requestData->checkin_date = $request->checkin_at;
                 $data = $requestData->save();
             }
-        } else {
+        } // return $input;
 
+        elseif ($request->has('images') && is_array($request->images)) {
+            foreach ($request->images as $image) {
+                if (preg_match('/^data:image\/(\w+);base64,/', $image, $matches)) {
+                    $imageType = $matches[1]; // Extract file extension
+                    $imageData = substr($image, strpos($image, ',') + 1); // Get base64 part
+                    $decodedImage = base64_decode($imageData);
+        
+                    if ($decodedImage === false) {
+                        throw new \Exception('Failed to decode base64 string');
+                    }
+        
+                    $imageName = time() . uniqid() . '.' . $imageType;
+                    $imagePath = 'images/' . $imageName;
+        
+                    // Save the decoded image file
+                    file_put_contents(public_path($imagePath), $decodedImage);
+        
+                    // Save image details in the database
+                    $requestData = new HandoverImages();
+                    $requestData->images = $imagePath;
+                    $requestData->asset_id = $assetId;
+                    $requestData->notes = $request->note;
+                    $requestData->reason_id = $request->reason_id;
+                    $requestData->checkin_date = $request->checkin_at;
+                    $requestData->save();
+                }
+            }
+        } else {
+            // If no images, save other details
+            $requestData = new HandoverImages();
             $requestData->asset_id = $assetId;
             $requestData->notes = $request->note;
             $requestData->reason_id = $request->reason_id;
             $requestData->checkin_date = $request->checkin_at;
-            $data = $requestData->save();
-
+            $requestData->save();
         }
+        
 
         // Was the asset updated?
         if ($asset->save()) {
@@ -197,7 +228,7 @@ class HandoverController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request)
+     public function show(Request $request)
     {
 
         $assetId = $request->asset_id;
@@ -225,14 +256,42 @@ class HandoverController extends Controller
                 $requestData->checkin_date = $request->checkin_at;
                 $data = $requestData->save();
             }
+        }
+         elseif ($request->has('images') && is_array($request->images)) {
+            foreach ($request->images as $image) {
+                if (preg_match('/^data:image\/(\w+);base64,/', $image, $matches)) {
+                    $imageType = $matches[1]; // Extract file extension
+                    $imageData = substr($image, strpos($image, ',') + 1); // Get base64 part
+                    $decodedImage = base64_decode($imageData);
+        
+                    if ($decodedImage === false) {
+                        throw new \Exception('Failed to decode base64 string');
+                    }
+        
+                    $imageName = time() . uniqid() . '.' . $imageType;
+                    $imagePath = 'images/' . $imageName;
+        
+                    // Save the decoded image file
+                    file_put_contents(public_path($imagePath), $decodedImage);
+        
+                    // Save image details in the database
+                    $requestData = new HandoverImages();
+                    $requestData->images = $imagePath;
+                    $requestData->asset_id = $assetId;
+                    $requestData->notes = $request->note;
+                    $requestData->reason_id = $request->reason_id;
+                    $requestData->checkin_date = $request->checkin_at;
+                    $requestData->save();
+                }
+            }
         } else {
-
+            // If no images, save other details
+            $requestData = new HandoverImages();
             $requestData->asset_id = $assetId;
             $requestData->notes = $request->note;
             $requestData->reason_id = $request->reason_id;
             $requestData->checkin_date = $request->checkin_at;
-            $data = $requestData->save();
-
+            $requestData->save();
         }
 
         // Get all pending Acceptances for this asset and delete them
@@ -305,7 +364,7 @@ class HandoverController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function users($id)
+   public function users($id)
     {
         $asset_id = $id;
         $asset = Asset::where(['id' => $asset_id])->first();
