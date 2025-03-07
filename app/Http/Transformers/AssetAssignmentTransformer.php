@@ -34,7 +34,7 @@ class AssetAssignmentTransformer
                 'assigned_at'    => Helper::getFormattedDateObject($model->assigned_at, 'datetime'),
                 'assigned_by'    => $model->assignedBy->show_name,
                 'assigned_users' => $this->customAssignedUsers($model),
-                
+
                 'created_at'     => Helper::getFormattedDateObject($model->created_at, 'datetime'),
                 'updated_at'     => Helper::getFormattedDateObject($model->updated_at, 'datetime'),
                 'created_by'     => $model->created_by,
@@ -54,15 +54,16 @@ class AssetAssignmentTransformer
 
     public function customAssignedUsers($model)
     {
-        $assigned_to='';
-        if(isset($model->userIds) && $model->userIds<>null){
-            foreach($model->userIds as $key => $user){
-                // dd($user->userInfo);
-               $assigned_to .= '<a href="'.url('users/'.$user->userInfo->id).'" class="label label-primary" style="margin-right: 3px;">'.$user->userInfo->show_name.'</a>';
+        $assigned_to = '';
+
+        if (isset($model->userIds) && $model->userIds <> null) {
+            foreach ($model->userIds as $user) {
+                if (!empty($user->userInfo)) { // Check if userInfo exists
+                    $assigned_to .= '<a href="' . url('users/' . $user->userInfo->id) . '" class="label label-primary" style="margin-right: 3px;">' . $user->userInfo->show_name . '</a>';
+                }
             }
         }
 
-        // dd($assigned_to);
         return $assigned_to;
     }
 }
